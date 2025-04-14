@@ -1,7 +1,7 @@
 .button {
     font-weight: 600;
     line-height: 150%;
-    border-radius: var(--Radius-md);
+    border-radius: 8px;
     border-width: 1px;
     border-style: solid;
     padding: var(--Spacing-none) var(--Spacing-sm);
@@ -34,15 +34,15 @@
 
 /* === Theme === */
 .primary {
-    color: var(--Neutral-White);
-    background-color: var(--Red-800);
-    border-color: var(--Red-800);
+    color: var(--primary-white);
+    background-color: var(--secondary-blue);
+    border-color: var(---secondary-blue);
 }
 
 .normal {
-    color: var(--Neutral-800);
-    background-color: var(--Neutral-White);
-    border-color: var(--Neutral-400);
+    color: var(--primary-white);
+    background-color: var(--secondary-blue);
+    border-color: var(---secondary-blue);
 }
 
 .login {

@@ -1,0 +1,99 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 100vw;
+    transition: all 0.2s ease;
+}
+
+.overlayHidden {
+    visibility: hidden;
+}
+
+.overlayVisible {
+    visibility: visible;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    position: fixed;
+    top: 0;
+    left: 0; /* ✅ CHỖ NÀY */
+    height: 100vh;
+    background-color: var(--primary, #52796f);
+    z-index: 50;
+    box-shadow: 0 0 15px rgba(34, 41, 47, 0.05);
+    transition: all 0.3s ease;
+}
+
+.sidebarOpen {
+    left: 0;
+}
+
+.logoContainer {
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo {
+    width: 180px;
+    height: 50px;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+}
+
+.navList {
+    padding: 16px;
+    color: white;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 20px;
+    border-radius: 999px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    color: white;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.navItem:hover {
+    padding-left: 24px;
+}
+
+.navItemActive {
+    background-color: #dad7cd;
+    font-weight: bold;
+    color: #000;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
+.logoutButton {
+    all: unset;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 20px;
+    border-radius: 999px;
+    margin-top: 10px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.logoutButton:hover {
+    padding-left: 24px;
+}

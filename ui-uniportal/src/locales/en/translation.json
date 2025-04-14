@@ -1,0 +1,63 @@
+{
+    "common": {
+        "utehy": "HUNG YEN UNIVERSITY OF TECHNOLOGY AND EDUCATION",
+        "title-profile": "Personal information",
+        "basic-info": "Basic information",
+        "position-info": "Position information",
+        "bank-info": "Bank information",
+        "relation-info": "Personal relationship information",
+
+        "teacher-code": "Teacher code",
+        "full-name": "Full name",
+        "gender": "Gender",
+        "email": "Email",
+        "address-permanent": "Permanent address",
+        "address-contact": "Contact address",
+
+        "citizen-id": "Citizen ID",
+        "phone": "Phone",
+        "ethnicity": "Ethnicity",
+        "birth-date": "Date of birth",
+        "id-issue-place": "ID issued at",
+        "id-issue-date": "Date of issue",
+        "mobile": "Mobile",
+        "religion": "Religion",
+        "birth-place": "Place of birth",
+
+        "academic-rank": "Academic rank",
+        "position": "Position",
+        "major": "Major",
+        "degree": "Degree",
+        "lecturer-type": "Lecturer type",
+        "faculty": "Faculty",
+
+        "bank-number": "Bank account number",
+        "tax-number": "Tax number",
+        "bank-name": "Bank name",
+
+        "parent-name": "Parent’s name",
+        "nationality": "Nationality",
+        "job": "Occupation",
+        "birth-year": "Year of birth",
+        "contact-number": "Phone number",
+        "current-address": "Current address",
+
+        "update-profile": "Update profile",
+
+        "student-code": "Student code",
+        "training-info": "Training information",
+        "education-level": "Education level",
+        "admission-date": "Admission date",
+        "type-of-training": "Type of training",
+        "training-program": "Training program",
+        "class": "Class",
+        "account-owner": "Account owner",
+
+        "faculty-management": "Faculty management",
+        "name": "Name",
+        "logo": "Logo",
+        "established-date": "Established Date",
+        "website": "Website",
+        "action": "Action"
+    }
+}

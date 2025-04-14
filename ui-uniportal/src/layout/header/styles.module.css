@@ -1,0 +1,66 @@
+.headerWrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px 8px;
+    z-index: 40;
+}
+
+.headerInner {
+    margin-left: 0;
+    border-radius: 8px;
+    height: 65px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--primary, #52796f);
+    padding: 0 20px;
+    transition: all 0.3s ease;
+}
+
+@media (min-width: 1024px) {
+    .headerInner {
+        margin-left: 260px;
+    }
+}
+
+@media (min-width: 768px) {
+    .searchInput {
+        display: block;
+        padding: 8px 20px;
+        outline: none;
+        border: 1px solid #ffffff;
+        background-color: transparent;
+        border-radius: 6px;
+        color: white;
+    }
+
+    .searchInput::placeholder {
+        color: white;
+    }
+}
+
+.userInfo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+    position: relative;
+}
+
+.userContent {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.buttonChangeLang,
+.userImage {
+    cursor: pointer;
+}
+
+.userImage {
+    border-radius: 999px;
+    object-fit: contain;
+}
