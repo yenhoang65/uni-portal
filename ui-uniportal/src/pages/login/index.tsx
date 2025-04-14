@@ -1,13 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./styles.module.css";
 import Image from "next/image";
 import logo from "./assets/utehy_logo.png";
+import { useRouter } from "next/router";
 
 const Login = () => {
+    // const router = useRouter();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
     const isFormValid = username.trim() !== "" && password.trim() !== "";
+
+    // const isAuthenticated = !!role && !!userInfo;
+
+    // useEffect(() => {
+    //     if (isAuthenticated) {
+    //         router.replace("/");
+    //     }
+    // }, [isAuthenticated, router]);
+
+    // if (isAuthenticated) return null;
 
     return (
         <div className={styles.wrapper}>

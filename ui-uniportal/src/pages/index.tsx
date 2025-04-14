@@ -1,15 +1,11 @@
-import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
+import ProtectedRoute from "@/hooks/ProtectedRoute";
+import MainLayout from "@/layout/main";
+import FacultyDetailPage from "./faculty/view";
 
 export default function Home() {
-    return <>Thao</>;
+    return (
+        <MainLayout>
+            <FacultyDetailPage />
+        </MainLayout>
+    );
 }
