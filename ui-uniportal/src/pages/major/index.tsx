@@ -1,6 +1,5 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
@@ -12,67 +11,51 @@ import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
 
-const faculties = [
+const majors = [
     {
-        id: "FAC001",
-        name: "Khoa Công nghệ thông tin",
-        logo: "https://via.placeholder.com/80x40.png?text=IT",
-        establishDate: "2005-09-01",
-        website: "https://fit.utehy.edu.vn",
+        id: "MAJ001",
+        tenKhoa: "Khoa CNTT", // Thêm tên khoa
+        name: "Công nghệ phần mềm",
+        description: "Ngành chuyên đào tạo phát triển phần mềm.",
+        establishDate: "2008-01-15",
     },
     {
-        id: "FAC002",
-        name: "Khoa Cơ khí",
-        logo: "https://via.placeholder.com/80x40.png?text=CK",
-        establishDate: "2003-03-15",
-        website: "https://me.utehy.edu.vn",
+        id: "MAJ002",
+        tenKhoa: "Khoa Cơ khí", // Thêm tên khoa
+        name: "Kỹ thuật cơ khí",
+        description: "Đào tạo kỹ sư thiết kế và chế tạo máy móc.",
+        establishDate: "2005-03-20",
     },
     {
-        id: "FAC003",
-        name: "Khoa Kinh tế",
-        logo: "https://via.placeholder.com/80x40.png?text=KT",
-        establishDate: "2007-07-20",
-        website: "https://kt.utehy.edu.vn",
-    },
-    {
-        id: "FAC004",
-        name: "Khoa Điện",
-        logo: "https://via.placeholder.com/80x40.png?text=Dien",
-        establishDate: "2001-01-10",
-        website: "https://dien.utehy.edu.vn",
-    },
-    {
-        id: "FAC005",
-        name: "Khoa Ngoại ngữ",
-        logo: "https://via.placeholder.com/80x40.png?text=NN",
-        establishDate: "2010-05-05",
-        website: "https://nn.utehy.edu.vn",
+        id: "MAJ003",
+        tenKhoa: "Khoa Kinh tế", // Thêm tên khoa
+        name: "Quản trị kinh doanh",
+        description: "Quản lý doanh nghiệp, marketing, tài chính.",
+        establishDate: "2010-10-01",
     },
 ];
 
-const Faculty = () => {
-    const { t } = useTranslation();
+const Major = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [deleteFacultyId, setDeleteFacultyId] = useState<string | null>(null);
+    const [deleteMajorId, setDeleteMajorId] = useState<string | null>(null);
 
     const handleDelete = () => {
-        if (deleteFacultyId) {
-            // dispatch(delete_product(deleteFacultyId));
+        if (deleteMajorId) {
             setIsModalOpen(false);
-            setDeleteFacultyId(null);
+            setDeleteMajorId(null);
         }
     };
 
     const handleCancel = () => {
         setIsModalOpen(false);
-        setDeleteFacultyId(null);
+        setDeleteMajorId(null);
     };
 
     return (
-        <BorderBox title={t("common.faculty-management")}>
+        <BorderBox title="Quản lý ngành học">
             <div className={styles.box}>
                 <div className={styles.add}>
                     <Search
@@ -82,7 +65,7 @@ const Faculty = () => {
                     />
 
                     <Link
-                        href={"/faculty/create-edit"}
+                        href="/major/create-edit"
                         className={styles.buttonAdd}
                     >
                         <IoMdAddCircle /> Thêm mới
@@ -93,56 +76,39 @@ const Faculty = () => {
                     <table className={styles.table}>
                         <thead className={styles.thead}>
                             <tr>
-                                <th style={{ minWidth: "80px" }}>No</th>
-                                <th style={{ minWidth: "230px" }}>
-                                    {t("common.name")}
-                                </th>
-                                <th style={{ minWidth: "150px" }}>
-                                    {t("common.logo")}
-                                </th>
+                                <th style={{ minWidth: "60px" }}>STT</th>
                                 <th style={{ minWidth: "180px" }}>
-                                    {t("common.established-date")}
+                                    Tên khoa
+                                </th>{" "}
+                                {/* Thêm cột Tên khoa */}
+                                <th style={{ minWidth: "180px" }}>Mã ngành</th>
+                                <th style={{ minWidth: "220px" }}>Tên ngành</th>
+                                <th style={{ minWidth: "320px" }}>Mô tả</th>
+                                <th style={{ minWidth: "160px" }}>
+                                    Ngày thành lập
                                 </th>
-                                <th style={{ minWidth: "200px" }}>
-                                    {t("common.website")}
-                                </th>
-                                <th style={{ minWidth: "70px" }}>
-                                    {t("common.action")}
-                                </th>
+                                <th style={{ minWidth: "80px" }}>Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {faculties.map((faculty, index) => (
-                                <tr key={faculty.id}>
+                            {majors.map((major, index) => (
+                                <tr key={major.id}>
                                     <td>{index + 1}</td>
-                                    <td>{faculty.name}</td>
-                                    <td>
-                                        <img
-                                            src={faculty.logo}
-                                            alt="logo"
-                                            width={80}
-                                            height={40}
-                                        />
-                                    </td>
-                                    <td>{faculty.establishDate}</td>
-                                    <td>
-                                        <a
-                                            href={faculty.website}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            {faculty.website}
-                                        </a>
-                                    </td>
+                                    <td>{major.tenKhoa}</td>{" "}
+                                    {/* Hiển thị Tên khoa */}
+                                    <td>{major.id}</td>
+                                    <td>{major.name}</td>
+                                    <td>{major.description}</td>
+                                    <td>{major.establishDate}</td>
                                     <td className={styles.buttonAction}>
                                         <Link
-                                            href={`/faculty/view?id=${faculty.id}`}
+                                            href={`/major/view?id=${major.id}`}
                                             className={clsx(styles.viewButton)}
                                         >
                                             <FaEye />
                                         </Link>
                                         <Link
-                                            href={`/faculty/create-edit?id=${faculty.id}&mode=edit`}
+                                            href={`/major/create-edit?id=${major.id}&mode=edit`}
                                             className={clsx(
                                                 styles.viewButton,
                                                 styles.viewButtonUpdate
@@ -151,12 +117,12 @@ const Faculty = () => {
                                             <AiFillEdit />
                                         </Link>
                                         <Link
+                                            href="#"
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 setIsModalOpen(true);
-                                                setDeleteFacultyId(faculty.id);
+                                                setDeleteMajorId(major.id);
                                             }}
-                                            href="#"
                                             className={clsx(
                                                 styles.viewButton,
                                                 styles.viewButtonDelete
@@ -166,7 +132,7 @@ const Faculty = () => {
                                         </Link>
 
                                         {isModalOpen &&
-                                            deleteFacultyId === faculty.id && (
+                                            deleteMajorId === major.id && (
                                                 <ModalConfirm
                                                     message="Are you sure you want to delete?"
                                                     onConfirm={handleDelete}
@@ -184,7 +150,7 @@ const Faculty = () => {
                     <Pagination
                         pageNumber={currentPage}
                         setPageNumber={setCurrentPage}
-                        totalItem={50}
+                        totalItem={majors.length}
                         parPage={parPage}
                         showItem={3}
                     />
@@ -194,4 +160,4 @@ const Faculty = () => {
     );
 };
 
-export default Faculty;
+export default Major;

@@ -1,0 +1,86 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal {
+    background-color: white;
+    width: 360px;
+    padding: 24px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+.iconWrapper {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    background-color: #fee2e2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon {
+    color: #dc2626;
+    font-size: 28px; /* lớn hơn */
+}
+
+.title {
+    font-weight: 700;
+    font-size: 18px;
+    color: #111827;
+    margin-bottom: 12px;
+}
+
+.message {
+    font-size: 15px;
+    color: #6b7280;
+    margin-bottom: 24px;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.cancelButton {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background-color: white;
+    color: #374151;
+    font-weight: 500;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.cancelButton:hover {
+    background-color: #f3f4f6;
+}
+
+.confirmButton {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    background-color: #dc2626;
+    color: white;
+    font-weight: 600;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.confirmButton:hover {
+    background-color: #b91c1c;
+}

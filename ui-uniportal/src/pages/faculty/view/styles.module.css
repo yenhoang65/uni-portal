@@ -77,6 +77,10 @@
     margin-top: 30px;
 }
 
+.desc {
+    line-height: 150%;
+}
+
 @media (max-width: 768px) {
     .facultyHeader {
         flex-direction: column;

@@ -58,6 +58,12 @@
         "logo": "Logo",
         "established-date": "Established Date",
         "website": "Website",
-        "action": "Action"
+        "action": "Action",
+
+        "add-faculty": "Update faculty",
+        "edit-faculty": "Add faculty",
+
+        "save-button": "Save",
+        "update-button": "Update"
     }
 }

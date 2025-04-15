@@ -114,7 +114,7 @@ const FacultyDetailPage: React.FC = () => {
                     >
                         Mô tả
                     </TypographyHeading>
-                    <p>{mo_ta}</p>
+                    <p className={styles.desc}>{mo_ta}</p>
                 </section>
             )}
         </BorderBox>
