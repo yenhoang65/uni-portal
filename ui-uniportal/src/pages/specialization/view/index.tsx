@@ -10,12 +10,11 @@ import { AiFillEdit } from "react-icons/ai";
 type Specialization = {
     id: string;
     maChuyenNganh: string;
-    tenNganh: string; // Tên ngành (từ Major)
-    tenKhoa: string; // Tên khoa (từ Faculty)
+    tenNganh: string;
+    tenKhoa: string;
     ten: string;
     moTa?: string;
     ngayThanhLap: string;
-    // Bạn có thể thêm các trường thông tin chi tiết khác nếu cần
 };
 
 const SpecializationDetail = () => {
