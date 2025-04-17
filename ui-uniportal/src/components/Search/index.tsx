@@ -1,3 +1,4 @@
+import InputWithLabel from "../InputWithLabel";
 import styles from "./styles.module.css";
 
 type SearchProps = {
@@ -21,13 +22,13 @@ const Search: React.FC<SearchProps> = ({
                 <option value="10">10</option>
                 <option value="20">20</option>
             </select>
-            <input
-                onChange={(e) => setSearchValue(e.target.value)}
-                value={searchValue}
-                className={styles.input}
-                type="text"
-                name="search"
+
+            <InputWithLabel
                 placeholder="Search..."
+                name="search"
+                value={searchValue}
+                type="text"
+                onChange={(e) => setSearchValue(e.target.value)}
             />
         </div>
     );

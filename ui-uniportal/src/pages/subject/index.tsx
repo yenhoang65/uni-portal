@@ -11,73 +11,72 @@ import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
 
-// Dữ liệu giảng viên mẫu (thay thế bằng API call thực tế)
-const lecturersData = [
+// Dữ liệu môn học mẫu (thay thế bằng API call thực tế)
+const subjectsData = [
     {
-        user_id: "LEC001",
-        user_name: "Nguyễn Văn A",
-        major_id: "MAJ001",
-        major_name: "Công nghệ phần mềm",
-        position: "Giảng viên",
-        phone_number: "0901234567",
-        // Các trường khác không hiển thị
+        subject_id: "SUB001",
+        subject_name: "Nhập môn Lập trình",
+        it_credits: 3,
+        th_credits: 2,
+        subject_description: "Môn học cơ bản về lập trình.",
+        subject_type: "Bắt buộc",
+        subject_he_so: 1,
     },
     {
-        user_id: "LEC002",
-        user_name: "Trần Thị B",
-        major_id: "MAJ002",
-        major_name: "Kỹ thuật cơ khí",
-        position: "Phó Giáo sư",
-        phone_number: "0987654321",
-        // Các trường khác không hiển thị
+        subject_id: "SUB002",
+        subject_name: "Cấu trúc dữ liệu và giải thuật",
+        it_credits: 4,
+        th_credits: 2,
+        subject_description: "Các cấu trúc dữ liệu và giải thuật thông dụng.",
+        subject_type: "Bắt buộc",
+        subject_he_so: 1.2,
     },
     {
-        user_id: "LEC003",
-        user_name: "Lê Văn C",
-        major_id: "MAJ001",
-        major_name: "Công nghệ phần mềm",
-        position: "Trợ giảng",
-        phone_number: "0911223344",
-        // Các trường khác không hiển thị
+        subject_id: "SUB003",
+        subject_name: "Cơ sở dữ liệu",
+        it_credits: 3,
+        th_credits: 2,
+        subject_description: "Các khái niệm cơ bản về cơ sở dữ liệu.",
+        subject_type: "Bắt buộc",
+        subject_he_so: 1.1,
     },
-    // Thêm dữ liệu giảng viên khác
+    // Thêm dữ liệu môn học khác
 ];
 
-type Lecturer = {
-    user_id: string;
-    user_name: string;
-    major_id: string;
-    major_name: string;
-    position: string;
-    phone_number: string;
+type Subject = {
+    subject_id: string;
+    subject_name: string;
+    it_credits: number;
+    th_credits: number;
+    subject_description?: string;
+    subject_type?: string;
+    subject_he_so?: number;
 };
 
-const LecturerManagement = () => {
+const SubjectManagement = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [deleteLecturerId, setDeleteLecturerId] = useState<string | null>(
-        null
-    );
+    const [deleteSubjectId, setDeleteSubjectId] = useState<string | null>(null);
 
     const handleDelete = () => {
-        if (deleteLecturerId) {
-            // Gọi API để xóa giảng viên dựa trên deleteLecturerId
-            console.log("Deleting lecturer with ID:", deleteLecturerId);
-            // Sau khi xóa thành công, cập nhật lại danh sách giảng viên (ví dụ: fetch lại data hoặc lọc state hiện tại)
+        if (deleteSubjectId) {
+            // Gọi API để xóa môn học dựa trên deleteSubjectId
+            console.log("Deleting subject with ID:", deleteSubjectId);
+            // Sau khi xóa thành công, cập nhật lại danh sách môn học (ví dụ: fetch lại data hoặc lọc state hiện tại)
             setIsModalOpen(false);
-            setDeleteLecturerId(null);
+            setDeleteSubjectId(null);
         }
     };
 
     const handleCancel = () => {
         setIsModalOpen(false);
-        setDeleteLecturerId(null);
+        setDeleteSubjectId(null);
     };
 
     return (
-        <BorderBox title="Quản lý giảng viên">
+        <BorderBox title="Quản lý môn học">
             <div className={styles.box}>
                 <div className={styles.add}>
                     <Search
@@ -87,7 +86,7 @@ const LecturerManagement = () => {
                     />
 
                     <Link
-                        href="/lecturer_management/create-edit" // Đường dẫn đến trang thêm mới giảng viên
+                        href="/subject/create-edit" // Đường dẫn đến trang thêm mới môn học
                         className={styles.buttonAdd}
                     >
                         <IoMdAddCircle /> Thêm mới
@@ -98,33 +97,32 @@ const LecturerManagement = () => {
                     <table className={styles.table}>
                         <thead className={styles.thead}>
                             <tr>
-                                <th style={{ minWidth: "100px" }}>Mã GV</th>
-                                <th style={{ minWidth: "200px" }}>Tên GV</th>
-                                <th style={{ minWidth: "250px" }}>Tên ngành</th>
-                                <th style={{ minWidth: "150px" }}>Vị trí</th>
-                                <th style={{ minWidth: "150px" }}>
-                                    Số điện thoại
+                                <th style={{ minWidth: "100px" }}>Mã MH</th>
+                                <th style={{ minWidth: "350px" }}>
+                                    Tên môn học
                                 </th>
+                                <th style={{ minWidth: "100px" }}>Tín chỉ</th>
                                 <th style={{ minWidth: "120px" }}>Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {lecturersData.map((lecturer) => (
-                                <tr key={lecturer.user_id}>
-                                    <td>{lecturer.user_id}</td>
-                                    <td>{lecturer.user_name}</td>
-                                    <td>{lecturer.major_name}</td>
-                                    <td>{lecturer.position}</td>
-                                    <td>{lecturer.phone_number}</td>
+                            {subjectsData.map((subject) => (
+                                <tr key={subject.subject_id}>
+                                    <td>{subject.subject_id}</td>
+                                    <td>{subject.subject_name}</td>
+                                    <td>
+                                        {subject.it_credits} +
+                                        {subject.th_credits}*
+                                    </td>
                                     <td className={styles.buttonAction}>
                                         <Link
-                                            href={`/lecturer_management/view?id=${lecturer.user_id}`} // Đường dẫn xem chi tiết
+                                            href={`/subject/view?id=${subject.subject_id}`} // Đường dẫn xem chi tiết
                                             className={clsx(styles.viewButton)}
                                         >
                                             <FaEye />
                                         </Link>
                                         <Link
-                                            href={`/lecturer_management/create-edit?id=${lecturer.user_id}&mode=edit`} // Đường dẫn chỉnh sửa
+                                            href={`/subject/create-edit?id=${subject.subject_id}&mode=edit`} // Đường dẫn chỉnh sửa
                                             className={clsx(
                                                 styles.viewButton,
                                                 styles.viewButtonUpdate
@@ -137,8 +135,8 @@ const LecturerManagement = () => {
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 setIsModalOpen(true);
-                                                setDeleteLecturerId(
-                                                    lecturer.user_id
+                                                setDeleteSubjectId(
+                                                    subject.subject_id
                                                 );
                                             }}
                                             className={clsx(
@@ -150,10 +148,10 @@ const LecturerManagement = () => {
                                         </Link>
 
                                         {isModalOpen &&
-                                            deleteLecturerId ===
-                                                lecturer.user_id && (
+                                            deleteSubjectId ===
+                                                subject.subject_id && (
                                                 <ModalConfirm
-                                                    message="Bạn có chắc chắn muốn xóa giảng viên này?"
+                                                    message="Bạn có chắc chắn muốn xóa môn học này?"
                                                     onConfirm={handleDelete}
                                                     onCancel={handleCancel}
                                                 />
@@ -161,6 +159,13 @@ const LecturerManagement = () => {
                                     </td>
                                 </tr>
                             ))}
+                            {subjectsData.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} className={styles.noData}>
+                                        Không có dữ liệu
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -169,7 +174,7 @@ const LecturerManagement = () => {
                     <Pagination
                         pageNumber={currentPage}
                         setPageNumber={setCurrentPage}
-                        totalItem={lecturersData.length}
+                        totalItem={subjectsData.length}
                         parPage={parPage}
                         showItem={3}
                     />
@@ -179,4 +184,4 @@ const LecturerManagement = () => {
     );
 };
 
-export default LecturerManagement;
+export default SubjectManagement;

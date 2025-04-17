@@ -6,8 +6,9 @@
 }
 
 .select {
-    padding: 8px 16px;
-    border: 1px solid #334155; /* slate-700 */
+    margin-top: 2px;
+    padding: 9px 16px;
+    border: 1px solid #d1d5db; /* slate-700 */
     border-radius: 6px;
     outline: none;
     transition: border-color 0.2s;

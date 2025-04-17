@@ -3,7 +3,7 @@ import styles from "./styles.module.css";
 import clsx from "clsx";
 
 type SelectWithLabelProps = {
-    label: string;
+    label?: string;
     name?: string;
     value?: string | number | readonly string[];
     onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
