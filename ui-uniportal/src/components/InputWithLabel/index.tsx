@@ -3,7 +3,7 @@ import styles from "./styles.module.css";
 import clsx from "clsx";
 
 type InputWithLabelProps = {
-    label: string;
+    label?: string;
     type?: React.HTMLInputTypeAttribute;
     name?: string;
     value?: string;
