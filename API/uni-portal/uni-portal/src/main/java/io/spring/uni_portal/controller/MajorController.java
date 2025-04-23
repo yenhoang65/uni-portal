@@ -40,4 +40,9 @@ public class MajorController {
         majorService.deleteMajor(id);
         return Response.success("Xoá ngành học thành công", null);
     }
+
+    @GetMapping("/search")
+    public Response<List<MajorDTO>> searchByName(@RequestParam String name) {
+        return Response.success("Tìm kiếm ngành học theo tên thành công", majorService.searchMajorsByName(name));
+    }
 }

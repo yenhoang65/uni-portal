@@ -39,16 +39,27 @@ public class LecturerService implements ILecturerService {
 
 @Override
 public Lecturer createLecturer(LecturerRequestDTO dto) {
-    // 1. Tạo userId tự tăng 8 chữ số
-    Long nextUserId = getNextUserId();
+    Major major = majorRepository.findById(dto.getMajorId())
+            .orElseThrow(() -> new RuntimeException("Ngành học không tồn tại"));
 
-    // 2. Tạo User
+    Long nextUserId = generateCustomUserId(major);
+
+    if (userRepository.existsById(nextUserId)) {
+        throw new RuntimeException("UserId đã tồn tại: " + nextUserId);
+    }
+
+    if (userRepository.existsByEmail(dto.getEmail())) {
+        throw new RuntimeException("Email đã được sử dụng");
+    }
+
+    if (userRepository.existsByPhoneNumber(dto.getPhoneNumber())) {
+        throw new RuntimeException("Số điện thoại đã được sử dụng");
+    }
+
     User user = new User();
     user.setUserId(nextUserId);
     user.setUserName(dto.getUserName());
-
     user.setPassword(passwordEncoder.encode(String.valueOf(nextUserId)));
-
     user.setGender(dto.getGender());
     user.setPhoneNumber(dto.getPhoneNumber());
     user.setAddress(dto.getAddress());
@@ -65,28 +76,42 @@ public Lecturer createLecturer(LecturerRequestDTO dto) {
     user.setAdmissionDate(dto.getAdmissionDate());
     user.setRole("lecturer");
 
-    // 3. Lưu user vào DB
-    userRepository.save(user);
-
-    // 4. Tải lại user từ DB để tránh lỗi Hibernate proxy
-    User savedUser = userRepository.findById(nextUserId)
-            .orElseThrow(() -> new RuntimeException("Không thể lấy lại user vừa lưu"));
-
-    // 5. Tìm ngành học
-    Major major = majorRepository.findById(dto.getMajorId())
-            .orElseThrow(() -> new RuntimeException("Ngành học không tồn tại"));
-
-    // 6. Tạo Lecturer
     Lecturer lecturer = new Lecturer();
-    lecturer.setUser(savedUser); // set user liên kết
+    lecturer.setUser(user); // chỉ cần gán, không save riêng
     lecturer.setAcademicDegree(dto.getAcademicDegree());
     lecturer.setGraduatedFrom(dto.getGraduatedFrom());
     lecturer.setPosition(dto.getPosition());
     lecturer.setMajor(major);
 
-    // 7. Lưu và return
+    // save cả lecturer + user 1 lần
     return lecturerRepository.save(lecturer);
 }
+
+
+    private Long generateCustomUserId(Major major) {
+        String facultyIdStr = String.valueOf(major.getFaculty().getFacultyId());
+        String majorIdStr = String.valueOf(major.getMajorId());
+
+        String facultyPrefix = facultyIdStr.substring(0, 2);
+        String majorSuffix = majorIdStr.length() >= 2
+                ? majorIdStr.substring(majorIdStr.length() - 2)
+                : String.format("%02d", Integer.parseInt(majorIdStr));
+
+        String prefix = facultyPrefix + majorSuffix;
+        String pattern = prefix + "%";
+
+        List<User> users = userRepository.findByUserIdLikeCustom(pattern);
+
+        int nextSequence = 1;
+        if (!users.isEmpty()) {
+            String lastUserIdStr = String.valueOf(users.get(0).getUserId());
+            nextSequence = Integer.parseInt(lastUserIdStr.substring(4)) + 1;
+        }
+
+        String finalId = prefix + String.format("%04d", nextSequence);
+        return Long.parseLong(finalId);
+    }
+
 
 
 

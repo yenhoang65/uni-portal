@@ -19,13 +19,17 @@ public class Classroom {
     @Column(name = "device")
     private String device;
 
+    @Column(name = "status")
+    private String status;
+
     public Classroom() {}
 
-    public Classroom(Long classroomId, String classroomName, Long numberOfSeats, String device) {
+    public Classroom(Long classroomId, String classroomName, Long numberOfSeats, String device,String status) {
         this.classroomId = classroomId;
         this.classroomName = classroomName;
         this.numberOfSeats = numberOfSeats;
         this.device = device;
+        this.status = status;
     }
 
     // Getters and Setters
@@ -59,5 +63,13 @@ public class Classroom {
 
     public void setDevice(String device) {
         this.device = device;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

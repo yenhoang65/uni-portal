@@ -7,14 +7,16 @@ public class ClassroomResponse {
     private String classroomName;
     private Long numberOfSeats;
     private List<String> devices;
+    private String status;
 
     public ClassroomResponse() {}
 
-    public ClassroomResponse(Long classroomId, String classroomName, Long numberOfSeats, List<String> devices) {
+    public ClassroomResponse(Long classroomId, String classroomName, Long numberOfSeats, List<String> devices, String status) {
         this.classroomId = classroomId;
         this.classroomName = classroomName;
         this.numberOfSeats = numberOfSeats;
         this.devices = devices;
+        this.status = status;
     }
 
     public Long getClassroomId() {
@@ -47,5 +49,13 @@ public class ClassroomResponse {
 
     public void setDevices(List<String> devices) {
         this.devices = devices;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

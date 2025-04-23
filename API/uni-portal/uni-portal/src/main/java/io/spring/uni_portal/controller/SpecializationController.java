@@ -1,10 +1,12 @@
 package io.spring.uni_portal.controller;
 
+import io.spring.uni_portal.dto.Major.MajorDTO;
 import io.spring.uni_portal.dto.Specialization.SpecializationDTO;
 import io.spring.uni_portal.dto.Specialization.SpecializationResponse;
 import io.spring.uni_portal.response.Response;
 import io.spring.uni_portal.service.SpecializationService.ISpecializationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,4 +44,10 @@ public class SpecializationController {
         specializationService.delete(id);
         return Response.success("Xoá chuyên ngành thành công", deleted);
     }
+
+    @GetMapping("/search")
+    public Response<List<SpecializationResponse>> searchByName(@RequestParam String name) {
+        return Response.success("Tìm kiếm chuyên ngành thành công", specializationService.searchByName(name));
+    }
+
 }

@@ -26,7 +26,10 @@ public class SpecializationServiceImpl implements ISpecializationService {
                 entity.getSpecializationId(),
                 entity.getSpecializationName(),
                 entity.getMajor().getMajorId(),
-                entity.getMajor().getMajorName()
+                entity.getMajor().getMajorName(),
+                entity.getSpecializationDateOfEstablishment(),
+                entity.getSpecializationDescription(),
+                entity.getSpecializationStatus()
         );
     }
 
@@ -38,6 +41,9 @@ public class SpecializationServiceImpl implements ISpecializationService {
         specialization.setSpecializationId(dto.getSpecializationId());
         specialization.setSpecializationName(dto.getSpecializationName());
         specialization.setMajor(major);
+        specialization.setSpecializationDateOfEstablishment(dto.getSpecializationDateOfEstablishment());
+        specialization.setSpecializationDescription(dto.getSpecializationDescription());
+        specialization.setSpecializationStatus(dto.getSpecializationStatus());
         return specialization;
     }
 
@@ -71,7 +77,10 @@ public class SpecializationServiceImpl implements ISpecializationService {
     public SpecializationResponse update(Long id, SpecializationDTO dto) {
         Specialization spec = specializationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy chuyên ngành"));
+
         spec.setSpecializationName(dto.getSpecializationName());
+        spec.setSpecializationDateOfEstablishment(dto.getSpecializationDateOfEstablishment());
+        spec.setSpecializationDescription(dto.getSpecializationDescription());
 
         if (!spec.getMajor().getMajorId().equals(dto.getMajorId())) {
             Major major = majorRepository.findById(dto.getMajorId())
@@ -80,6 +89,14 @@ public class SpecializationServiceImpl implements ISpecializationService {
         }
 
         return toResponse(specializationRepository.save(spec));
+    }
+
+    @Override
+    public List<SpecializationResponse> searchByName(String name) {
+        return specializationRepository.findAll().stream()
+                .filter(s -> s.getSpecializationName().toLowerCase().contains(name.toLowerCase()))
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     @Override

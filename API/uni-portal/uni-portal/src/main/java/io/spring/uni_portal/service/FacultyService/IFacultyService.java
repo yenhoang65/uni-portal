@@ -11,4 +11,5 @@ public interface IFacultyService {
     List<FacultyDTO> getAllFaculties();
     FacultyDTO updateFaculty(Long id, FacultyDTO facultyDTO);
     void deleteFaculty(Long id);
+    List<FacultyDTO> searchFacultiesByName(String name);
 }

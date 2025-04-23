@@ -38,7 +38,11 @@ public class SecurityConfig {
                                 "/api/specializations/**",
                                 "/api/subjects/**",
                                 "/api/training-programs/**",
-                                "/api/intermediaries/**"
+                                "/api/intermediaries/**",
+                                "/api/classes/**",
+                                "/api/students/**",
+                                "/api/registration-period/**",
+                                "/api/teaching-assignment/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

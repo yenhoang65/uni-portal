@@ -8,41 +8,34 @@ import java.time.LocalDateTime;
 public class TeachingScheduleRequest {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "schedule_id")
     private Long scheduleId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lecturer_id", nullable = false)
-    private Lecturer lecturer;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subject_id", nullable = false)
-    private Subject subject;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "classroom_id", nullable = false)
     private Classroom classroom;
 
     @Column(name = "lesson", nullable = false)
-    private String lesson;
+    private Long lesson;
 
     @Column(name = "date_time", nullable = false)
     private LocalDateTime dateTime;
 
-    @Column(name = "class_type", nullable = false)
-    private Long classType;
-
     @Column(name = "status", nullable = false)
     private Long status;
-
-    @Column(name = "reason")
-    private String reason;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "approved_by")
-    private Long approvedBy;
+    @Column(name = "class_type", nullable = false)
+    private Long classType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assignment_id", nullable = false)
+    private TeachingAssignment assignment;
+
+    // Getters & Setters
 
     public Long getScheduleId() {
         return scheduleId;
@@ -50,22 +43,6 @@ public class TeachingScheduleRequest {
 
     public void setScheduleId(Long scheduleId) {
         this.scheduleId = scheduleId;
-    }
-
-    public Lecturer getLecturer() {
-        return lecturer;
-    }
-
-    public void setLecturer(Lecturer lecturer) {
-        this.lecturer = lecturer;
-    }
-
-    public Subject getSubject() {
-        return subject;
-    }
-
-    public void setSubject(Subject subject) {
-        this.subject = subject;
     }
 
     public Classroom getClassroom() {
@@ -76,11 +53,11 @@ public class TeachingScheduleRequest {
         this.classroom = classroom;
     }
 
-    public String getLesson() {
+    public Long getLesson() {
         return lesson;
     }
 
-    public void setLesson(String lesson) {
+    public void setLesson(Long lesson) {
         this.lesson = lesson;
     }
 
@@ -92,28 +69,12 @@ public class TeachingScheduleRequest {
         this.dateTime = dateTime;
     }
 
-    public Long getClassType() {
-        return classType;
-    }
-
-    public void setClassType(Long classType) {
-        this.classType = classType;
-    }
-
     public Long getStatus() {
         return status;
     }
 
     public void setStatus(Long status) {
         this.status = status;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -124,11 +85,19 @@ public class TeachingScheduleRequest {
         this.createdAt = createdAt;
     }
 
-    public Long getApprovedBy() {
-        return approvedBy;
+    public Long getClassType() {
+        return classType;
     }
 
-    public void setApprovedBy(Long approvedBy) {
-        this.approvedBy = approvedBy;
+    public void setClassType(Long classType) {
+        this.classType = classType;
+    }
+
+    public TeachingAssignment getAssignment() {
+        return assignment;
+    }
+
+    public void setAssignment(TeachingAssignment assignment) {
+        this.assignment = assignment;
     }
 }

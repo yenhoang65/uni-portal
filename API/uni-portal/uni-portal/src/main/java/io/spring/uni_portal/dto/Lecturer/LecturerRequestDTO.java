@@ -16,6 +16,7 @@ public class LecturerRequestDTO {
     private String email;
     private String placeOfBirth;
     private String permanentResident;
+    private String status;
     private String bank;
     private String bankAccountOwner;
     private String bankAccountNumber;
@@ -185,5 +186,13 @@ public class LecturerRequestDTO {
 
     public void setMajorId(Long majorId) {
         this.majorId = majorId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

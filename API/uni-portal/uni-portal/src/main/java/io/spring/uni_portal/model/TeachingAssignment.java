@@ -7,16 +7,16 @@ import java.time.LocalDateTime;
 @Table(name = "teaching_assignment")
 public class TeachingAssignment {
 
-    @EmbeddedId
-    private TeachingAssignmentId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "assignment_id")
+    private Long assignmentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("userId") // Đảm bảo dùng userId
-    @JoinColumn(name = "user_id", nullable = false) // Đảm bảo tên cột là user_id
+    @JoinColumn(name = "user_id", nullable = false)
     private Lecturer lecturer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("subjectId") // Map field subjectId trong TeachingAssignmentId
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
@@ -26,30 +26,14 @@ public class TeachingAssignment {
     @Column(name = "school_year", nullable = false)
     private Long schoolYear;
 
-    @Column(name = "assigned_by")
-    private Long assignedBy;
+    // Getters & Setters
 
-    @Column(name = "assigned_at")
-    private LocalDateTime assignedAt;
-
-    public TeachingAssignment() {}
-
-    public TeachingAssignment(Lecturer lecturer, Subject subject, Long semester, Long schoolYear, Long assignedBy, LocalDateTime assignedAt) {
-        this.lecturer = lecturer;
-        this.subject = subject;
-        this.semester = semester;
-        this.schoolYear = schoolYear;
-        this.assignedBy = assignedBy;
-        this.assignedAt = assignedAt;
-        this.id = new TeachingAssignmentId(lecturer.getUserId(), subject.getSubjectId()); // Dùng getUserId
+    public Long getAssignmentId() {
+        return assignmentId;
     }
 
-    public TeachingAssignmentId getId() {
-        return id;
-    }
-
-    public void setId(TeachingAssignmentId id) {
-        this.id = id;
+    public void setAssignmentId(Long assignmentId) {
+        this.assignmentId = assignmentId;
     }
 
     public Lecturer getLecturer() {
@@ -83,20 +67,6 @@ public class TeachingAssignment {
     public void setSchoolYear(Long schoolYear) {
         this.schoolYear = schoolYear;
     }
-
-    public Long getAssignedBy() {
-        return assignedBy;
-    }
-
-    public void setAssignedBy(Long assignedBy) {
-        this.assignedBy = assignedBy;
-    }
-
-    public LocalDateTime getAssignedAt() {
-        return assignedAt;
-    }
-
-    public void setAssignedAt(LocalDateTime assignedAt) {
-        this.assignedAt = assignedAt;
-    }
 }
+
+
