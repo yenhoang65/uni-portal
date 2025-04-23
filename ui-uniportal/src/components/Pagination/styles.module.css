@@ -9,7 +9,7 @@
 .pageButton {
     width: 33px;
     height: 33px;
-    border-radius: 999px;
+    border-radius: 8px;
     background-color: var(--third, #e5e7eb); /* fallback light gray */
     color: #000;
     display: flex;

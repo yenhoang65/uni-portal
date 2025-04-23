@@ -1,12 +1,15 @@
 import ProtectedRoute from "@/hooks/ProtectedRoute";
-import MainLayout from "@/layout/main";
-import CreateEditStudent from "./student_management/create-edit";
-import SubjectManagement from "./subject";
-import SubjectDetail from "./subject/view";
-import CreateEditSubject from "./subject/create-edit";
-import Classroom from "./classroom";
-import ClassroomDetail from "./classroom/view";
-import CreateEditClassroom from "./classroom/create-edit";
+import ActivateTeachingScheduleRegistration from "./activate-teaching-schedule-registration";
+import TrainingProgram from "./training-program";
+import Faculty from "./faculty";
+import ViewTrainingProgram from "./training-program/view";
+import StudentManagement from "./student_management";
+import MainLayout from "@/components/layout/main";
+import { privateRoutes } from "@/router/routes/privateRoutes";
+import ProtectRoute from "@/router/routes/ProtectRoute";
+import { useEffect, useState } from "react";
+import publicRoutes from "@/router/routes/publicRoutes";
+import { getRoutes } from "@/router/routes";
 import RegistrationTimeActivation from "./enable-credit-registration";
 
 export default function Home() {

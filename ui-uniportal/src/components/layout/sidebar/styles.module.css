@@ -61,7 +61,7 @@
     align-items: center;
     gap: 12px;
     padding: 9px 20px;
-    border-radius: 999px;
+    border-radius: 8px;
     margin-bottom: 6px;
     font-weight: 600;
     cursor: pointer;
@@ -87,7 +87,7 @@
     align-items: center;
     gap: 12px;
     padding: 9px 20px;
-    border-radius: 999px;
+    border-radius: 8px;
     margin-top: 10px;
     font-weight: 600;
     color: white;

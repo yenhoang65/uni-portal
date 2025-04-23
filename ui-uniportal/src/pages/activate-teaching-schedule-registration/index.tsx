@@ -12,7 +12,7 @@ interface RegistrationTime {
     createdAt: string;
 }
 
-const RegistrationTimeActivation = () => {
+const ActivateTeachingScheduleRegistration = () => {
     const [startTime, setStartTime] = useState<string>("");
     const [endTime, setEndTime] = useState<string>("");
     const [activatedTimes, setActivatedTimes] = useState<RegistrationTime[]>(
@@ -81,7 +81,7 @@ const RegistrationTimeActivation = () => {
     }, []);
 
     return (
-        <BorderBox title="Kích hoạt thời gian đăng ký tín chỉ">
+        <BorderBox title="Kích hoạt thời gian đăng ký lịch dạy">
             <div className={styles.activationForm}>
                 <InputWithLabel
                     label="Ngày giờ Bắt đầu"
@@ -161,4 +161,4 @@ const RegistrationTimeActivation = () => {
     );
 };
 
-export default RegistrationTimeActivation;
+export default ActivateTeachingScheduleRegistration;

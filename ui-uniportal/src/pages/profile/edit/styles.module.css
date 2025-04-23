@@ -32,7 +32,7 @@
 }
 
 .button {
-    border-radius: 999px !important;
+    border-radius: 8px !important;
     width: 200px;
     cursor: pointer;
 }
