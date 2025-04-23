@@ -1,6 +1,5 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
@@ -11,68 +10,88 @@ import { MdDeleteForever } from "react-icons/md";
 import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
+import { TypographyBody } from "@/components/TypographyBody";
 
-const faculties = [
+type ClassroomType = {
+    id: string;
+    ma: string;
+    number_of_seats: number;
+    classroom_type: string;
+    device: string[];
+};
+
+const classrooms: ClassroomType[] = [
     {
-        id: "FAC001",
-        name: "Khoa Công nghệ thông tin",
-        logo: "https://via.placeholder.com/80x40.png?text=IT",
-        establishDate: "2005-09-01",
-        website: "https://fit.utehy.edu.vn",
+        id: "CLA001",
+        ma: "P.101",
+        number_of_seats: 30,
+        classroom_type: "Lý thuyết",
+        device: ["Máy chiếu", "Bảng trắng", "Điều hòa"],
     },
     {
-        id: "FAC002",
-        name: "Khoa Cơ khí",
-        logo: "https://via.placeholder.com/80x40.png?text=CK",
-        establishDate: "2003-03-15",
-        website: "https://me.utehy.edu.vn",
+        id: "CLA002",
+        ma: "Lab.A",
+        number_of_seats: 25,
+        classroom_type: "Thực hành",
+        device: ["Máy tính", "Bàn thực hành", "Máy lạnh"],
     },
     {
-        id: "FAC003",
-        name: "Khoa Kinh tế",
-        logo: "https://via.placeholder.com/80x40.png?text=KT",
-        establishDate: "2007-07-20",
-        website: "https://kt.utehy.edu.vn",
+        id: "CLA003",
+        ma: "H.205",
+        number_of_seats: 40,
+        classroom_type: "Hội trường",
+        device: ["Âm thanh", "Máy chiếu", "Bục giảng"],
     },
     {
-        id: "FAC004",
-        name: "Khoa Điện",
-        logo: "https://via.placeholder.com/80x40.png?text=Dien",
-        establishDate: "2001-01-10",
-        website: "https://dien.utehy.edu.vn",
+        id: "CLA004",
+        ma: "P.102",
+        number_of_seats: 30,
+        classroom_type: "Lý thuyết",
+        device: ["Máy chiếu", "Bảng tương tác"],
     },
     {
-        id: "FAC005",
-        name: "Khoa Ngoại ngữ",
-        logo: "https://via.placeholder.com/80x40.png?text=NN",
-        establishDate: "2010-05-05",
-        website: "https://nn.utehy.edu.vn",
+        id: "CLA005",
+        ma: "Lab.B",
+        number_of_seats: 20,
+        classroom_type: "Thực hành",
+        device: ["Thiết bị thí nghiệm", "Máy lạnh"],
     },
 ];
 
-const Faculty = () => {
-    const { t } = useTranslation();
+const Classroom = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [deleteFacultyId, setDeleteFacultyId] = useState<string | null>(null);
+    const [deleteClassroomId, setDeleteClassroomId] = useState<string | null>(
+        null
+    );
 
     const handleDelete = () => {
-        if (deleteFacultyId) {
-            // dispatch(delete_product(deleteFacultyId));
+        if (deleteClassroomId) {
+            // dispatch(delete_classroom(deleteClassroomId));
             setIsModalOpen(false);
-            setDeleteFacultyId(null);
+            setDeleteClassroomId(null);
         }
     };
 
     const handleCancel = () => {
         setIsModalOpen(false);
-        setDeleteFacultyId(null);
+        setDeleteClassroomId(null);
     };
 
+    const filteredClassrooms = classrooms.filter((classroom) =>
+        Object.values(classroom).some((value) =>
+            String(value).toLowerCase().includes(searchValue.toLowerCase())
+        )
+    );
+
+    const startIndex = (currentPage - 1) * parPage;
+    const endIndex = startIndex + parPage;
+    const currentClassrooms = filteredClassrooms.slice(startIndex, endIndex);
+
     return (
-        <BorderBox title={t("common.faculty-management")}>
+        <BorderBox title="Quản lý phòng học">
             <div className={styles.box}>
                 <div className={styles.add}>
                     <Search
@@ -82,7 +101,7 @@ const Faculty = () => {
                     />
 
                     <Link
-                        href={"/faculty/create-edit"}
+                        href={"/classroom/create-edit"}
                         className={styles.buttonAdd}
                     >
                         <IoMdAddCircle /> Thêm mới
@@ -94,55 +113,51 @@ const Faculty = () => {
                         <thead className={styles.thead}>
                             <tr>
                                 <th style={{ minWidth: "80px" }}>No</th>
-                                <th style={{ minWidth: "230px" }}>
-                                    {t("common.name")}
+                                <th style={{ minWidth: "120px" }}>Mã</th>
+                                <th style={{ minWidth: "150px" }}>
+                                    Số chỗ ngồi
                                 </th>
                                 <th style={{ minWidth: "150px" }}>
-                                    {t("common.logo")}
+                                    Loại phòng
                                 </th>
-                                <th style={{ minWidth: "180px" }}>
-                                    {t("common.established-date")}
-                                </th>
-                                <th style={{ minWidth: "200px" }}>
-                                    {t("common.website")}
-                                </th>
-                                <th style={{ minWidth: "70px" }}>
-                                    {t("common.action")}
-                                </th>
+                                <th style={{ minWidth: "200px" }}>Thiết bị</th>
+                                <th style={{ minWidth: "70px" }}>Hành động</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {faculties.map((faculty, index) => (
-                                <tr key={faculty.id}>
-                                    <td>{index + 1}</td>
-                                    <td>{faculty.name}</td>
+                            {currentClassrooms.map((classroom, index) => (
+                                <tr key={classroom.id}>
                                     <td>
-                                        <img
-                                            src={faculty.logo}
-                                            alt="logo"
-                                            width={80}
-                                            height={40}
-                                        />
+                                        {(currentPage - 1) * parPage +
+                                            index +
+                                            1}
                                     </td>
-                                    <td>{faculty.establishDate}</td>
+                                    <td>{classroom.ma}</td>
+                                    <td>{classroom.number_of_seats}</td>
+                                    <td>{classroom.classroom_type}</td>
                                     <td>
-                                        <a
-                                            href={faculty.website}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            {faculty.website}
-                                        </a>
+                                        {classroom.device.map((dev, idx) => (
+                                            <TypographyBody
+                                                key={idx}
+                                                tag="span"
+                                                className={styles.deviceItem}
+                                            >
+                                                {dev}
+                                                {idx <
+                                                    classroom.device.length -
+                                                        1 && ", "}
+                                            </TypographyBody>
+                                        ))}
                                     </td>
                                     <td className={styles.buttonAction}>
                                         <Link
-                                            href={`/faculty/view?id=${faculty.id}`}
+                                            href={`/classroom/view?id=${classroom.id}`}
                                             className={clsx(styles.viewButton)}
                                         >
                                             <FaEye />
                                         </Link>
                                         <Link
-                                            href={`/faculty/create-edit?id=${faculty.id}&mode=edit`}
+                                            href={`/classroom/create-edit?id=${classroom.id}&mode=edit`}
                                             className={clsx(
                                                 styles.viewButton,
                                                 styles.viewButtonUpdate
@@ -154,7 +169,9 @@ const Faculty = () => {
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 setIsModalOpen(true);
-                                                setDeleteFacultyId(faculty.id);
+                                                setDeleteClassroomId(
+                                                    classroom.id
+                                                );
                                             }}
                                             href="#"
                                             className={clsx(
@@ -166,9 +183,10 @@ const Faculty = () => {
                                         </Link>
 
                                         {isModalOpen &&
-                                            deleteFacultyId === faculty.id && (
+                                            deleteClassroomId ===
+                                                classroom.id && (
                                                 <ModalConfirm
-                                                    message="Are you sure you want to delete?"
+                                                    message="Bạn có chắc chắn muốn xóa?"
                                                     onConfirm={handleDelete}
                                                     onCancel={handleCancel}
                                                 />
@@ -184,7 +202,7 @@ const Faculty = () => {
                     <Pagination
                         pageNumber={currentPage}
                         setPageNumber={setCurrentPage}
-                        totalItem={50}
+                        totalItem={filteredClassrooms.length}
                         parPage={parPage}
                         showItem={3}
                     />
@@ -194,4 +212,4 @@ const Faculty = () => {
     );
 };
 
-export default Faculty;
+export default Classroom;

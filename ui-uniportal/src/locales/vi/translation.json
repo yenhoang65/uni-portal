@@ -58,6 +58,12 @@
         "logo": "Logo",
         "established-date": "Ngày thành lập",
         "website": "Website",
-        "action": "Thao tác"
+        "action": "Thao tác",
+
+        "add-faculty": "Thêm khoa",
+        "edit-faculty": "Sửa khoa",
+
+        "save-button": "Lưu thông tin",
+        "update-button": "Sửa thông tin"
     }
 }

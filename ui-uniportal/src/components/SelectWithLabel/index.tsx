@@ -2,30 +2,28 @@ import React from "react";
 import styles from "./styles.module.css";
 import clsx from "clsx";
 
-type InputWithLabelProps = {
+type SelectWithLabelProps = {
     label?: string;
-    type?: React.HTMLInputTypeAttribute;
     name?: string;
-    value?: string;
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    value?: string | number | readonly string[];
+    onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
     required?: boolean;
-    placeholder?: string;
     className?: string;
-    readOnly?: boolean;
     disabled?: boolean;
+    options: { value: string | number; label: string }[];
+    multiple?: boolean;
 };
 
-const InputWithLabel: React.FC<InputWithLabelProps> = ({
+const SelectWithLabel: React.FC<SelectWithLabelProps> = ({
     label,
-    type = "text",
     name,
     value,
     onChange,
     required,
-    placeholder,
     className,
-    readOnly,
     disabled,
+    options,
+    multiple,
 }) => {
     return (
         <div className={clsx(styles.inputGroup, className)}>
@@ -33,19 +31,23 @@ const InputWithLabel: React.FC<InputWithLabelProps> = ({
                 {label}
                 {required && <span className={styles.required}> *</span>}
             </label>
-            <input
-                type={type}
+            <select
                 name={name}
                 value={value}
                 onChange={onChange}
                 required={required}
-                placeholder={placeholder}
-                className={styles.input}
-                readOnly={readOnly}
+                className={styles.select}
                 disabled={disabled}
-            />
+                multiple={multiple}
+            >
+                {options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                        {option.label}
+                    </option>
+                ))}
+            </select>
         </div>
     );
 };
 
-export default InputWithLabel;
+export default SelectWithLabel;

@@ -1,6 +1,5 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
@@ -12,67 +11,73 @@ import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
 
-const faculties = [
+// Dữ liệu giảng viên mẫu (thay thế bằng API call thực tế)
+const lecturersData = [
     {
-        id: "FAC001",
-        name: "Khoa Công nghệ thông tin",
-        logo: "https://via.placeholder.com/80x40.png?text=IT",
-        establishDate: "2005-09-01",
-        website: "https://fit.utehy.edu.vn",
+        user_id: "LEC001",
+        user_name: "Nguyễn Văn A",
+        major_id: "MAJ001",
+        major_name: "Công nghệ phần mềm",
+        position: "Giảng viên",
+        phone_number: "0901234567",
+        // Các trường khác không hiển thị
     },
     {
-        id: "FAC002",
-        name: "Khoa Cơ khí",
-        logo: "https://via.placeholder.com/80x40.png?text=CK",
-        establishDate: "2003-03-15",
-        website: "https://me.utehy.edu.vn",
+        user_id: "LEC002",
+        user_name: "Trần Thị B",
+        major_id: "MAJ002",
+        major_name: "Kỹ thuật cơ khí",
+        position: "Phó Giáo sư",
+        phone_number: "0987654321",
+        // Các trường khác không hiển thị
     },
     {
-        id: "FAC003",
-        name: "Khoa Kinh tế",
-        logo: "https://via.placeholder.com/80x40.png?text=KT",
-        establishDate: "2007-07-20",
-        website: "https://kt.utehy.edu.vn",
+        user_id: "LEC003",
+        user_name: "Lê Văn C",
+        major_id: "MAJ001",
+        major_name: "Công nghệ phần mềm",
+        position: "Trợ giảng",
+        phone_number: "0911223344",
+        // Các trường khác không hiển thị
     },
-    {
-        id: "FAC004",
-        name: "Khoa Điện",
-        logo: "https://via.placeholder.com/80x40.png?text=Dien",
-        establishDate: "2001-01-10",
-        website: "https://dien.utehy.edu.vn",
-    },
-    {
-        id: "FAC005",
-        name: "Khoa Ngoại ngữ",
-        logo: "https://via.placeholder.com/80x40.png?text=NN",
-        establishDate: "2010-05-05",
-        website: "https://nn.utehy.edu.vn",
-    },
+    // Thêm dữ liệu giảng viên khác
 ];
 
-const Faculty = () => {
-    const { t } = useTranslation();
+type Lecturer = {
+    user_id: string;
+    user_name: string;
+    major_id: string;
+    major_name: string;
+    position: string;
+    phone_number: string;
+};
+
+const LecturerManagement = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [deleteFacultyId, setDeleteFacultyId] = useState<string | null>(null);
+    const [deleteLecturerId, setDeleteLecturerId] = useState<string | null>(
+        null
+    );
 
     const handleDelete = () => {
-        if (deleteFacultyId) {
-            // dispatch(delete_product(deleteFacultyId));
+        if (deleteLecturerId) {
+            // Gọi API để xóa giảng viên dựa trên deleteLecturerId
+            console.log("Deleting lecturer with ID:", deleteLecturerId);
+            // Sau khi xóa thành công, cập nhật lại danh sách giảng viên (ví dụ: fetch lại data hoặc lọc state hiện tại)
             setIsModalOpen(false);
-            setDeleteFacultyId(null);
+            setDeleteLecturerId(null);
         }
     };
 
     const handleCancel = () => {
         setIsModalOpen(false);
-        setDeleteFacultyId(null);
+        setDeleteLecturerId(null);
     };
 
     return (
-        <BorderBox title={t("common.faculty-management")}>
+        <BorderBox title="Quản lý giảng viên">
             <div className={styles.box}>
                 <div className={styles.add}>
                     <Search
@@ -82,7 +87,7 @@ const Faculty = () => {
                     />
 
                     <Link
-                        href={"/faculty/create-edit"}
+                        href="/lecturer_management/create-edit" // Đường dẫn đến trang thêm mới giảng viên
                         className={styles.buttonAdd}
                     >
                         <IoMdAddCircle /> Thêm mới
@@ -93,56 +98,33 @@ const Faculty = () => {
                     <table className={styles.table}>
                         <thead className={styles.thead}>
                             <tr>
-                                <th style={{ minWidth: "80px" }}>No</th>
-                                <th style={{ minWidth: "230px" }}>
-                                    {t("common.name")}
-                                </th>
+                                <th style={{ minWidth: "100px" }}>Mã GV</th>
+                                <th style={{ minWidth: "200px" }}>Tên GV</th>
+                                <th style={{ minWidth: "250px" }}>Tên ngành</th>
+                                <th style={{ minWidth: "150px" }}>Vị trí</th>
                                 <th style={{ minWidth: "150px" }}>
-                                    {t("common.logo")}
+                                    Số điện thoại
                                 </th>
-                                <th style={{ minWidth: "180px" }}>
-                                    {t("common.established-date")}
-                                </th>
-                                <th style={{ minWidth: "200px" }}>
-                                    {t("common.website")}
-                                </th>
-                                <th style={{ minWidth: "70px" }}>
-                                    {t("common.action")}
-                                </th>
+                                <th style={{ minWidth: "120px" }}>Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {faculties.map((faculty, index) => (
-                                <tr key={faculty.id}>
-                                    <td>{index + 1}</td>
-                                    <td>{faculty.name}</td>
-                                    <td>
-                                        <img
-                                            src={faculty.logo}
-                                            alt="logo"
-                                            width={80}
-                                            height={40}
-                                        />
-                                    </td>
-                                    <td>{faculty.establishDate}</td>
-                                    <td>
-                                        <a
-                                            href={faculty.website}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            {faculty.website}
-                                        </a>
-                                    </td>
+                            {lecturersData.map((lecturer) => (
+                                <tr key={lecturer.user_id}>
+                                    <td>{lecturer.user_id}</td>
+                                    <td>{lecturer.user_name}</td>
+                                    <td>{lecturer.major_name}</td>
+                                    <td>{lecturer.position}</td>
+                                    <td>{lecturer.phone_number}</td>
                                     <td className={styles.buttonAction}>
                                         <Link
-                                            href={`/faculty/view?id=${faculty.id}`}
+                                            href={`/lecturer_management/view?id=${lecturer.user_id}`} // Đường dẫn xem chi tiết
                                             className={clsx(styles.viewButton)}
                                         >
                                             <FaEye />
                                         </Link>
                                         <Link
-                                            href={`/faculty/create-edit?id=${faculty.id}&mode=edit`}
+                                            href={`/lecturer_management/create-edit?id=${lecturer.user_id}&mode=edit`} // Đường dẫn chỉnh sửa
                                             className={clsx(
                                                 styles.viewButton,
                                                 styles.viewButtonUpdate
@@ -151,12 +133,14 @@ const Faculty = () => {
                                             <AiFillEdit />
                                         </Link>
                                         <Link
+                                            href="#"
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 setIsModalOpen(true);
-                                                setDeleteFacultyId(faculty.id);
+                                                setDeleteLecturerId(
+                                                    lecturer.user_id
+                                                );
                                             }}
-                                            href="#"
                                             className={clsx(
                                                 styles.viewButton,
                                                 styles.viewButtonDelete
@@ -166,9 +150,10 @@ const Faculty = () => {
                                         </Link>
 
                                         {isModalOpen &&
-                                            deleteFacultyId === faculty.id && (
+                                            deleteLecturerId ===
+                                                lecturer.user_id && (
                                                 <ModalConfirm
-                                                    message="Are you sure you want to delete?"
+                                                    message="Bạn có chắc chắn muốn xóa giảng viên này?"
                                                     onConfirm={handleDelete}
                                                     onCancel={handleCancel}
                                                 />
@@ -184,7 +169,7 @@ const Faculty = () => {
                     <Pagination
                         pageNumber={currentPage}
                         setPageNumber={setCurrentPage}
-                        totalItem={50}
+                        totalItem={lecturersData.length}
                         parPage={parPage}
                         showItem={3}
                     />
@@ -194,4 +179,4 @@ const Faculty = () => {
     );
 };
 
-export default Faculty;
+export default LecturerManagement;
