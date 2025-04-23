@@ -85,7 +85,7 @@
 
 .buttonAction {
     padding: 0 25px !important;
-    border-radius: 999px !important;
+    border-radius: 8px !important;
     cursor: pointer;
 }
 

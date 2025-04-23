@@ -58,7 +58,7 @@
     align-items: center;
     gap: 5px;
     padding: 10px 15px;
-    border-radius: 999px;
+    border-radius: 8px;
     background-color: var(--secondary-blue);
     cursor: pointer;
     border: none;

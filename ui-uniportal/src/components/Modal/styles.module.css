@@ -14,7 +14,7 @@
 .modal {
     background: white;
     border-radius: 8px;
-    width: 90%;
+    width: 60%;
     max-width: 90%;
     max-height: 80vh; /* ✅ Giới hạn chiều cao modal */
     padding: 24px;

@@ -24,7 +24,7 @@
 }
 
 .userImage {
-    border-radius: 999px;
+    border-radius: 8px;
     object-fit: cover;
 }
 
@@ -58,7 +58,7 @@
 
 .button {
     cursor: pointer;
-    border-radius: 999px !important;
+    border-radius: 8px !important;
     display: flex;
     justify-content: center;
     align-items: center;

@@ -16,7 +16,7 @@
     background-color: var(--secondary-blue);
     color: white;
     padding: 5px 15px;
-    border-radius: 999px;
+    border-radius: 8px;
     display: inline-flex;
     align-items: center;
     gap: 7px;
