@@ -10,4 +10,5 @@ public interface IMajorService {
     List<MajorDTO> getAllMajors();
     MajorDTO updateMajor(Long id, MajorDTO dto);
     void deleteMajor(Long id);
+    List<MajorDTO> searchMajorsByName(String name);
 }

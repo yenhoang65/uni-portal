@@ -11,4 +11,5 @@ public interface ISpecializationService {
     List<SpecializationResponse> getAll();
     SpecializationResponse update(Long id, SpecializationDTO dto);
     void delete(Long id);
+    List<SpecializationResponse> searchByName(String name);
 }

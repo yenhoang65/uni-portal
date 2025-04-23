@@ -23,7 +23,8 @@ public class ClassroomServiceImpl implements IClassroomService {
                 entity.getClassroomId(),
                 entity.getClassroomName(),
                 entity.getNumberOfSeats(),
-                deviceList
+                deviceList,
+                entity.getStatus()
         );
     }
 
@@ -33,6 +34,7 @@ public class ClassroomServiceImpl implements IClassroomService {
         entity.setClassroomName(dto.getClassroomName());
         entity.setNumberOfSeats(dto.getNumberOfSeats());
         entity.setDevice(dto.getDevices() != null ? String.join(", ", dto.getDevices()) : "");
+        entity.setStatus(dto.getStatus());
         return entity;
     }
 

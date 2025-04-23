@@ -2,6 +2,8 @@ package io.spring.uni_portal.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "major")
 public class Major {
@@ -16,6 +18,15 @@ public class Major {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "faculty_id", nullable = false)
     private Faculty faculty;
+
+    @Column(name = "major_Date_of_establishment")
+    private LocalDate majorDateOfEstablishment;
+
+    @Column(name = "major_description")
+    private String majorDescription;
+
+    @Column(name = "major_status")
+    private String majorStatus;
 
     // Constructors
     public Major() {
@@ -50,6 +61,30 @@ public class Major {
     public void setFaculty(Faculty faculty) {
         this.faculty = faculty;
     }
+    public LocalDate getMajorDateOfEstablishment() {
+        return majorDateOfEstablishment;
+    }
+
+    public void setMajorDateOfEstablishment(LocalDate majorDateOfEstablishment) {
+        this.majorDateOfEstablishment = majorDateOfEstablishment;
+    }
+
+    public String getMajorDescription() {
+        return majorDescription;
+    }
+
+    public void setMajorDescription(String majorDescription) {
+        this.majorDescription = majorDescription;
+    }
+
+    public String getMajorStatus() {
+        return majorStatus;
+    }
+
+    public void setMajorStatus(String majorStatus) {
+        this.majorStatus = majorStatus;
+    }
+
 
     // Optional: toString()
     @Override
@@ -57,7 +92,10 @@ public class Major {
         return "Major{" +
                 "majorId=" + majorId +
                 ", majorName='" + majorName + '\'' +
-                ", faculty=" + (faculty != null ? faculty.getFacultyName() : null) + // Chỉ hiển thị tên khoa
+                ", faculty=" + (faculty != null ? faculty.getFacultyName() : null) +
+                ", majorDateOfEstablishment=" + majorDateOfEstablishment +
+                ", majorDescription='" + majorDescription + '\'' +
+                ", majorStatus='" + majorStatus + '\'' +
                 '}';
     }
 }

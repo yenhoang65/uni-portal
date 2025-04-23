@@ -54,6 +54,8 @@ public class User {
     @Column(name = "bank_account_number")
     private String bankAccountNumber;
 
+    private String status;
+
     private String role;
 
     // Constructors
@@ -203,5 +205,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

@@ -2,6 +2,8 @@ package io.spring.uni_portal.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "specialization")
 public class Specialization {
@@ -17,7 +19,15 @@ public class Specialization {
     @JoinColumn(name = "major_id", nullable = false)
     private Major major;
 
-    // Constructors
+    @Column(name = "specialization_Date_of_establishment")
+    private LocalDate specializationDateOfEstablishment;
+
+    @Column(name = "specialization_description")
+    private String specializationDescription;
+
+    @Column(name = "specialization_status")
+    private String specializationStatus;
+
     public Specialization() {
     }
 
@@ -51,13 +61,39 @@ public class Specialization {
         this.major = major;
     }
 
-    // Optional: toString()
+    public LocalDate getSpecializationDateOfEstablishment() {
+        return specializationDateOfEstablishment;
+    }
+
+    public void setSpecializationDateOfEstablishment(LocalDate specializationDateOfEstablishment) {
+        this.specializationDateOfEstablishment = specializationDateOfEstablishment;
+    }
+
+    public String getSpecializationDescription() {
+        return specializationDescription;
+    }
+
+    public void setSpecializationDescription(String specializationDescription) {
+        this.specializationDescription = specializationDescription;
+    }
+
+    public String getSpecializationStatus() {
+        return specializationStatus;
+    }
+
+    public void setSpecializationStatus(String specializationStatus) {
+        this.specializationStatus = specializationStatus;
+    }
+
     @Override
     public String toString() {
         return "Specialization{" +
                 "specializationId=" + specializationId +
                 ", specializationName='" + specializationName + '\'' +
                 ", major=" + (major != null ? major.getMajorName() : null) +
+                ", specializationDateOfEstablishment=" + specializationDateOfEstablishment +
+                ", specializationDescription='" + specializationDescription + '\'' +
+                ", specializationStatus='" + specializationStatus + '\'' +
                 '}';
     }
 }

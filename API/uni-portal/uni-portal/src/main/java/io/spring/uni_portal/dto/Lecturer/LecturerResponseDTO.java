@@ -23,7 +23,7 @@ public class LecturerResponseDTO {
     private String bankAccountNumber;
     private String role;
     private LocalDate admissionDate;
-
+    private String status;
     // Lecturer fields
     private String academicDegree;
     private String graduatedFrom;
@@ -54,7 +54,7 @@ public class LecturerResponseDTO {
         this.bankAccountNumber = lecturer.getUser().getBankAccountNumber();
         this.role = lecturer.getUser().getRole();
         this.admissionDate = lecturer.getUser().getAdmissionDate();
-
+        this.status = lecturer.getUser().getStatus();
         this.academicDegree = lecturer.getAcademicDegree();
         this.graduatedFrom = lecturer.getGraduatedFrom();
         this.position = lecturer.getPosition();
@@ -133,4 +133,12 @@ public class LecturerResponseDTO {
 
     public String getFacultyName() { return facultyName; }
     public void setFacultyName(String facultyName) { this.facultyName = facultyName; }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

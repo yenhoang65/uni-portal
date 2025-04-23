@@ -20,17 +20,15 @@ public class MajorServiceImpl implements IMajorService {
     @Autowired
     private FacultyRepository facultyRepository;
 
-    private Long generateNextMajorId() {
-        Long maxId = majorRepository.findMaxMajorId();
-        return maxId + 1;
-    }
-
     private MajorDTO toDTO(Major major) {
         MajorDTO dto = new MajorDTO();
         dto.setMajorId(major.getMajorId());
         dto.setMajorName(major.getMajorName());
         dto.setFacultyId(major.getFaculty().getFacultyId());
         dto.setFacultyName(major.getFaculty().getFacultyName());
+        dto.setMajorDateOfEstablishment(major.getMajorDateOfEstablishment());
+        dto.setMajorDescription(major.getMajorDescription());
+        dto.setMajorStatus(major.getMajorStatus());
         return dto;
     }
 
@@ -40,13 +38,18 @@ public class MajorServiceImpl implements IMajorService {
         Major major = new Major();
         major.setMajorName(dto.getMajorName());
         major.setFaculty(faculty);
+        major.setMajorDateOfEstablishment(dto.getMajorDateOfEstablishment());
+        major.setMajorDescription(dto.getMajorDescription());
+        major.setMajorStatus(dto.getMajorStatus());
         return major;
     }
 
-    @Override
     public MajorDTO createMajor(MajorDTO dto) {
+        if (majorRepository.existsById(dto.getMajorId())) {
+            throw new RuntimeException("Mã ngành học đã tồn tại. Vui lòng chọn mã khác.");
+        }
         Major major = toEntity(dto);
-        major.setMajorId(generateNextMajorId());
+        major.setMajorId(dto.getMajorId());
         return toDTO(majorRepository.save(major));
     }
 
@@ -68,13 +71,26 @@ public class MajorServiceImpl implements IMajorService {
     public MajorDTO updateMajor(Long id, MajorDTO dto) {
         Major major = majorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Major not found with ID: " + id));
+
         major.setMajorName(dto.getMajorName());
+        major.setMajorDateOfEstablishment(dto.getMajorDateOfEstablishment());
+        major.setMajorDescription(dto.getMajorDescription());
+
         if (!major.getFaculty().getFacultyId().equals(dto.getFacultyId())) {
             Faculty faculty = facultyRepository.findById(dto.getFacultyId())
                     .orElseThrow(() -> new RuntimeException("Faculty not found with ID: " + dto.getFacultyId()));
             major.setFaculty(faculty);
         }
+
         return toDTO(majorRepository.save(major));
+    }
+
+    @Override
+    public List<MajorDTO> searchMajorsByName(String name) {
+        return majorRepository.findAll().stream()
+                .filter(major -> name == null || major.getMajorName().toLowerCase().contains(name.toLowerCase()))
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -1,9 +1,16 @@
 package io.spring.uni_portal.dto.Major;
+
+import java.time.LocalDate;
+
 public class MajorDTO {
     private Long majorId;
     private String majorName;
     private Long facultyId;
-    private String facultyName; // ✅ Thêm dòng này
+    private String facultyName;
+    private LocalDate majorDateOfEstablishment;
+    private String majorDescription;
+    private String majorStatus;
+
 
     public Long getMajorId() {
         return majorId;
@@ -35,5 +42,29 @@ public class MajorDTO {
 
     public void setFacultyName(String facultyName) {
         this.facultyName = facultyName;
+    }
+
+    public LocalDate getMajorDateOfEstablishment() {
+        return majorDateOfEstablishment;
+    }
+
+    public void setMajorDateOfEstablishment(LocalDate majorDateOfEstablishment) {
+        this.majorDateOfEstablishment = majorDateOfEstablishment;
+    }
+
+    public String getMajorDescription() {
+        return majorDescription;
+    }
+
+    public void setMajorDescription(String majorDescription) {
+        this.majorDescription = majorDescription;
+    }
+
+    public String getMajorStatus() {
+        return majorStatus;
+    }
+
+    public void setMajorStatus(String majorStatus) {
+        this.majorStatus = majorStatus;
     }
 }

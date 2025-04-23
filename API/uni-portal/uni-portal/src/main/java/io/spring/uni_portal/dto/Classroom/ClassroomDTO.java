@@ -7,6 +7,7 @@ public class ClassroomDTO {
     private String classroomName;
     private Long numberOfSeats;
     private List<String> devices;
+    private String status;
 
     public Long getClassroomId() {
         return classroomId;
@@ -38,5 +39,13 @@ public class ClassroomDTO {
 
     public void setDevices(List<String> devices) {
         this.devices = devices;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

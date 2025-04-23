@@ -38,7 +38,6 @@ public class LecturerController {
         }
     }
 
-
     @GetMapping
     public ResponseEntity<Response<List<LecturerResponseDTO>>> getAllLecturers() {
         List<LecturerResponseDTO> lecturers = lecturerService.getAllLecturers();
