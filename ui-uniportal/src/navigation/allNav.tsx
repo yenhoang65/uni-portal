@@ -48,7 +48,7 @@ export const allNav = [
         title: "Quản lý thông tin cá nhân",
         icon: <AiOutlineDashboard />,
         role: ["admin", "employee", "student", "lecturer"],
-        path: "/profile",
+        path: "/profile/view",
     },
     {
         id: 8,
@@ -72,7 +72,7 @@ export const allNav = [
         path: "/subject",
     },
     {
-        id: 10,
+        id: 11,
         title: "Quản lý chương trình đào tạo",
         icon: <AiOutlineDashboard />,
         role: ["admin"],
