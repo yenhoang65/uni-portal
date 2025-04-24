@@ -1,19 +1,26 @@
+import { getNav } from "@/navigation";
 import styles from "./styles.module.css";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { ReactNode, useEffect, useState } from "react";
+
+type NavItem = {
+    id: number;
+    title: string;
+    icon: ReactNode;
+    role: string[];
+    path: string;
+};
 
 const Sidebar: React.FC = () => {
     const router = useRouter();
     const { pathname } = router;
+    const [allNav, setAllNav] = useState<NavItem[]>([]);
 
-    const allNav = [
-        { id: 1, path: "/", title: "Dashboard", icon: "🏠" },
-        { id: 2, path: "/about", title: "About", icon: "ℹ️" },
-        { id: 3, path: "/services", title: "Services", icon: "🛠️" },
-        { id: 4, path: "/contact", title: "Contact", icon: "📞" },
-        { id: 5, path: "/profile", title: "Profile", icon: "👤" },
-        { id: 6, path: "/settings", title: "Settings", icon: "⚙️" },
-    ];
+    useEffect(() => {
+        const navs = getNav(["admin"]);
+        setAllNav(navs);
+    }, []);
 
     return (
         <div className={styles.sidebar}>

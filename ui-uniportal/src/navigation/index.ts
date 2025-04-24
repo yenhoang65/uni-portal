@@ -1,5 +1,7 @@
 import { allNav } from "./allNav";
 
 export const getNav = (roles: string[]) => {
-    return allNav.filter((nav) => roles.includes(nav.role));
+    return allNav.filter((nav) =>
+        nav.role.some((role) => roles.includes(role))
+    );
 };
