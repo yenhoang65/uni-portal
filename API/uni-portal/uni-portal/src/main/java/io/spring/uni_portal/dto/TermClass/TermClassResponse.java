@@ -1,39 +1,15 @@
-package io.spring.uni_portal.model;
+package io.spring.uni_portal.dto.TermClass;
 
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "term_class")
-public class TermClass {
-
-    @Id
-    @Column(name = "termclass_id")
+public class TermClassResponse {
     private Long termclassId;
-
-    @Column(name = "classname") // Thêm trường classname
     private String classname;
-
-    @Column(name = "progress")
     private String progress;
-
-    @Column(name = "semester")
     private String semester;
-
-    @Column(name = "schoolyears")
     private String schoolyears;
 
-    // Constructors
-    public TermClass() {
-    }
-
-    public TermClass(String classname, String progress, String semester, String schoolyears) {
-        this.classname = classname;
-        this.progress = progress;
-        this.semester = semester;
-        this.schoolyears = schoolyears;
-    }
-
     // Getters and Setters
+
+
     public Long getTermclassId() {
         return termclassId;
     }

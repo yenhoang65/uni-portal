@@ -6,7 +6,6 @@ public class SubjectDTO {
     private Integer ltCredits;
     private Integer thCredits;
     private String subjectDescription;
-    private String subjectType;
     private Double subjectCoefficient;
 
     // Getters and Setters
@@ -48,14 +47,6 @@ public class SubjectDTO {
 
     public void setSubjectDescription(String subjectDescription) {
         this.subjectDescription = subjectDescription;
-    }
-
-    public String getSubjectType() {
-        return subjectType;
-    }
-
-    public void setSubjectType(String subjectType) {
-        this.subjectType = subjectType;
     }
 
     public Double getSubjectCoefficient() {

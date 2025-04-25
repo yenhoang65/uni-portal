@@ -6,19 +6,17 @@ public class SubjectResponse {
     private Integer ltCredits;
     private Integer thCredits;
     private String subjectDescription;
-    private String subjectType;
     private Double subjectCoefficient;
 
     public SubjectResponse() {}
 
     public SubjectResponse(Long subjectId, String subjectName, Integer ltCredits, Integer thCredits,
-                           String subjectDescription, String subjectType, Double subjectCoefficient) {
+                           String subjectDescription, Double subjectCoefficient) {
         this.subjectId = subjectId;
         this.subjectName = subjectName;
         this.ltCredits = ltCredits;
         this.thCredits = thCredits;
         this.subjectDescription = subjectDescription;
-        this.subjectType = subjectType;
         this.subjectCoefficient = subjectCoefficient;
     }
 
@@ -61,14 +59,6 @@ public class SubjectResponse {
 
     public void setSubjectDescription(String subjectDescription) {
         this.subjectDescription = subjectDescription;
-    }
-
-    public String getSubjectType() {
-        return subjectType;
-    }
-
-    public void setSubjectType(String subjectType) {
-        this.subjectType = subjectType;
     }
 
     public Double getSubjectCoefficient() {

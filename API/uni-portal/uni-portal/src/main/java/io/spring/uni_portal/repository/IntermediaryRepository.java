@@ -14,4 +14,5 @@ public interface IntermediaryRepository extends JpaRepository<Intermediary, Inte
     @Transactional
     @Modifying
     void deleteByTrainingProgram_TrainingProgramId(Long trainingProgramId);
+    List<Intermediary> findByTrainingProgram_TrainingProgramIdAndSchoolYear(Long trainingProgramId, String schoolYear);
 }

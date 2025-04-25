@@ -20,11 +20,9 @@ public class TeachingAssignment {
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
-    @Column(name = "semester", nullable = false)
-    private Long semester;
-
-    @Column(name = "school_year", nullable = false)
-    private Long schoolYear;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "termclass_id", nullable = false)
+    private TermClass termClass;
 
     // Getters & Setters
 
@@ -52,20 +50,12 @@ public class TeachingAssignment {
         this.subject = subject;
     }
 
-    public Long getSemester() {
-        return semester;
+    public TermClass getTermClass() {
+        return termClass;
     }
 
-    public void setSemester(Long semester) {
-        this.semester = semester;
-    }
-
-    public Long getSchoolYear() {
-        return schoolYear;
-    }
-
-    public void setSchoolYear(Long schoolYear) {
-        this.schoolYear = schoolYear;
+    public void setTermClass(TermClass termClass) {
+        this.termClass = termClass;
     }
 }
 
