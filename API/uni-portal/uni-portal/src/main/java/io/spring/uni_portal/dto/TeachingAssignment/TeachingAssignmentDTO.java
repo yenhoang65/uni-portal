@@ -1,17 +1,18 @@
 package io.spring.uni_portal.dto.TeachingAssignment;
 
 public class TeachingAssignmentDTO {
-    private Long userId;
-    private Long subjectId;
-    private Long schoolYear;
-    private Long semester;
 
-    public Long getUserId() {
-        return userId;
+    private Long lecturerId;
+    private Long subjectId;
+    private Long termClassId;  // Chỉ cần trường này
+
+    // Getters and setters
+    public Long getLecturerId() {
+        return lecturerId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setLecturerId(Long lecturerId) {
+        this.lecturerId = lecturerId;
     }
 
     public Long getSubjectId() {
@@ -22,20 +23,11 @@ public class TeachingAssignmentDTO {
         this.subjectId = subjectId;
     }
 
-    public Long getSchoolYear() {
-        return schoolYear;
+    public Long getTermClassId() {
+        return termClassId;
     }
 
-    public void setSchoolYear(Long schoolYear) {
-        this.schoolYear = schoolYear;
+    public void setTermClassId(Long termClassId) {
+        this.termClassId = termClassId;
     }
-
-    public Long getSemester() {
-        return semester;
-    }
-
-    public void setSemester(Long semester) {
-        this.semester = semester;
-    }
-
 }

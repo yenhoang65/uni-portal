@@ -3,15 +3,18 @@ package io.spring.uni_portal.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "term_class_student")
-public class TermClassStudent {
+@Table(name = "class_subject_student")
+public class ClassSubjectStudent {
 
     @Id
+    @Column(name = "termclass_id")
+    private Long termclassId;
+
     @ManyToOne
-    @JoinColumn(name = "term_class_id", referencedColumnName = "term_class_id")
+    @MapsId
+    @JoinColumn(name = "termclass_id")
     private TermClass termClass;
 
-    @Id
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private Student student;
@@ -20,15 +23,23 @@ public class TermClassStudent {
     private Long status;
 
     // Constructors
-    public TermClassStudent() {}
+    public ClassSubjectStudent() {}
 
-    public TermClassStudent(TermClass termClass, Student student, Long status) {
+    public ClassSubjectStudent(TermClass termClass, Student student, Long status) {
         this.termClass = termClass;
         this.student = student;
         this.status = status;
     }
 
     // Getters and Setters
+    public Long getTermclassId() {
+        return termclassId;
+    }
+
+    public void setTermclassId(Long termclassId) {
+        this.termclassId = termclassId;
+    }
+
     public TermClass getTermClass() {
         return termClass;
     }
@@ -53,3 +64,4 @@ public class TermClassStudent {
         this.status = status;
     }
 }
+

@@ -22,8 +22,6 @@ public class Subject {
     @Column(name = "subject_description")
     private String subjectDescription;
 
-    @Column(name = "subject_type")
-    private String subjectType;
 
     @Column(name = "subject_coefficient")
     private Double subjectCoefficient;
@@ -31,12 +29,11 @@ public class Subject {
     // Constructors
     public Subject() {}
 
-    public Subject(String subjectName, Integer ltCredits, Integer thCredits, String subjectDescription, String subjectType, Double subjectCoefficient) {
+    public Subject(String subjectName, Integer ltCredits, Integer thCredits, String subjectDescription, Double subjectCoefficient) {
         this.subjectName = subjectName;
         this.ltCredits = ltCredits;
         this.thCredits = thCredits;
         this.subjectDescription = subjectDescription;
-        this.subjectType = subjectType;
         this.subjectCoefficient = subjectCoefficient;
     }
 
@@ -81,14 +78,6 @@ public class Subject {
         this.subjectDescription = subjectDescription;
     }
 
-    public String getSubjectType() {
-        return subjectType;
-    }
-
-    public void setSubjectType(String subjectType) {
-        this.subjectType = subjectType;
-    }
-
     public Double getSubjectCoefficient() {
         return subjectCoefficient;
     }
@@ -105,7 +94,6 @@ public class Subject {
                 ", ltCredits=" + ltCredits +
                 ", thCredits=" + thCredits +
                 ", subjectDescription='" + subjectDescription + '\'' +
-                ", subjectType='" + subjectType + '\'' +
                 ", subjectCoefficient=" + subjectCoefficient +
                 '}';
     }

@@ -24,7 +24,6 @@ public class SubjectServiceImpl implements ISubjectService {
                 subject.getLtCredits(),
                 subject.getThCredits(),
                 subject.getSubjectDescription(),
-                subject.getSubjectType(),
                 subject.getSubjectCoefficient()
         );
     }
@@ -36,7 +35,6 @@ public class SubjectServiceImpl implements ISubjectService {
         subject.setLtCredits(dto.getLtCredits());
         subject.setThCredits(dto.getThCredits());
         subject.setSubjectDescription(dto.getSubjectDescription());
-        subject.setSubjectType(dto.getSubjectType());
         subject.setSubjectCoefficient(dto.getSubjectCoefficient());
         return subject;
     }
@@ -84,7 +82,6 @@ public class SubjectServiceImpl implements ISubjectService {
         subject.setLtCredits(dto.getLtCredits());
         subject.setThCredits(dto.getThCredits());
         subject.setSubjectDescription(dto.getSubjectDescription());
-        subject.setSubjectType(dto.getSubjectType());
         subject.setSubjectCoefficient(dto.getSubjectCoefficient());
 
         return toResponse(subjectRepository.save(subject));

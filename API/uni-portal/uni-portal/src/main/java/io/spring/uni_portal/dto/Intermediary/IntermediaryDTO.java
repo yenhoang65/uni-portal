@@ -1,11 +1,15 @@
 package io.spring.uni_portal.dto.Intermediary;
 
+import java.util.List;
+
 public class IntermediaryDTO {
     private Long trainingProgramId;
     private Long subjectId;
     private String schoolYear;
+    private String subjectType;
+    private List<Long> prerequisiteForList;
 
-    // Getters and Setters
+    // Getter and Setter
     public Long getTrainingProgramId() {
         return trainingProgramId;
     }
@@ -29,4 +33,21 @@ public class IntermediaryDTO {
     public void setSchoolYear(String schoolYear) {
         this.schoolYear = schoolYear;
     }
+
+    public String getSubjectType() {
+        return subjectType;
+    }
+
+    public void setSubjectType(String subjectType) {
+        this.subjectType = subjectType;
+    }
+
+    public List<Long> getPrerequisiteForList() {
+        return prerequisiteForList;
+    }
+
+    public void setPrerequisiteForList(List<Long> prerequisiteForList) {
+        this.prerequisiteForList = prerequisiteForList;
+    }
 }
+

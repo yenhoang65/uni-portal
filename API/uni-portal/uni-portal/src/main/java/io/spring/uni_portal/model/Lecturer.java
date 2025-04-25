@@ -43,6 +43,7 @@ public class Lecturer {
         return userId;
     }
 
+
     public void setUserId(Long userId) {
         this.userId = userId;
     }

@@ -1,36 +1,35 @@
 package io.spring.uni_portal.dto.TeachingAssignment;
 
+public class TeachingAssignmentDetailsResponse {
 
-public class TeachingAssignmentResponse {
     private Long assignmentId;
-    private Long userId;
+    private Long lecturerId;
     private String lecturerName;
     private Long subjectId;
     private String subjectName;
     private Long termClassId;
-    private String classname;
+    private String className;
     private String progress;
     private String semester;
-    private String schoolyear;
+    private String schoolYear;
 
-    // Constructors, Getters & Setters
-
-    public TeachingAssignmentResponse(Long assignmentId, Long userId, String lecturerName, Long subjectId, String subjectName,
-                                      Long termClassId, String classname, String progress, String semester, String schoolyear) {
+    // Constructor
+    public TeachingAssignmentDetailsResponse(Long assignmentId, Long lecturerId, String lecturerName,
+                                     Long subjectId, String subjectName, Long termClassId,
+                                     String className, String progress, String semester, String schoolYear) {
         this.assignmentId = assignmentId;
-        this.userId = userId;
+        this.lecturerId = lecturerId;
         this.lecturerName = lecturerName;
         this.subjectId = subjectId;
         this.subjectName = subjectName;
         this.termClassId = termClassId;
-        this.classname = classname;
+        this.className = className;
         this.progress = progress;
         this.semester = semester;
-        this.schoolyear = schoolyear;
+        this.schoolYear = schoolYear;
     }
 
-    // Getters & Setters
-
+    // Getters and Setters
     public Long getAssignmentId() {
         return assignmentId;
     }
@@ -39,12 +38,12 @@ public class TeachingAssignmentResponse {
         this.assignmentId = assignmentId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getLecturerId() {
+        return lecturerId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setLecturerId(Long lecturerId) {
+        this.lecturerId = lecturerId;
     }
 
     public String getLecturerName() {
@@ -79,12 +78,12 @@ public class TeachingAssignmentResponse {
         this.termClassId = termClassId;
     }
 
-    public String getClassname() {
-        return classname;
+    public String getClassName() {
+        return className;
     }
 
-    public void setClassname(String classname) {
-        this.classname = classname;
+    public void setClassName(String className) {
+        this.className = className;
     }
 
     public String getProgress() {
@@ -103,11 +102,11 @@ public class TeachingAssignmentResponse {
         this.semester = semester;
     }
 
-    public String getSchoolyear() {
-        return schoolyear;
+    public String getSchoolYear() {
+        return schoolYear;
     }
 
-    public void setSchoolyear(String schoolyear) {
-        this.schoolyear = schoolyear;
+    public void setSchoolYear(String schoolYear) {
+        this.schoolYear = schoolYear;
     }
 }
