@@ -74,7 +74,7 @@ const FacultyDetailPage: React.FC = () => {
                     )}
                     {website && (
                         <div className={styles.infoItem}>
-                            <strong>Website:</strong>{" "}
+                            <strong>Website:</strong>
                             <Link
                                 href={website}
                                 target="_blank"
@@ -86,13 +86,13 @@ const FacultyDetailPage: React.FC = () => {
                     )}
                     {email && (
                         <div className={styles.infoItem}>
-                            <strong>Email:</strong>{" "}
+                            <strong>Email:</strong>
                             <a href={`mailto:${email}`}>{email}</a>
                         </div>
                     )}
                     {dien_thoai && (
                         <div className={styles.infoItem}>
-                            <strong>Điện thoại:</strong>{" "}
+                            <strong>Điện thoại:</strong>
                             <a href={`tel:${dien_thoai}`}>{dien_thoai}</a>
                         </div>
                     )}

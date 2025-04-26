@@ -1,21 +1,14 @@
-import { getNav } from "@/navigation";
+import { getNav, NavGroup } from "@/navigation";
 import styles from "./styles.module.css";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { ReactNode, useEffect, useState } from "react";
-
-type NavItem = {
-    id: number;
-    title: string;
-    icon: ReactNode;
-    role: string[];
-    path: string;
-};
+import { useEffect, useState } from "react";
+import Image from "next/image";
 
 const Sidebar: React.FC = () => {
     const router = useRouter();
     const { pathname } = router;
-    const [allNav, setAllNav] = useState<NavItem[]>([]);
+    const [allNav, setAllNav] = useState<NavGroup[]>([]);
 
     useEffect(() => {
         const navs = getNav(["admin"]);
@@ -24,35 +17,44 @@ const Sidebar: React.FC = () => {
 
     return (
         <div className={styles.sidebar}>
-            <div className={styles.logoContainer}>
-                <Link href="/" className={styles.logo}>
-                    Tago.
-                </Link>
+            <div className={styles.userSection}>
+                <div className={styles.avatarWrapper}>
+                    <Image
+                        src={require("./assets/user.jpg")}
+                        alt="User Avatar"
+                        width={60}
+                        height={60}
+                        className={styles.avatarIcon}
+                    />
+                </div>
+                <span className={styles.username}>Nicola Web Design</span>
             </div>
 
             <div className={styles.navList}>
-                <ul>
-                    {allNav.map((nav) => (
-                        <li key={nav.id}>
-                            <Link
-                                href={nav.path}
-                                className={`${styles.navItem} ${
-                                    pathname === nav.path
-                                        ? styles.navItemActive
-                                        : ""
-                                }`}
-                            >
-                                <span>{nav.icon}</span>
-                                <span>{nav.title}</span>
-                            </Link>
-                        </li>
-                    ))}
-                    <li>
-                        <button className={styles.logoutButton}>
-                            <span>Log Out</span>
-                        </button>
-                    </li>
-                </ul>
+                {allNav.map((group) => (
+                    <div key={group.group} className={styles.navGroup}>
+                        <div className={styles.groupTitle}>{group.group}</div>
+                        <ul>
+                            {group.items.map((item) => (
+                                <li key={item.id}>
+                                    <Link
+                                        href={item.path}
+                                        className={`${styles.navItem} ${
+                                            pathname === item.path
+                                                ? styles.navItemActive
+                                                : ""
+                                        }`}
+                                    >
+                                        <span>{item.icon}</span>
+                                        <span className={styles.titleName}>
+                                            {item.title}
+                                        </span>
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
             </div>
         </div>
     );

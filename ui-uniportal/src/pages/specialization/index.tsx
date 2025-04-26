@@ -88,11 +88,9 @@ const Specialization = () => {
                                 <th style={{ minWidth: "150px" }}>
                                     Mã chuyên ngành
                                 </th>
-                                <th style={{ minWidth: "180px" }}>Tên ngành</th>{" "}
+                                <th style={{ minWidth: "180px" }}>Tên ngành</th>
                                 {/* Tên ngành (từ major) */}
-                                <th style={{ minWidth: "180px" }}>
-                                    Tên khoa
-                                </th>{" "}
+                                <th style={{ minWidth: "180px" }}>Tên khoa</th>
                                 {/* Tên khoa (từ major) */}
                                 <th style={{ minWidth: "220px" }}>
                                     Tên chuyên ngành
@@ -109,9 +107,9 @@ const Specialization = () => {
                                 <tr key={specialization.id}>
                                     <td>{index + 1}</td>
                                     <td>{specialization.id}</td>
-                                    <td>{specialization.majorName}</td>{" "}
+                                    <td>{specialization.majorName}</td>
                                     {/* Hiển thị Tên ngành */}
-                                    <td>{specialization.facultyName}</td>{" "}
+                                    <td>{specialization.facultyName}</td>
                                     {/* Hiển thị Tên khoa */}
                                     <td>{specialization.name}</td>
                                     <td>{specialization.description}</td>

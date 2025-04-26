@@ -109,7 +109,7 @@ const MajorDetail = () => {
                         className={styles.backButton}
                         onClick={() => router.back()}
                     >
-                        <IoIosArrowBack className={styles.backIcon} />{" "}
+                        <IoIosArrowBack className={styles.backIcon} />
                         <span className={styles.backText}>Back</span>
                     </div>
                     <button

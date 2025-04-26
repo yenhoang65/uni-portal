@@ -46,7 +46,6 @@ const Profile = () => {
                                 title={t("common.address-permanent")}
                                 content="1252"
                             />
-
                             <Button
                                 onClick={() =>
                                     router.push("admin/profile/edit")

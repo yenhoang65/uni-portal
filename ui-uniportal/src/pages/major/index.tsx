@@ -77,9 +77,7 @@ const Major = () => {
                         <thead className={styles.thead}>
                             <tr>
                                 <th style={{ minWidth: "60px" }}>STT</th>
-                                <th style={{ minWidth: "180px" }}>
-                                    Tên khoa
-                                </th>{" "}
+                                <th style={{ minWidth: "180px" }}>Tên khoa</th>
                                 {/* Thêm cột Tên khoa */}
                                 <th style={{ minWidth: "180px" }}>Mã ngành</th>
                                 <th style={{ minWidth: "220px" }}>Tên ngành</th>
@@ -94,7 +92,7 @@ const Major = () => {
                             {majors.map((major, index) => (
                                 <tr key={major.id}>
                                     <td>{index + 1}</td>
-                                    <td>{major.tenKhoa}</td>{" "}
+                                    <td>{major.tenKhoa}</td>
                                     {/* Hiển thị Tên khoa */}
                                     <td>{major.id}</td>
                                     <td>{major.name}</td>

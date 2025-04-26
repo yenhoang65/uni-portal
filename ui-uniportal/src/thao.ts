@@ -67,7 +67,7 @@ export function middleware(request: NextRequest) {
             return NextResponse.redirect(url);
         }
     } else {
-        const publicRoutes = new Set(["/login"]);
+        const publicRoutes = new Set(["/login", "/"]);
         if (!publicRoutes.has(pathname)) {
             url.pathname = "/login";
             return NextResponse.redirect(url);
