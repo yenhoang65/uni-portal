@@ -1,0 +1,66 @@
+.detailContainerHorizontal {
+    padding: 20px;
+    display: flex; /* Sử dụng flexbox để sắp xếp các item theo hàng ngang */
+    flex-wrap: wrap; /* Cho phép các item xuống dòng nếu không đủ không gian */
+    gap: 20px; /* Khoảng cách giữa các item */
+}
+
+.detailItem {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    margin-bottom: 10px; /* Giảm margin-bottom để các hàng gần nhau hơn */
+    flex-basis: calc(
+        33.33% - 20px
+    ); /* Mỗi item chiếm khoảng 1/3 chiều rộng (điều chỉnh tùy ý) */
+}
+
+.detailLabel {
+    font-weight: 600 !important;
+    min-width: 150px;
+}
+
+.buttonGroup {
+    margin-top: 30px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    width: 100%; /* Đảm bảo buttonGroup chiếm toàn bộ chiều rộng */
+}
+
+.backButton {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    transition: text-decoration 0.3s ease;
+}
+
+.backButton:hover {
+    text-decoration: underline;
+}
+
+.backIcon {
+    margin-right: 5px;
+    font-size: 1.2em;
+}
+
+.editButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background-color: var(--secondary-blue);
+    cursor: pointer;
+    border: none;
+    color: #fff;
+    transition: background-color 0.3s ease;
+}
+
+.editButton:hover {
+    color: #000;
+    background-color: #e0e0e0;
+}

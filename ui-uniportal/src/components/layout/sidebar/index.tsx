@@ -41,14 +41,14 @@ const Sidebar: React.FC = () => {
                                     <Link
                                         href={item.path}
                                         className={`${styles.navItem} ${
-                                            pathname === item.path
+                                            pathname.includes(item.path)
                                                 ? styles.navItemActive
                                                 : ""
                                         }`}
                                     >
                                         <span
                                             className={`${
-                                                pathname === item.path
+                                                pathname.includes(item.path)
                                                     ? styles.navIconActive
                                                     : styles.navIcon
                                             }`}
@@ -57,7 +57,7 @@ const Sidebar: React.FC = () => {
                                         </span>
                                         <span
                                             className={`${
-                                                pathname === item.path
+                                                pathname.includes(item.path)
                                                     ? styles.titleActive
                                                     : styles.titleName
                                             }`}
