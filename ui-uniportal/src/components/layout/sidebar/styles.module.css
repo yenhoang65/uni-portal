@@ -11,6 +11,9 @@
     visibility: hidden;
 }
 
+.position {
+    font-size: 13px;
+}
 .overlayVisible {
     visibility: visible;
     height: 100vh;
@@ -57,8 +60,9 @@
     line-height: 1.5;
 }
 
+.navIcon,
 .titleName {
-    color: #000;
+    color: var(--color-grey);
     line-height: 1.5;
 }
 .navList ul {
@@ -80,13 +84,18 @@
 }
 
 .navItem:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #e0e8f9;
 }
 
 .navItemActive {
     background-color: #e8f0fe;
     color: var(--secondary-blue);
     font-weight: 600;
+}
+
+.titleActive,
+.navIconActive {
+    color: var(--secondary-blue);
 }
 
 .userSection {

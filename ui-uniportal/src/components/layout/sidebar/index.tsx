@@ -28,6 +28,7 @@ const Sidebar: React.FC = () => {
                     />
                 </div>
                 <span className={styles.username}>Nicola Web Design</span>
+                <span className={styles.position}>Giảng viên</span>
             </div>
 
             <div className={styles.navList}>
@@ -45,8 +46,22 @@ const Sidebar: React.FC = () => {
                                                 : ""
                                         }`}
                                     >
-                                        <span>{item.icon}</span>
-                                        <span className={styles.titleName}>
+                                        <span
+                                            className={`${
+                                                pathname === item.path
+                                                    ? styles.navIconActive
+                                                    : styles.navIcon
+                                            }`}
+                                        >
+                                            {item.icon}
+                                        </span>
+                                        <span
+                                            className={`${
+                                                pathname === item.path
+                                                    ? styles.titleActive
+                                                    : styles.titleName
+                                            }`}
+                                        >
                                             {item.title}
                                         </span>
                                     </Link>

@@ -1,8 +1,9 @@
 import { TypographyHeading } from "@/components/TypographyHeading";
 import styles from "./styles.module.css";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
+import { FaBell } from "react-icons/fa"; // Import biểu tượng chuông
 
 const Header: React.FC = () => {
     const { t, i18n } = useTranslation();
@@ -12,10 +13,6 @@ const Header: React.FC = () => {
         const nextLang = currentLanguage === "vi" ? "en" : "vi";
         setCurrentLanguage(nextLang);
         i18n.changeLanguage(nextLang);
-    };
-
-    const getFlag = (lang: string) => {
-        return lang === "vi" ? "VI" : "EN";
     };
 
     return (
@@ -33,21 +30,34 @@ const Header: React.FC = () => {
 
                 <div className={styles.userInfo}>
                     <div className={styles.userContent}>
-                        <TypographyHeading
-                            tag="span"
-                            theme="lg"
-                            color="var(--primary-white)"
+                        <button
                             onClick={handleChangeLanguage}
                             className={styles.buttonChangeLang}
                         >
-                            {getFlag(currentLanguage)}
-                        </TypographyHeading>
-
+                            <Image
+                                src={
+                                    currentLanguage === "vi"
+                                        ? require("./assets/vietnam.webp")
+                                        : require("./assets/usa.png")
+                                }
+                                alt={
+                                    currentLanguage === "vi"
+                                        ? "Cờ Việt Nam"
+                                        : "Cờ Hoa Kỳ"
+                                }
+                                width={30}
+                                height={20}
+                                objectFit="contain"
+                            />
+                        </button>
+                        <span>
+                            <FaBell size={20} color="white" />
+                        </span>
                         <Image
                             src={require("./assets/user-image.webp")}
-                            width={40}
-                            height={40}
-                            alt="Picture of the author"
+                            width={35}
+                            height={35}
+                            alt="Ảnh tác giả"
                             className={styles.userImage}
                         />
                     </div>

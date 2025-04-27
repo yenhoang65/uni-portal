@@ -3,18 +3,17 @@
     top: 0;
     left: 0;
     width: 100%;
-    padding: 10px 8px;
+    /* padding: 10px 8px; */
     z-index: 40;
 }
 
 .headerInner {
     margin-left: 0;
-    border-radius: 8px;
-    height: 65px;
+    height: 50px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--primary, #52796f);
+    background-color: var(--secondary-blue);
     padding: 0 20px;
     transition: all 0.3s ease;
 }
@@ -55,12 +54,20 @@
     gap: 22px;
 }
 
+.buttonChangeLang {
+    outline: none;
+    border: none;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .buttonChangeLang,
 .userImage {
     cursor: pointer;
 }
 
 .userImage {
-    border-radius: 8px;
+    border-radius: 999px;
     object-fit: contain;
 }
