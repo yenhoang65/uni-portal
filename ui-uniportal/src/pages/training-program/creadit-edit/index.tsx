@@ -1,5 +1,11 @@
+import AuthGuard from "@/components/AuthGuard";
+
 const CreateEditTrainingProgram = () => {
-    return <div>CreateEditTrainingProgram</div>;
+    return (
+        <AuthGuard allowedRoles={["admin"]}>
+            <div>CreateEditTrainingProgram</div>;
+        </AuthGuard>
+    );
 };
 
 export default CreateEditTrainingProgram;

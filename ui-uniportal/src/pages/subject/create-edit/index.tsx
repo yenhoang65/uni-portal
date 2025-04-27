@@ -7,6 +7,7 @@ import SelectWithLabel from "@/components/SelectWithLabel";
 import { Button } from "@/components/Button";
 import Image from "next/image";
 import { TypographyBody } from "@/components/TypographyBody";
+import AuthGuard from "@/components/AuthGuard";
 
 type SubjectState = {
     subject_id: string;
@@ -140,172 +141,178 @@ const CreateEditSubject = () => {
     };
 
     return (
-        <BorderBox
-            title={mode === "create" ? "Thêm mới môn học" : "Chỉnh sửa môn học"}
-        >
-            <div className={styles.headerActions}>
-                {mode === "create" && !showImportFile && (
-                    <Button
-                        onClick={handleImportButtonClick}
-                        className={styles.importButton}
-                    >
-                        Import từ Excel
-                    </Button>
-                )}
-            </div>
+        <AuthGuard allowedRoles={["admin"]}>
+            <BorderBox
+                title={
+                    mode === "create" ? "Thêm mới môn học" : "Chỉnh sửa môn học"
+                }
+            >
+                <div className={styles.headerActions}>
+                    {mode === "create" && !showImportFile && (
+                        <Button
+                            onClick={handleImportButtonClick}
+                            className={styles.importButton}
+                        >
+                            Import từ Excel
+                        </Button>
+                    )}
+                </div>
 
-            {mode === "create" && showImportFile && (
-                <>
-                    <div className={styles.template}>
-                        <TypographyBody tag="span" theme="md-bold">
-                            Template:
-                        </TypographyBody>
-                        <Image
-                            src={require("./assets/template.png")}
-                            alt="Subject Import Template"
-                            className={styles.imageTemplate}
-                            width={300}
-                            height={200}
-                        />
-                    </div>
-                    <div className={styles.excelImportSection}>
-                        <div className={styles.fileUpload}>
-                            <label
-                                htmlFor="fileInput"
-                                className={styles.fileLabel}
-                            >
-                                Chọn file Excel
-                            </label>
-                            <input
-                                id="fileInput"
-                                type="file"
-                                accept=".xlsx, .csv"
-                                className={styles.fileInput}
-                                onChange={handleFileChange}
-                                ref={fileInputRef}
+                {mode === "create" && showImportFile && (
+                    <>
+                        <div className={styles.template}>
+                            <TypographyBody tag="span" theme="md-bold">
+                                Template:
+                            </TypographyBody>
+                            <Image
+                                src={require("./assets/template.png")}
+                                alt="Subject Import Template"
+                                className={styles.imageTemplate}
+                                width={300}
+                                height={200}
                             />
-                            {fileName && (
-                                <TypographyBody
-                                    tag="span"
-                                    className={styles.fileName}
-                                    onClick={handleDownloadClick}
-                                    style={{
-                                        cursor: "pointer",
-                                        fontWeight: "bold",
-                                        color: "blue",
-                                    }}
-                                >
-                                    Đã chọn: {fileName}
-                                </TypographyBody>
-                            )}
                         </div>
-                        <div className={styles.importActions}>
-                            <Button
-                                onClick={handleCancelImport}
-                                className={styles.buttonAction}
-                            >
-                                Hủy
-                            </Button>
-                            {fileName && (
+                        <div className={styles.excelImportSection}>
+                            <div className={styles.fileUpload}>
+                                <label
+                                    htmlFor="fileInput"
+                                    className={styles.fileLabel}
+                                >
+                                    Chọn file Excel
+                                </label>
+                                <input
+                                    id="fileInput"
+                                    type="file"
+                                    accept=".xlsx, .csv"
+                                    className={styles.fileInput}
+                                    onChange={handleFileChange}
+                                    ref={fileInputRef}
+                                />
+                                {fileName && (
+                                    <TypographyBody
+                                        tag="span"
+                                        className={styles.fileName}
+                                        onClick={handleDownloadClick}
+                                        style={{
+                                            cursor: "pointer",
+                                            fontWeight: "bold",
+                                            color: "blue",
+                                        }}
+                                    >
+                                        Đã chọn: {fileName}
+                                    </TypographyBody>
+                                )}
+                            </div>
+                            <div className={styles.importActions}>
                                 <Button
-                                    onClick={handleProcessImport}
+                                    onClick={handleCancelImport}
                                     className={styles.buttonAction}
                                 >
-                                    Xử lý Import
+                                    Hủy
                                 </Button>
-                            )}
+                                {fileName && (
+                                    <Button
+                                        onClick={handleProcessImport}
+                                        className={styles.buttonAction}
+                                    >
+                                        Xử lý Import
+                                    </Button>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </>
-            )}
+                    </>
+                )}
 
-            {(mode === "edit" || (mode === "create" && !showImportFile)) && (
-                <section className={styles.container}>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Mã môn học"
-                            name="subject_id"
-                            value={state.subject_id}
-                            onChange={inputHandle}
-                            type="text"
-                            required
-                            disabled={mode === "edit"}
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Tên môn học"
-                            name="subject_name"
-                            value={state.subject_name}
-                            onChange={inputHandle}
-                            type="text"
-                            required
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Số tín chỉ lý thuyết"
-                            name="it_credits"
-                            value={state.it_credits}
-                            onChange={inputHandle}
-                            type="number"
-                            required
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Số tín chỉ thực hành"
-                            name="th_credits"
-                            value={state.th_credits}
-                            onChange={inputHandle}
-                            type="number"
-                            required
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <SelectWithLabel
-                            label="Loại môn học"
-                            name="subject_type"
-                            value={state.subject_type}
-                            onChange={
-                                inputHandle as React.ChangeEventHandler<HTMLSelectElement>
-                            }
-                            options={subjectTypeOptions}
-                            required
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Hệ số môn học"
-                            name="subject_he_so"
-                            value={state.subject_he_so}
-                            onChange={inputHandle}
-                            type="number"
-                        />
-                    </div>
-                    <div className={styles.gridItemFull}>
-                        <InputWithLabel
-                            label="Mô tả môn học"
-                            name="subject_description"
-                            value={state.subject_description}
-                            onChange={inputHandle}
-                            type="textarea"
-                        />
-                    </div>
-                </section>
-            )}
+                {(mode === "edit" ||
+                    (mode === "create" && !showImportFile)) && (
+                    <section className={styles.container}>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Mã môn học"
+                                name="subject_id"
+                                value={state.subject_id}
+                                onChange={inputHandle}
+                                type="text"
+                                required
+                                disabled={mode === "edit"}
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Tên môn học"
+                                name="subject_name"
+                                value={state.subject_name}
+                                onChange={inputHandle}
+                                type="text"
+                                required
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Số tín chỉ lý thuyết"
+                                name="it_credits"
+                                value={state.it_credits}
+                                onChange={inputHandle}
+                                type="number"
+                                required
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Số tín chỉ thực hành"
+                                name="th_credits"
+                                value={state.th_credits}
+                                onChange={inputHandle}
+                                type="number"
+                                required
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <SelectWithLabel
+                                label="Loại môn học"
+                                name="subject_type"
+                                value={state.subject_type}
+                                onChange={
+                                    inputHandle as React.ChangeEventHandler<HTMLSelectElement>
+                                }
+                                options={subjectTypeOptions}
+                                required
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Hệ số môn học"
+                                name="subject_he_so"
+                                value={state.subject_he_so}
+                                onChange={inputHandle}
+                                type="number"
+                            />
+                        </div>
+                        <div className={styles.gridItemFull}>
+                            <InputWithLabel
+                                label="Mô tả môn học"
+                                name="subject_description"
+                                value={state.subject_description}
+                                onChange={inputHandle}
+                                type="textarea"
+                            />
+                        </div>
+                    </section>
+                )}
 
-            {(mode === "edit" || (mode === "create" && !showImportFile)) && (
-                <div className={styles.button}>
-                    <Button
-                        className={styles.buttonAction}
-                        onClick={handleSubmit}
-                    >
-                        {mode === "create" ? "Lưu" : "Cập nhật"}
-                    </Button>
-                </div>
-            )}
-        </BorderBox>
+                {(mode === "edit" ||
+                    (mode === "create" && !showImportFile)) && (
+                    <div className={styles.button}>
+                        <Button
+                            className={styles.buttonAction}
+                            onClick={handleSubmit}
+                        >
+                            {mode === "create" ? "Lưu" : "Cập nhật"}
+                        </Button>
+                    </div>
+                )}
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

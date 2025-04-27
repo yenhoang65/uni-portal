@@ -10,6 +10,7 @@ import { MdDeleteForever } from "react-icons/md";
 import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
+import AuthGuard from "@/components/AuthGuard";
 
 const majors = [
     {
@@ -55,106 +56,118 @@ const Major = () => {
     };
 
     return (
-        <BorderBox title="Quản lý ngành học">
-            <div className={styles.box}>
-                <div className={styles.add}>
-                    <Search
-                        setParPage={setParPage}
-                        setSearchValue={setSearchValue}
-                        searchValue={searchValue}
-                    />
+        <AuthGuard allowedRoles={["admin"]}>
+            <BorderBox title="Quản lý ngành học">
+                <div className={styles.box}>
+                    <div className={styles.add}>
+                        <Search
+                            setParPage={setParPage}
+                            setSearchValue={setSearchValue}
+                            searchValue={searchValue}
+                        />
 
-                    <Link
-                        href="/major/create-edit"
-                        className={styles.buttonAdd}
-                    >
-                        <IoMdAddCircle /> Thêm mới
-                    </Link>
-                </div>
+                        <Link
+                            href="/major/create-edit"
+                            className={styles.buttonAdd}
+                        >
+                            <IoMdAddCircle /> Thêm mới
+                        </Link>
+                    </div>
 
-                <div className={styles.tableWrapper}>
-                    <table className={styles.table}>
-                        <thead className={styles.thead}>
-                            <tr>
-                                <th style={{ minWidth: "60px" }}>STT</th>
-                                <th style={{ minWidth: "180px" }}>Tên khoa</th>
-                                {/* Thêm cột Tên khoa */}
-                                <th style={{ minWidth: "180px" }}>Mã ngành</th>
-                                <th style={{ minWidth: "220px" }}>Tên ngành</th>
-                                <th style={{ minWidth: "320px" }}>Mô tả</th>
-                                <th style={{ minWidth: "160px" }}>
-                                    Ngày thành lập
-                                </th>
-                                <th style={{ minWidth: "80px" }}>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {majors.map((major, index) => (
-                                <tr key={major.id}>
-                                    <td>{index + 1}</td>
-                                    <td>{major.tenKhoa}</td>
-                                    {/* Hiển thị Tên khoa */}
-                                    <td>{major.id}</td>
-                                    <td>{major.name}</td>
-                                    <td>{major.description}</td>
-                                    <td>{major.establishDate}</td>
-                                    <td className={styles.buttonAction}>
-                                        <Link
-                                            href={`/major/view?id=${major.id}`}
-                                            className={clsx(styles.viewButton)}
-                                        >
-                                            <FaEye />
-                                        </Link>
-                                        <Link
-                                            href={`/major/create-edit?id=${major.id}&mode=edit`}
-                                            className={clsx(
-                                                styles.viewButton,
-                                                styles.viewButtonUpdate
-                                            )}
-                                        >
-                                            <AiFillEdit />
-                                        </Link>
-                                        <Link
-                                            href="#"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setIsModalOpen(true);
-                                                setDeleteMajorId(major.id);
-                                            }}
-                                            className={clsx(
-                                                styles.viewButton,
-                                                styles.viewButtonDelete
-                                            )}
-                                        >
-                                            <MdDeleteForever />
-                                        </Link>
-
-                                        {isModalOpen &&
-                                            deleteMajorId === major.id && (
-                                                <ModalConfirm
-                                                    message="Are you sure you want to delete?"
-                                                    onConfirm={handleDelete}
-                                                    onCancel={handleCancel}
-                                                />
-                                            )}
-                                    </td>
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.table}>
+                            <thead className={styles.thead}>
+                                <tr>
+                                    <th style={{ minWidth: "60px" }}>STT</th>
+                                    <th style={{ minWidth: "180px" }}>
+                                        Tên khoa
+                                    </th>
+                                    {/* Thêm cột Tên khoa */}
+                                    <th style={{ minWidth: "180px" }}>
+                                        Mã ngành
+                                    </th>
+                                    <th style={{ minWidth: "220px" }}>
+                                        Tên ngành
+                                    </th>
+                                    <th style={{ minWidth: "320px" }}>Mô tả</th>
+                                    <th style={{ minWidth: "160px" }}>
+                                        Ngày thành lập
+                                    </th>
+                                    <th style={{ minWidth: "80px" }}>
+                                        Thao tác
+                                    </th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {majors.map((major, index) => (
+                                    <tr key={major.id}>
+                                        <td>{index + 1}</td>
+                                        <td>{major.tenKhoa}</td>
+                                        {/* Hiển thị Tên khoa */}
+                                        <td>{major.id}</td>
+                                        <td>{major.name}</td>
+                                        <td>{major.description}</td>
+                                        <td>{major.establishDate}</td>
+                                        <td className={styles.buttonAction}>
+                                            <Link
+                                                href={`/major/view?id=${major.id}`}
+                                                className={clsx(
+                                                    styles.viewButton
+                                                )}
+                                            >
+                                                <FaEye />
+                                            </Link>
+                                            <Link
+                                                href={`/major/create-edit?id=${major.id}&mode=edit`}
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.viewButtonUpdate
+                                                )}
+                                            >
+                                                <AiFillEdit />
+                                            </Link>
+                                            <Link
+                                                href="#"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setIsModalOpen(true);
+                                                    setDeleteMajorId(major.id);
+                                                }}
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.viewButtonDelete
+                                                )}
+                                            >
+                                                <MdDeleteForever />
+                                            </Link>
 
-                <div className={styles.paginationWrapper}>
-                    <Pagination
-                        pageNumber={currentPage}
-                        setPageNumber={setCurrentPage}
-                        totalItem={majors.length}
-                        parPage={parPage}
-                        showItem={3}
-                    />
+                                            {isModalOpen &&
+                                                deleteMajorId === major.id && (
+                                                    <ModalConfirm
+                                                        message="Are you sure you want to delete?"
+                                                        onConfirm={handleDelete}
+                                                        onCancel={handleCancel}
+                                                    />
+                                                )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className={styles.paginationWrapper}>
+                        <Pagination
+                            pageNumber={currentPage}
+                            setPageNumber={setCurrentPage}
+                            totalItem={majors.length}
+                            parPage={parPage}
+                            showItem={3}
+                        />
+                    </div>
                 </div>
-            </div>
-        </BorderBox>
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

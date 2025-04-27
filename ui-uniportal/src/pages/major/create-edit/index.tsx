@@ -7,6 +7,7 @@ import { Button } from "@/components/Button";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import SelectWithLabel from "@/components/SelectWithLabel";
+import AuthGuard from "@/components/AuthGuard";
 
 const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 
@@ -15,10 +16,9 @@ type State = {
     name: string;
     description: string;
     establishDate: string;
-    facultyId: string; // Thêm trường facultyId
+    facultyId: string;
 };
 
-// Dữ liệu mẫu cho danh sách khoa (thay thế bằng API call thực tế)
 const facultyOptions = [
     { value: "FIT", label: "Khoa Công nghệ Thông tin" },
     { value: "FME", label: "Khoa Cơ khí" },
@@ -84,74 +84,85 @@ const CreateEditMajor = () => {
     };
 
     return (
-        <BorderBox
-            title={mode === "create" ? "Thêm ngành học" : "Chỉnh sửa ngành học"}
-        >
-            <section className={styles.container}>
-                <div className={styles.gridItem}>
-                    <InputWithLabel
-                        label="Mã ngành"
-                        name="majorId"
-                        value={state.majorId}
-                        onChange={inputHandle}
-                        type="text"
-                        required
-                        disabled={mode === "edit"}
-                    />
-                </div>
-                <div className={styles.gridItem}>
-                    <SelectWithLabel
-                        label="Chọn khoa"
-                        name="facultyId"
-                        value={state.facultyId}
-                        onChange={
-                            inputHandle as React.ChangeEventHandler<HTMLSelectElement>
+        <AuthGuard allowedRoles={["admin"]}>
+            <BorderBox
+                title={
+                    mode === "create" ? "Thêm ngành học" : "Chỉnh sửa ngành học"
+                }
+            >
+                <section className={styles.container}>
+                    <div className={styles.gridItem}>
+                        <InputWithLabel
+                            label="Mã ngành"
+                            name="majorId"
+                            value={state.majorId}
+                            onChange={inputHandle}
+                            type="text"
+                            required
+                            disabled={mode === "edit"}
+                        />
+                    </div>
+                    <div className={styles.gridItem}>
+                        <SelectWithLabel
+                            label="Chọn khoa"
+                            name="facultyId"
+                            value={state.facultyId}
+                            onChange={
+                                inputHandle as React.ChangeEventHandler<HTMLSelectElement>
+                            }
+                            options={facultyOptions}
+                            required
+                        />
+                    </div>
+                    <div className={styles.gridItem}>
+                        <InputWithLabel
+                            label="Tên ngành"
+                            name="name"
+                            value={state.name}
+                            onChange={inputHandle}
+                            type="text"
+                            required
+                        />
+                    </div>
+                    <div className={styles.gridItem}>
+                        <InputWithLabel
+                            label="Ngày thành lập"
+                            name="establishDate"
+                            value={state.establishDate}
+                            onChange={inputHandle}
+                            type="date"
+                        />
+                    </div>
+                </section>
+
+                <div className={styles.description}>
+                    <TypographyBody
+                        tag="span"
+                        theme="md"
+                        className={styles.label}
+                    >
+                        Mô tả
+                    </TypographyBody>
+                    <JoditEditor
+                        ref={editor}
+                        value={state.description}
+                        onChange={(newContent) =>
+                            setState({ ...state, description: newContent })
                         }
-                        options={facultyOptions}
-                        required
+                        className={styles.inputDesc}
                     />
                 </div>
-                <div className={styles.gridItem}>
-                    <InputWithLabel
-                        label="Tên ngành"
-                        name="name"
-                        value={state.name}
-                        onChange={inputHandle}
-                        type="text"
-                        required
-                    />
-                </div>
-                <div className={styles.gridItem}>
-                    <InputWithLabel
-                        label="Ngày thành lập"
-                        name="establishDate"
-                        value={state.establishDate}
-                        onChange={inputHandle}
-                        type="date"
-                    />
-                </div>
-            </section>
 
-            <div className={styles.description}>
-                <TypographyBody tag="span" theme="md" className={styles.label}>
-                    Mô tả
-                </TypographyBody>
-                <JoditEditor
-                    ref={editor}
-                    value={state.description}
-                    onChange={(newContent) =>
-                        setState({ ...state, description: newContent })
-                    }
-                    className={styles.inputDesc}
-                />
-            </div>
-
-            <div className={styles.button}>
-                <Button className={styles.buttonAction} onClick={handleSubmit}>
-                    {mode === "create" ? "Lưu" : "Cập nhật"}
-                </Button>
-            </div>
-        </BorderBox>
+                <div className={styles.button}>
+                    <Button
+                        className={styles.buttonAction}
+                        onClick={handleSubmit}
+                    >
+                        {mode === "create" ? "Lưu" : "Cập nhật"}
+                    </Button>
+                </div>
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

@@ -7,6 +7,7 @@ import { Button } from "@/components/Button";
 import SelectWithLabel from "@/components/SelectWithLabel";
 import clsx from "clsx";
 import { TypographyBody } from "@/components/TypographyBody";
+import AuthGuard from "@/components/AuthGuard";
 
 type State = {
     ma: string;
@@ -130,112 +131,122 @@ const CreateEditClassroom = () => {
     };
 
     return (
-        <BorderBox
-            title={mode === "create" ? "Thêm phòng học" : "Chỉnh sửa phòng học"}
-        >
-            <section className={styles.container}>
-                <div className={styles.gridItem}>
-                    <InputWithLabel
-                        label="Mã phòng"
-                        name="ma"
-                        value={state.ma}
-                        onChange={inputHandle}
-                        type="text"
-                        required
-                        disabled={mode === "edit"}
-                    />
-                </div>
-                <div className={styles.gridItem}>
-                    <InputWithLabel
-                        label="Số chỗ ngồi"
-                        name="number_of_seats"
-                        value={state.number_of_seats}
-                        onChange={inputHandle}
-                        type="number"
-                        required
-                    />
-                </div>
-                <div className={styles.gridItem}>
-                    <SelectWithLabel
-                        label="Loại phòng"
-                        name="classroom_type"
-                        value={state.classroom_type}
-                        onChange={
-                            inputHandle as React.ChangeEventHandler<HTMLSelectElement>
-                        }
-                        options={classroomTypeOptions}
-                        required
-                    />
-                </div>
-                <div className={styles.gridItemFull}>
-                    <div className={styles.multiSelectContainer}>
-                        <TypographyBody tag="span" theme="md-bold">
-                            Thiết bị
-                        </TypographyBody>
-                        <div
-                            onClick={toggleDeviceDropdown}
-                            className={styles.multiSelectInput}
-                        >
-                            {selectedDevices.length > 0 ? (
-                                selectedDevices.map((dv) => (
-                                    <span
-                                        key={dv}
-                                        className={styles.selectedDevice}
-                                    >
-                                        {deviceOptions.find(
-                                            (opt) => opt.value === dv
-                                        )?.label || dv}
-                                    </span>
-                                ))
-                            ) : (
-                                <span className={styles.placeholder}>
-                                    Chọn thiết bị
-                                </span>
-                            )}
-                            <span className={styles.arrow}>
-                                {isDeviceDropdownOpen ? "▲" : "▼"}
-                            </span>
-                        </div>
-                        {isDeviceDropdownOpen && (
-                            <div
-                                ref={dropdownRef}
-                                className={styles.multiSelectDropdown}
-                            >
-                                {deviceOptions.map((option) => (
-                                    <div
-                                        key={option.value}
-                                        className={clsx(styles.dropdownItem, {
-                                            [styles.selected]:
-                                                selectedDevices.includes(
-                                                    option.value
-                                                ),
-                                        })}
-                                        onClick={() =>
-                                            handleDeviceSelect(option.value)
-                                        }
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedDevices.includes(
-                                                option.value
-                                            )}
-                                            readOnly
-                                        />
-                                        {option.label}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+        <AuthGuard allowedRoles={["admin", "employee"]}>
+            <BorderBox
+                title={
+                    mode === "create" ? "Thêm phòng học" : "Chỉnh sửa phòng học"
+                }
+            >
+                <section className={styles.container}>
+                    <div className={styles.gridItem}>
+                        <InputWithLabel
+                            label="Mã phòng"
+                            name="ma"
+                            value={state.ma}
+                            onChange={inputHandle}
+                            type="text"
+                            required
+                            disabled={mode === "edit"}
+                        />
                     </div>
-                </div>
-            </section>
+                    <div className={styles.gridItem}>
+                        <InputWithLabel
+                            label="Số chỗ ngồi"
+                            name="number_of_seats"
+                            value={state.number_of_seats}
+                            onChange={inputHandle}
+                            type="number"
+                            required
+                        />
+                    </div>
+                    <div className={styles.gridItem}>
+                        <SelectWithLabel
+                            label="Loại phòng"
+                            name="classroom_type"
+                            value={state.classroom_type}
+                            onChange={
+                                inputHandle as React.ChangeEventHandler<HTMLSelectElement>
+                            }
+                            options={classroomTypeOptions}
+                            required
+                        />
+                    </div>
+                    <div className={styles.gridItemFull}>
+                        <div className={styles.multiSelectContainer}>
+                            <TypographyBody tag="span" theme="md-bold">
+                                Thiết bị
+                            </TypographyBody>
+                            <div
+                                onClick={toggleDeviceDropdown}
+                                className={styles.multiSelectInput}
+                            >
+                                {selectedDevices.length > 0 ? (
+                                    selectedDevices.map((dv) => (
+                                        <span
+                                            key={dv}
+                                            className={styles.selectedDevice}
+                                        >
+                                            {deviceOptions.find(
+                                                (opt) => opt.value === dv
+                                            )?.label || dv}
+                                        </span>
+                                    ))
+                                ) : (
+                                    <span className={styles.placeholder}>
+                                        Chọn thiết bị
+                                    </span>
+                                )}
+                                <span className={styles.arrow}>
+                                    {isDeviceDropdownOpen ? "▲" : "▼"}
+                                </span>
+                            </div>
+                            {isDeviceDropdownOpen && (
+                                <div
+                                    ref={dropdownRef}
+                                    className={styles.multiSelectDropdown}
+                                >
+                                    {deviceOptions.map((option) => (
+                                        <div
+                                            key={option.value}
+                                            className={clsx(
+                                                styles.dropdownItem,
+                                                {
+                                                    [styles.selected]:
+                                                        selectedDevices.includes(
+                                                            option.value
+                                                        ),
+                                                }
+                                            )}
+                                            onClick={() =>
+                                                handleDeviceSelect(option.value)
+                                            }
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedDevices.includes(
+                                                    option.value
+                                                )}
+                                                readOnly
+                                            />
+                                            {option.label}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </section>
 
-            <div className={styles.button}>
-                <Button className={styles.buttonAction} onClick={handleSubmit}>
-                    {mode === "create" ? "Lưu" : "Cập nhật"}
-                </Button>
-            </div>
-        </BorderBox>
+                <div className={styles.button}>
+                    <Button
+                        className={styles.buttonAction}
+                        onClick={handleSubmit}
+                    >
+                        {mode === "create" ? "Lưu" : "Cập nhật"}
+                    </Button>
+                </div>
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

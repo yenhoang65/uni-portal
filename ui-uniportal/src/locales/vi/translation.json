@@ -64,6 +64,10 @@
         "edit-faculty": "Sửa khoa",
 
         "save-button": "Lưu thông tin",
-        "update-button": "Sửa thông tin"
+        "update-button": "Sửa thông tin",
+        "add-class-term-subject": "Thêm Học kỳ - Môn học",
+        "edit-class-term-subject": "Chỉnh sửa Học kỳ - Môn học",
+        "save-button": "Lưu",
+        "update-button": "Cập nhật"
     }
 }

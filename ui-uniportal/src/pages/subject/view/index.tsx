@@ -6,6 +6,7 @@ import { TypographyBody } from "@/components/TypographyBody";
 import { Button } from "@/components/Button";
 import { IoIosArrowBack } from "react-icons/io";
 import { AiFillEdit } from "react-icons/ai";
+import AuthGuard from "@/components/AuthGuard";
 
 type SubjectDetailType = {
     subject_id: string;
@@ -23,8 +24,6 @@ const SubjectDetail = () => {
     const { id } = query;
     const [subject, setSubject] = useState<SubjectDetailType | null>(null);
 
-    // Giả định dữ liệu tĩnh cho mục đích demo
-    // Trong thực tế, bạn sẽ fetch dữ liệu này dựa trên 'id' từ API
     const dummySubject: SubjectDetailType = {
         subject_id: "SUB001",
         subject_name: "Nhập môn Lập trình",
@@ -38,119 +37,126 @@ const SubjectDetail = () => {
     useEffect(() => {
         // Trong thực tế, bạn sẽ gọi API ở đây để lấy thông tin chi tiết của môn học dựa trên 'id'
         if (id) {
-            // Ví dụ:
-            // fetch(`/api/subjects/${id}`)
-            //   .then(res => res.json())
-            //   .then(data => setSubject(data))
-            //   .catch(error => console.error("Error fetching subject:", error));
-
-            // Sử dụng dữ liệu giả định cho demo
             setSubject(dummySubject);
         }
     }, [id]);
 
     return (
-        <BorderBox title={`Chi tiết môn học: ${dummySubject.subject_name}`}>
-            <div className={styles.detailGrid}>
-                <div className={styles.detailItem}>
-                    <TypographyBody tag="span" className={styles.detailLabel}>
-                        Mã môn học:
-                    </TypographyBody>
-                    <TypographyBody tag="span">
-                        {dummySubject.subject_id}
-                    </TypographyBody>
-                </div>
-
-                <div className={styles.detailItemFull}>
-                    <TypographyBody tag="span" className={styles.detailLabel}>
-                        Tên môn học:
-                    </TypographyBody>
-                    <TypographyBody tag="span">
-                        {dummySubject.subject_name}
-                    </TypographyBody>
-                </div>
-
-                <div className={styles.detailItem}>
-                    <TypographyBody tag="span" className={styles.detailLabel}>
-                        Số tín chỉ lý thuyết:
-                    </TypographyBody>
-                    <TypographyBody tag="span">
-                        {dummySubject.it_credits}
-                    </TypographyBody>
-                </div>
-
-                <div className={styles.detailItem}>
-                    <TypographyBody tag="span" className={styles.detailLabel}>
-                        Số tín chỉ thực hành:
-                    </TypographyBody>
-                    <TypographyBody tag="span">
-                        {dummySubject.th_credits}
-                    </TypographyBody>
-                </div>
-
-                {dummySubject.subject_type && (
+        <AuthGuard allowedRoles={["admin"]}>
+            <BorderBox title={`Chi tiết môn học: ${dummySubject.subject_name}`}>
+                <div className={styles.detailGrid}>
                     <div className={styles.detailItem}>
                         <TypographyBody
                             tag="span"
                             className={styles.detailLabel}
                         >
-                            Loại môn học:
+                            Mã môn học:
                         </TypographyBody>
                         <TypographyBody tag="span">
-                            {dummySubject.subject_type}
+                            {dummySubject.subject_id}
                         </TypographyBody>
                     </div>
-                )}
 
-                {dummySubject.subject_he_so !== undefined && (
-                    <div className={styles.detailItem}>
-                        <TypographyBody
-                            tag="span"
-                            className={styles.detailLabel}
-                        >
-                            Hệ số môn học:
-                        </TypographyBody>
-                        <TypographyBody tag="span">
-                            {dummySubject.subject_he_so}
-                        </TypographyBody>
-                    </div>
-                )}
-
-                {dummySubject.subject_description && (
                     <div className={styles.detailItemFull}>
                         <TypographyBody
                             tag="span"
                             className={styles.detailLabel}
                         >
-                            Mô tả:
+                            Tên môn học:
                         </TypographyBody>
                         <TypographyBody tag="span">
-                            {dummySubject.subject_description}
+                            {dummySubject.subject_name}
                         </TypographyBody>
                     </div>
-                )}
 
-                <div className={styles.buttonGroup}>
-                    <div
-                        className={styles.backButton}
-                        onClick={() => router.back()}
-                    >
-                        <IoIosArrowBack className={styles.backIcon} />
-                        <span className={styles.backText}>Quay lại</span>
+                    <div className={styles.detailItem}>
+                        <TypographyBody
+                            tag="span"
+                            className={styles.detailLabel}
+                        >
+                            Số tín chỉ lý thuyết:
+                        </TypographyBody>
+                        <TypographyBody tag="span">
+                            {dummySubject.it_credits}
+                        </TypographyBody>
                     </div>
-                    <button
-                        className={styles.editButton}
-                        onClick={() =>
-                            router.push(
-                                `/subject/create-edit?id=${dummySubject.subject_id}&mode=edit`
-                            )
-                        }
-                    >
-                        <AiFillEdit /> Chỉnh sửa
-                    </button>
+
+                    <div className={styles.detailItem}>
+                        <TypographyBody
+                            tag="span"
+                            className={styles.detailLabel}
+                        >
+                            Số tín chỉ thực hành:
+                        </TypographyBody>
+                        <TypographyBody tag="span">
+                            {dummySubject.th_credits}
+                        </TypographyBody>
+                    </div>
+
+                    {dummySubject.subject_type && (
+                        <div className={styles.detailItem}>
+                            <TypographyBody
+                                tag="span"
+                                className={styles.detailLabel}
+                            >
+                                Loại môn học:
+                            </TypographyBody>
+                            <TypographyBody tag="span">
+                                {dummySubject.subject_type}
+                            </TypographyBody>
+                        </div>
+                    )}
+
+                    {dummySubject.subject_he_so !== undefined && (
+                        <div className={styles.detailItem}>
+                            <TypographyBody
+                                tag="span"
+                                className={styles.detailLabel}
+                            >
+                                Hệ số môn học:
+                            </TypographyBody>
+                            <TypographyBody tag="span">
+                                {dummySubject.subject_he_so}
+                            </TypographyBody>
+                        </div>
+                    )}
+
+                    {dummySubject.subject_description && (
+                        <div className={styles.detailItemFull}>
+                            <TypographyBody
+                                tag="span"
+                                className={styles.detailLabel}
+                            >
+                                Mô tả:
+                            </TypographyBody>
+                            <TypographyBody tag="span">
+                                {dummySubject.subject_description}
+                            </TypographyBody>
+                        </div>
+                    )}
+
+                    <div className={styles.buttonGroup}>
+                        <div
+                            className={styles.backButton}
+                            onClick={() => router.back()}
+                        >
+                            <IoIosArrowBack className={styles.backIcon} />
+                            <span className={styles.backText}>Quay lại</span>
+                        </div>
+                        <button
+                            className={styles.editButton}
+                            onClick={() =>
+                                router.push(
+                                    `/subject/create-edit?id=${dummySubject.subject_id}&mode=edit`
+                                )
+                            }
+                        >
+                            <AiFillEdit /> Chỉnh sửa
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </BorderBox>
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

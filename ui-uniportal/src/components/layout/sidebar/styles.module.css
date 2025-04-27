@@ -91,6 +91,7 @@
     background-color: #e8f0fe;
     color: var(--secondary-blue);
     font-weight: 600;
+    line-height: 1.5;
 }
 
 .titleActive,

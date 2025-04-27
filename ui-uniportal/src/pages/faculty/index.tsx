@@ -11,6 +11,7 @@ import { MdDeleteForever } from "react-icons/md";
 import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
+import AuthGuard from "@/components/AuthGuard";
 
 const faculties = [
     {
@@ -72,125 +73,132 @@ const Faculty = () => {
     };
 
     return (
-        <BorderBox title={t("common.faculty-management")}>
-            <div className={styles.box}>
-                <div className={styles.add}>
-                    <Search
-                        setParPage={setParPage}
-                        setSearchValue={setSearchValue}
-                        searchValue={searchValue}
-                    />
+        <AuthGuard allowedRoles={["admin"]}>
+            <BorderBox title={t("common.faculty-management")}>
+                <div className={styles.box}>
+                    <div className={styles.add}>
+                        <Search
+                            setParPage={setParPage}
+                            setSearchValue={setSearchValue}
+                            searchValue={searchValue}
+                        />
 
-                    <Link
-                        href={"/faculty/create-edit"}
-                        className={styles.buttonAdd}
-                    >
-                        <IoMdAddCircle /> Thêm mới
-                    </Link>
-                </div>
+                        <Link
+                            href={"/faculty/create-edit"}
+                            className={styles.buttonAdd}
+                        >
+                            <IoMdAddCircle /> Thêm mới
+                        </Link>
+                    </div>
 
-                <div className={styles.tableWrapper}>
-                    <table className={styles.table}>
-                        <thead className={styles.thead}>
-                            <tr>
-                                <th style={{ minWidth: "80px" }}>No</th>
-                                <th style={{ minWidth: "230px" }}>
-                                    {t("common.name")}
-                                </th>
-                                <th style={{ minWidth: "150px" }}>
-                                    {t("common.logo")}
-                                </th>
-                                <th style={{ minWidth: "180px" }}>
-                                    {t("common.established-date")}
-                                </th>
-                                <th style={{ minWidth: "200px" }}>
-                                    {t("common.website")}
-                                </th>
-                                <th style={{ minWidth: "70px" }}>
-                                    {t("common.action")}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {faculties.map((faculty, index) => (
-                                <tr key={faculty.id}>
-                                    <td>{index + 1}</td>
-                                    <td>{faculty.name}</td>
-                                    <td>
-                                        <img
-                                            src={faculty.logo}
-                                            alt="logo"
-                                            width={80}
-                                            height={40}
-                                        />
-                                    </td>
-                                    <td>{faculty.establishDate}</td>
-                                    <td>
-                                        <a
-                                            href={faculty.website}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            {faculty.website}
-                                        </a>
-                                    </td>
-                                    <td className={styles.buttonAction}>
-                                        <Link
-                                            href={`/faculty/view?id=${faculty.id}`}
-                                            className={clsx(styles.viewButton)}
-                                        >
-                                            <FaEye />
-                                        </Link>
-                                        <Link
-                                            href={`/faculty/create-edit?id=${faculty.id}&mode=edit`}
-                                            className={clsx(
-                                                styles.viewButton,
-                                                styles.viewButtonUpdate
-                                            )}
-                                        >
-                                            <AiFillEdit />
-                                        </Link>
-                                        <Link
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setIsModalOpen(true);
-                                                setDeleteFacultyId(faculty.id);
-                                            }}
-                                            href="#"
-                                            className={clsx(
-                                                styles.viewButton,
-                                                styles.viewButtonDelete
-                                            )}
-                                        >
-                                            <MdDeleteForever />
-                                        </Link>
-
-                                        {isModalOpen &&
-                                            deleteFacultyId === faculty.id && (
-                                                <ModalConfirm
-                                                    message="Are you sure you want to delete?"
-                                                    onConfirm={handleDelete}
-                                                    onCancel={handleCancel}
-                                                />
-                                            )}
-                                    </td>
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.table}>
+                            <thead className={styles.thead}>
+                                <tr>
+                                    <th style={{ minWidth: "80px" }}>No</th>
+                                    <th style={{ minWidth: "230px" }}>
+                                        {t("common.name")}
+                                    </th>
+                                    <th style={{ minWidth: "150px" }}>
+                                        {t("common.logo")}
+                                    </th>
+                                    <th style={{ minWidth: "180px" }}>
+                                        {t("common.established-date")}
+                                    </th>
+                                    <th style={{ minWidth: "200px" }}>
+                                        {t("common.website")}
+                                    </th>
+                                    <th style={{ minWidth: "70px" }}>
+                                        {t("common.action")}
+                                    </th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {faculties.map((faculty, index) => (
+                                    <tr key={faculty.id}>
+                                        <td>{index + 1}</td>
+                                        <td>{faculty.name}</td>
+                                        <td>
+                                            <img
+                                                src={faculty.logo}
+                                                alt="logo"
+                                                width={80}
+                                                height={40}
+                                            />
+                                        </td>
+                                        <td>{faculty.establishDate}</td>
+                                        <td>
+                                            <a
+                                                href={faculty.website}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                {faculty.website}
+                                            </a>
+                                        </td>
+                                        <td className={styles.buttonAction}>
+                                            <Link
+                                                href={`/faculty/view?id=${faculty.id}`}
+                                                className={clsx(
+                                                    styles.viewButton
+                                                )}
+                                            >
+                                                <FaEye />
+                                            </Link>
+                                            <Link
+                                                href={`/faculty/create-edit?id=${faculty.id}&mode=edit`}
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.viewButtonUpdate
+                                                )}
+                                            >
+                                                <AiFillEdit />
+                                            </Link>
+                                            <Link
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setIsModalOpen(true);
+                                                    setDeleteFacultyId(
+                                                        faculty.id
+                                                    );
+                                                }}
+                                                href="#"
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.viewButtonDelete
+                                                )}
+                                            >
+                                                <MdDeleteForever />
+                                            </Link>
 
-                <div className={styles.paginationWrapper}>
-                    <Pagination
-                        pageNumber={currentPage}
-                        setPageNumber={setCurrentPage}
-                        totalItem={50}
-                        parPage={parPage}
-                        showItem={3}
-                    />
+                                            {isModalOpen &&
+                                                deleteFacultyId ===
+                                                    faculty.id && (
+                                                    <ModalConfirm
+                                                        message="Are you sure you want to delete?"
+                                                        onConfirm={handleDelete}
+                                                        onCancel={handleCancel}
+                                                    />
+                                                )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className={styles.paginationWrapper}>
+                        <Pagination
+                            pageNumber={currentPage}
+                            setPageNumber={setCurrentPage}
+                            totalItem={50}
+                            parPage={parPage}
+                            showItem={3}
+                        />
+                    </div>
                 </div>
-            </div>
-        </BorderBox>
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

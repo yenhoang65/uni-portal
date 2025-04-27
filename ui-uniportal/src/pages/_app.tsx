@@ -54,36 +54,48 @@ const roleBasedRoutes: Record<string, string[]> = {
 };
 
 function App({ Component, pageProps }: AppProps) {
+    // const router = useRouter();
+    // const userRole = "admin";
+
+    // const isPublicPage = useMemo(
+    //     () => publicRoutes.includes(router.pathname),
+    //     [router.pathname]
+    // );
+    // const isAllowedRoute = useMemo(() => {
+    //     if (!userRole || isPublicPage || router.pathname === "/not-allowed")
+    //         return true;
+    //     const allowedRoutes = roleBasedRoutes[userRole];
+    //     return allowedRoutes?.includes(router.pathname) || false;
+    // }, [router.pathname, userRole, isPublicPage]);
+
+    // useEffect(() => {
+    //     if (!isPublicPage && !userRole) {
+    //         router.push("/login");
+    //     } else if (!isPublicPage && !isAllowedRoute) {
+    //         router.push("/not-allowed");
+    //     }
+    // }, [router, isPublicPage, userRole, isAllowedRoute]);
+
+    // if (!isPublicPage && (!userRole || !isAllowedRoute)) {
+    //     return null;
+    // }
+
     const router = useRouter();
-    const userRole = "admin";
 
-    const isPublicPage = useMemo(
-        () => publicRoutes.includes(router.pathname),
-        [router.pathname]
-    );
-    const isAllowedRoute = useMemo(() => {
-        if (!userRole || isPublicPage || router.pathname === "/not-allowed")
-            return true;
-        const allowedRoutes = roleBasedRoutes[userRole];
-        return allowedRoutes?.includes(router.pathname) || false;
-    }, [router.pathname, userRole, isPublicPage]);
-
-    useEffect(() => {
-        if (!isPublicPage && !userRole) {
-            router.push("/login");
-        } else if (!isPublicPage && !isAllowedRoute) {
-            router.push("/not-allowed");
-        }
-    }, [router, isPublicPage, userRole, isAllowedRoute]);
-
-    if (!isPublicPage && (!userRole || !isAllowedRoute)) {
-        return null;
-    }
+    const isPublicRoute = useMemo(() => {
+        return publicRoutes.includes(router.pathname);
+    }, [router.pathname]);
 
     return (
-        <MainLayout>
-            <Component {...pageProps} />
-        </MainLayout>
+        <>
+            {isPublicRoute ? (
+                <Component {...pageProps} />
+            ) : (
+                <MainLayout>
+                    <Component {...pageProps} />
+                </MainLayout>
+            )}
+        </>
     );
 }
 

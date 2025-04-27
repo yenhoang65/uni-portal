@@ -11,6 +11,7 @@ import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
 import SelectWithLabel from "@/components/SelectWithLabel";
+import AuthGuard from "@/components/AuthGuard";
 
 const trainingProgramsData = [
     {
@@ -83,128 +84,138 @@ const TrainingProgram = () => {
     };
 
     return (
-        <BorderBox title="Quản lý Chương trình Đào tạo">
-            <div className={styles.box}>
-                <div className={styles.filterAndAdd}>
-                    <div className={styles.searchAndFilter}>
-                        <Search
-                            setParPage={setParPage}
-                            setSearchValue={setSearchValue}
-                            searchValue={searchValue}
-                        />
-                        <div className={styles.filter}>
-                            <SelectWithLabel
-                                name="filterSpecialization"
-                                value={filterSpecialization}
-                                onChange={handleSpecializationFilterChange}
-                                options={[
-                                    { value: "", label: "Tất cả" },
-                                    ...specializationOptions,
-                                ]}
+        <AuthGuard allowedRoles={["admin"]}>
+            <BorderBox title="Quản lý Chương trình Đào tạo">
+                <div className={styles.box}>
+                    <div className={styles.filterAndAdd}>
+                        <div className={styles.searchAndFilter}>
+                            <Search
+                                setParPage={setParPage}
+                                setSearchValue={setSearchValue}
+                                searchValue={searchValue}
                             />
+                            <div className={styles.filter}>
+                                <SelectWithLabel
+                                    name="filterSpecialization"
+                                    value={filterSpecialization}
+                                    onChange={handleSpecializationFilterChange}
+                                    options={[
+                                        { value: "", label: "Tất cả" },
+                                        ...specializationOptions,
+                                    ]}
+                                />
+                            </div>
                         </div>
+
+                        <Link
+                            href={"/training-program/create-edit"}
+                            className={styles.buttonAdd}
+                        >
+                            <IoMdAddCircle /> Thêm mới
+                        </Link>
                     </div>
 
-                    <Link
-                        href={"/training-program/create-edit"}
-                        className={styles.buttonAdd}
-                    >
-                        <IoMdAddCircle /> Thêm mới
-                    </Link>
-                </div>
-
-                <div className={styles.tableWrapper}>
-                    <table className={styles.table}>
-                        <thead className={styles.thead}>
-                            <tr>
-                                <th style={{ minWidth: "80px" }}>STT</th>
-                                <th style={{ minWidth: "200px" }}>Mã CTĐT</th>
-                                <th style={{ minWidth: "250px" }}>
-                                    Chuyên ngành
-                                </th>
-                                <th style={{ minWidth: "150px" }}>
-                                    Mã khóa học
-                                </th>
-                                <th style={{ minWidth: "180px" }}>Ngày tạo</th>
-                                <th style={{ minWidth: "100px" }}>Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {trainingProgramsData.map((program, index) => (
-                                <tr key={program.training_program_id}>
-                                    <td>1</td>
-                                    <td>{program.training_program_id}</td>
-                                    <td>
-                                        {
-                                            specializationOptions.find(
-                                                (sp) =>
-                                                    sp.value ===
-                                                    program.specialization_id
-                                            )?.label
-                                        }
-                                    </td>
-                                    <td>{program.train_code}</td>
-                                    <td>{program.created_at}</td>
-                                    <td className={styles.buttonAction}>
-                                        <Link
-                                            href={`/training-program/view?id=${program.training_program_id}`}
-                                            className={clsx(styles.viewButton)}
-                                        >
-                                            <FaEye />
-                                        </Link>
-                                        <Link
-                                            href={`/training-program/create-edit?id=${program.training_program_id}&mode=edit`}
-                                            className={clsx(
-                                                styles.viewButton,
-                                                styles.viewButtonUpdate
-                                            )}
-                                        >
-                                            <AiFillEdit />
-                                        </Link>
-                                        <Link
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setIsModalOpen(true);
-                                                setDeleteProgramId(
-                                                    program.training_program_id
-                                                );
-                                            }}
-                                            href="#"
-                                            className={clsx(
-                                                styles.viewButton,
-                                                styles.viewButtonDelete
-                                            )}
-                                        >
-                                            <MdDeleteForever />
-                                        </Link>
-
-                                        {isModalOpen &&
-                                            deleteProgramId ===
-                                                program.training_program_id && (
-                                                <ModalConfirm
-                                                    message="Are you sure you want to delete?"
-                                                    onConfirm={handleDelete}
-                                                    onCancel={handleCancel}
-                                                />
-                                            )}
-                                    </td>
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.table}>
+                            <thead className={styles.thead}>
+                                <tr>
+                                    <th style={{ minWidth: "80px" }}>STT</th>
+                                    <th style={{ minWidth: "200px" }}>
+                                        Mã CTĐT
+                                    </th>
+                                    <th style={{ minWidth: "250px" }}>
+                                        Chuyên ngành
+                                    </th>
+                                    <th style={{ minWidth: "150px" }}>
+                                        Mã khóa học
+                                    </th>
+                                    <th style={{ minWidth: "180px" }}>
+                                        Ngày tạo
+                                    </th>
+                                    <th style={{ minWidth: "100px" }}>
+                                        Hành động
+                                    </th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {trainingProgramsData.map((program, index) => (
+                                    <tr key={program.training_program_id}>
+                                        <td>1</td>
+                                        <td>{program.training_program_id}</td>
+                                        <td>
+                                            {
+                                                specializationOptions.find(
+                                                    (sp) =>
+                                                        sp.value ===
+                                                        program.specialization_id
+                                                )?.label
+                                            }
+                                        </td>
+                                        <td>{program.train_code}</td>
+                                        <td>{program.created_at}</td>
+                                        <td className={styles.buttonAction}>
+                                            <Link
+                                                href={`/training-program/view?id=${program.training_program_id}`}
+                                                className={clsx(
+                                                    styles.viewButton
+                                                )}
+                                            >
+                                                <FaEye />
+                                            </Link>
+                                            <Link
+                                                href={`/training-program/create-edit?id=${program.training_program_id}&mode=edit`}
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.viewButtonUpdate
+                                                )}
+                                            >
+                                                <AiFillEdit />
+                                            </Link>
+                                            <Link
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setIsModalOpen(true);
+                                                    setDeleteProgramId(
+                                                        program.training_program_id
+                                                    );
+                                                }}
+                                                href="#"
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.viewButtonDelete
+                                                )}
+                                            >
+                                                <MdDeleteForever />
+                                            </Link>
 
-                <div className={styles.paginationWrapper}>
-                    <Pagination
-                        pageNumber={currentPage}
-                        setPageNumber={setCurrentPage}
-                        totalItem={trainingProgramsData.length}
-                        parPage={parPage}
-                        showItem={3}
-                    />
+                                            {isModalOpen &&
+                                                deleteProgramId ===
+                                                    program.training_program_id && (
+                                                    <ModalConfirm
+                                                        message="Are you sure you want to delete?"
+                                                        onConfirm={handleDelete}
+                                                        onCancel={handleCancel}
+                                                    />
+                                                )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className={styles.paginationWrapper}>
+                        <Pagination
+                            pageNumber={currentPage}
+                            setPageNumber={setCurrentPage}
+                            totalItem={trainingProgramsData.length}
+                            parPage={parPage}
+                            showItem={3}
+                        />
+                    </div>
                 </div>
-            </div>
-        </BorderBox>
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

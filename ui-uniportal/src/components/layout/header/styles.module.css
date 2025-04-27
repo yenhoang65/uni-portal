@@ -18,6 +18,10 @@
     transition: all 0.3s ease;
 }
 
+.iconLabel {
+    cursor: pointer;
+}
+
 @media (min-width: 1024px) {
     .headerInner {
         margin-left: 260px;

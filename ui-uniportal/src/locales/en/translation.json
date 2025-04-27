@@ -64,6 +64,10 @@
         "edit-faculty": "Add faculty",
 
         "save-button": "Save",
+        "update-button": "Update",
+        "add-class-term-subject": "Add Class Term Subject",
+        "edit-class-term-subject": "Edit Class Term Subject",
+        "save-button": "Save",
         "update-button": "Update"
     }
 }
