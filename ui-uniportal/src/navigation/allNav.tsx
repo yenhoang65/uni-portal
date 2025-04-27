@@ -74,6 +74,13 @@ export const allNav = [
                 role: ["admin"],
                 path: "/enable-credit-registration",
             },
+            {
+                id: 7,
+                title: "Phân công lịch giảng dạy",
+                icon: <FaShoppingCart />,
+                role: ["admin"],
+                path: "/teaching-assignment",
+            },
         ],
     },
     {
@@ -119,7 +126,7 @@ export const allNav = [
         items: [
             {
                 id: 11,
-                title: "Quản lý thông tin cá nhân f f",
+                title: "Quản lý thông tin cá nhân",
                 icon: <AiOutlineWallet />,
                 role: ["admin", "employee", "student", "lecturer"],
                 path: "/profile/view",

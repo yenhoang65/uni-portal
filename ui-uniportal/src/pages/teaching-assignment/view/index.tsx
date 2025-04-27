@@ -8,38 +8,51 @@ import { IoIosArrowBack } from "react-icons/io";
 import { AiFillEdit } from "react-icons/ai";
 import AuthGuard from "@/components/AuthGuard";
 
-type Specialization = {
-    id: string;
-    maChuyenNganh: string;
-    tenNganh: string;
-    tenKhoa: string;
-    ten: string;
-    moTa?: string;
-    ngayThanhLap: string;
+type TeachingAssignment = {
+    assignment_id: string;
+    lecturer_id: string;
+    subject_id: string;
+    term_class_id: string;
+    lecturer_name?: string; // Tên giảng viên (lấy từ bảng lecturer)
+    subject_name?: string; // Tên môn học (lấy từ bảng subject)
+    class_name?: string; // Tên lớp (lấy từ bảng term_class)
 };
 
-const SpecializationDetail = () => {
+const TeachingAssignmentDetail = () => {
     const router = useRouter();
     const { query } = router;
     const { id } = query;
-    const [specialization, setSpecialization] = useState<Specialization | null>(
-        null
-    );
+    const [teachingAssignment, setTeachingAssignment] =
+        useState<TeachingAssignment | null>(null);
 
-    const dummySpecialization: Specialization = {
-        id: "SPE001",
-        maChuyenNganh: "SP001",
-        tenNganh: "Công nghệ phần mềm",
-        tenKhoa: "Khoa CNTT",
-        ten: "Phát triển ứng dụng Web",
-        moTa: "Chuyên sâu về phát triển các ứng dụng web hiện đại.",
-        ngayThanhLap: "2012-05-20",
+    // Dữ liệu giả (dummy data) để ánh xạ thông tin
+    const dummyTeachingAssignment: TeachingAssignment = {
+        assignment_id: "ASS001",
+        lecturer_id: "LEC001",
+        subject_id: "SUB001",
+        term_class_id: "TERM001",
+        lecturer_name: "Nguyễn Văn A", // Ánh xạ từ lecturer_id
+        subject_name: "Nhập môn Lập trình", // Ánh xạ từ subject_id
+        class_name: "Lớp 101", // Ánh xạ từ term_class_id
     };
+
+    useEffect(() => {
+        if (id) {
+            // Trong thực tế, bạn sẽ gọi API để lấy dữ liệu dựa trên id
+            // Ví dụ: fetch(`/api/teaching-assignments/${id}`)
+            // Dữ liệu trả về cần bao gồm lecturer_name, subject_name, class_name
+            setTeachingAssignment(dummyTeachingAssignment);
+        }
+    }, [id]);
+
+    if (!teachingAssignment) {
+        return <div>Đang tải...</div>;
+    }
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
             <BorderBox
-                title={`Chi tiết chuyên ngành: ${dummySpecialization.ten}`}
+                title={`Chi tiết Phân công Giảng dạy: ${teachingAssignment.assignment_id}`}
             >
                 <div className={styles.detailContainer}>
                     <div className={styles.detailItem}>
@@ -48,10 +61,10 @@ const SpecializationDetail = () => {
                             theme="md"
                             className={styles.detailLabel}
                         >
-                            Mã chuyên ngành:
+                            Mã phân công:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {dummySpecialization.maChuyenNganh}
+                            {teachingAssignment.assignment_id}
                         </TypographyBody>
                     </div>
 
@@ -61,10 +74,10 @@ const SpecializationDetail = () => {
                             theme="md"
                             className={styles.detailLabel}
                         >
-                            Tên ngành:
+                            Mã giảng viên:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {dummySpecialization.tenNganh}
+                            {teachingAssignment.lecturer_id}
                         </TypographyBody>
                     </div>
 
@@ -74,10 +87,11 @@ const SpecializationDetail = () => {
                             theme="md"
                             className={styles.detailLabel}
                         >
-                            Khoa:
+                            Tên giảng viên:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {dummySpecialization.tenKhoa}
+                            {teachingAssignment.lecturer_name ||
+                                "Không có thông tin"}
                         </TypographyBody>
                     </div>
 
@@ -87,27 +101,12 @@ const SpecializationDetail = () => {
                             theme="md"
                             className={styles.detailLabel}
                         >
-                            Tên chuyên ngành:
+                            Mã môn học:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {dummySpecialization.ten}
+                            {teachingAssignment.subject_id}
                         </TypographyBody>
                     </div>
-
-                    {dummySpecialization.moTa && (
-                        <div className={styles.detailItem}>
-                            <TypographyBody
-                                tag="span"
-                                theme="md"
-                                className={styles.detailLabel}
-                            >
-                                Mô tả:
-                            </TypographyBody>
-                            <TypographyBody tag="span" theme="md">
-                                {dummySpecialization.moTa}
-                            </TypographyBody>
-                        </div>
-                    )}
 
                     <div className={styles.detailItem}>
                         <TypographyBody
@@ -115,10 +114,38 @@ const SpecializationDetail = () => {
                             theme="md"
                             className={styles.detailLabel}
                         >
-                            Ngày thành lập:
+                            Tên môn học:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {dummySpecialization.ngayThanhLap}
+                            {teachingAssignment.subject_name ||
+                                "Không có thông tin"}
+                        </TypographyBody>
+                    </div>
+
+                    <div className={styles.detailItem}>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailLabel}
+                        >
+                            Mã học kỳ - lớp:
+                        </TypographyBody>
+                        <TypographyBody tag="span" theme="md">
+                            {teachingAssignment.term_class_id}
+                        </TypographyBody>
+                    </div>
+
+                    <div className={styles.detailItem}>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailLabel}
+                        >
+                            Tên lớp:
+                        </TypographyBody>
+                        <TypographyBody tag="span" theme="md">
+                            {teachingAssignment.class_name ||
+                                "Không có thông tin"}
                         </TypographyBody>
                     </div>
 
@@ -134,7 +161,7 @@ const SpecializationDetail = () => {
                             className={styles.editButton}
                             onClick={() =>
                                 router.push(
-                                    `/specialization/create-edit?id=${dummySpecialization.id}&mode=edit`
+                                    `/teaching-assignment/create-edit?id=${teachingAssignment.assignment_id}&mode=edit`
                                 )
                             }
                         >
@@ -147,4 +174,4 @@ const SpecializationDetail = () => {
     );
 };
 
-export default SpecializationDetail;
+export default TeachingAssignmentDetail;

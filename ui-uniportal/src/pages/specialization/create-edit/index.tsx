@@ -7,6 +7,7 @@ import SelectWithLabel from "@/components/SelectWithLabel";
 import { TypographyBody } from "@/components/TypographyBody";
 import { Button } from "@/components/Button";
 import dynamic from "next/dynamic";
+import AuthGuard from "@/components/AuthGuard";
 
 const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 
@@ -15,10 +16,9 @@ type State = {
     name: string;
     description: string;
     establishDate: string;
-    majorId: string; // Thêm trường majorId
+    majorId: string;
 };
 
-// Dữ liệu mẫu cho danh sách ngành (thay thế bằng API call thực tế)
 const majorOptions = [
     { value: "MAJ001", label: "Công nghệ phần mềm" },
     { value: "MAJ002", label: "Kỹ thuật cơ khí" },
@@ -35,7 +35,7 @@ const CreateEditSpecialization = () => {
         name: "",
         description: "",
         establishDate: "",
-        majorId: "", // Khởi tạo majorId
+        majorId: "",
     });
 
     const inputHandle = (
@@ -51,13 +51,13 @@ const CreateEditSpecialization = () => {
         if (query.mode === "edit" && query.id) {
             setMode("edit");
             // Call API to get specialization data by ID
-            // Replace this with your actual API call
+
             setState({
                 specializationId: "SPE001",
                 name: "Phát triển ứng dụng Web",
                 description: "<p>Chuyên sâu về phát triển web</p>",
                 establishDate: "2015-05-10",
-                majorId: "MAJ001", // Example default value for edit mode
+                majorId: "MAJ001",
             });
         } else {
             setMode("create");
@@ -66,7 +66,7 @@ const CreateEditSpecialization = () => {
                 name: "",
                 description: "",
                 establishDate: "",
-                majorId: majorOptions[0]?.value || "", // Set default to the first option if available
+                majorId: majorOptions[0]?.value || "",
             });
         }
     }, [query.mode, query.id]);
@@ -82,78 +82,87 @@ const CreateEditSpecialization = () => {
     };
 
     return (
-        <BorderBox
-            title={
-                mode === "create"
-                    ? "Thêm chuyên ngành"
-                    : "Chỉnh sửa chuyên ngành"
-            }
-        >
-            <section className={styles.container}>
-                <div className={styles.gridItem}>
-                    <InputWithLabel
-                        label="Mã chuyên ngành"
-                        name="specializationId"
-                        value={state.specializationId}
-                        onChange={inputHandle}
-                        type="text"
-                        required
-                        disabled={mode === "edit"}
-                    />
-                </div>
-                <div className={styles.gridItem}>
-                    <SelectWithLabel
-                        label="Chọn ngành"
-                        name="majorId"
-                        value={state.majorId}
-                        onChange={
-                            inputHandle as React.ChangeEventHandler<HTMLSelectElement>
+        <AuthGuard allowedRoles={["admin"]}>
+            <BorderBox
+                title={
+                    mode === "create"
+                        ? "Thêm chuyên ngành"
+                        : "Chỉnh sửa chuyên ngành"
+                }
+            >
+                <section className={styles.container}>
+                    <div className={styles.gridItem}>
+                        <InputWithLabel
+                            label="Mã chuyên ngành"
+                            name="specializationId"
+                            value={state.specializationId}
+                            onChange={inputHandle}
+                            type="text"
+                            required
+                            disabled={mode === "edit"}
+                        />
+                    </div>
+                    <div className={styles.gridItem}>
+                        <SelectWithLabel
+                            label="Chọn ngành"
+                            name="majorId"
+                            value={state.majorId}
+                            onChange={
+                                inputHandle as React.ChangeEventHandler<HTMLSelectElement>
+                            }
+                            options={majorOptions}
+                            required
+                        />
+                    </div>
+                    <div className={styles.gridItem}>
+                        <InputWithLabel
+                            label="Tên chuyên ngành"
+                            name="name"
+                            value={state.name}
+                            onChange={inputHandle}
+                            type="text"
+                            required
+                        />
+                    </div>
+                    <div className={styles.gridItem}>
+                        <InputWithLabel
+                            label="Ngày thành lập"
+                            name="establishDate"
+                            value={state.establishDate}
+                            onChange={inputHandle}
+                            type="date"
+                        />
+                    </div>
+                </section>
+
+                <div className={styles.description}>
+                    <TypographyBody
+                        tag="span"
+                        theme="md"
+                        className={styles.label}
+                    >
+                        Mô tả
+                    </TypographyBody>
+                    <JoditEditor
+                        ref={editor}
+                        value={state.description}
+                        onChange={(newContent) =>
+                            setState({ ...state, description: newContent })
                         }
-                        options={majorOptions}
-                        required
+                        className={styles.inputDesc}
                     />
                 </div>
-                <div className={styles.gridItem}>
-                    <InputWithLabel
-                        label="Tên chuyên ngành"
-                        name="name"
-                        value={state.name}
-                        onChange={inputHandle}
-                        type="text"
-                        required
-                    />
-                </div>
-                <div className={styles.gridItem}>
-                    <InputWithLabel
-                        label="Ngày thành lập"
-                        name="establishDate"
-                        value={state.establishDate}
-                        onChange={inputHandle}
-                        type="date"
-                    />
-                </div>
-            </section>
 
-            <div className={styles.description}>
-                <TypographyBody tag="span" theme="md" className={styles.label}>
-                    Mô tả
-                </TypographyBody>
-                <JoditEditor
-                    ref={editor}
-                    value={state.description}
-                    onChange={(newContent) =>
-                        setState({ ...state, description: newContent })
-                    }
-                    className={styles.inputDesc}
-                />
-            </div>
-
-            <div className={styles.button}>
-                <Button className={styles.buttonAction} onClick={handleSubmit}>
-                    {mode === "create" ? "Lưu" : "Cập nhật"}
-                </Button>
-            </div>
-        </BorderBox>
+                <div className={styles.button}>
+                    <Button
+                        className={styles.buttonAction}
+                        onClick={handleSubmit}
+                    >
+                        {mode === "create" ? "Lưu" : "Cập nhật"}
+                    </Button>
+                </div>
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

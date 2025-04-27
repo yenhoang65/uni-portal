@@ -10,8 +10,8 @@ import { MdDeleteForever } from "react-icons/md";
 import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
+import AuthGuard from "@/components/AuthGuard";
 
-// Dữ liệu môn học mẫu (thay thế bằng API call thực tế)
 const subjectsData = [
     {
         subject_id: "SUB001",
@@ -76,111 +76,122 @@ const SubjectManagement = () => {
     };
 
     return (
-        <BorderBox title="Quản lý môn học">
-            <div className={styles.box}>
-                <div className={styles.add}>
-                    <Search
-                        setParPage={setParPage}
-                        setSearchValue={setSearchValue}
-                        searchValue={searchValue}
-                    />
+        <AuthGuard allowedRoles={["admin"]}>
+            <BorderBox title="Quản lý môn học">
+                <div className={styles.box}>
+                    <div className={styles.add}>
+                        <Search
+                            setParPage={setParPage}
+                            setSearchValue={setSearchValue}
+                            searchValue={searchValue}
+                        />
 
-                    <Link
-                        href="/subject/create-edit" // Đường dẫn đến trang thêm mới môn học
-                        className={styles.buttonAdd}
-                    >
-                        <IoMdAddCircle /> Thêm mới
-                    </Link>
-                </div>
+                        <Link
+                            href="/subject/create-edit" // Đường dẫn đến trang thêm mới môn học
+                            className={styles.buttonAdd}
+                        >
+                            <IoMdAddCircle /> Thêm mới
+                        </Link>
+                    </div>
 
-                <div className={styles.tableWrapper}>
-                    <table className={styles.table}>
-                        <thead className={styles.thead}>
-                            <tr>
-                                <th style={{ minWidth: "100px" }}>Mã MH</th>
-                                <th style={{ minWidth: "350px" }}>
-                                    Tên môn học
-                                </th>
-                                <th style={{ minWidth: "100px" }}>Tín chỉ</th>
-                                <th style={{ minWidth: "120px" }}>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {subjectsData.map((subject) => (
-                                <tr key={subject.subject_id}>
-                                    <td>{subject.subject_id}</td>
-                                    <td>{subject.subject_name}</td>
-                                    <td>
-                                        {subject.it_credits} +
-                                        {subject.th_credits}*
-                                    </td>
-                                    <td className={styles.buttonAction}>
-                                        <Link
-                                            href={`/subject/view?id=${subject.subject_id}`} // Đường dẫn xem chi tiết
-                                            className={clsx(styles.viewButton)}
-                                        >
-                                            <FaEye />
-                                        </Link>
-                                        <Link
-                                            href={`/subject/create-edit?id=${subject.subject_id}&mode=edit`} // Đường dẫn chỉnh sửa
-                                            className={clsx(
-                                                styles.viewButton,
-                                                styles.viewButtonUpdate
-                                            )}
-                                        >
-                                            <AiFillEdit />
-                                        </Link>
-                                        <Link
-                                            href="#"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setIsModalOpen(true);
-                                                setDeleteSubjectId(
-                                                    subject.subject_id
-                                                );
-                                            }}
-                                            className={clsx(
-                                                styles.viewButton,
-                                                styles.viewButtonDelete
-                                            )}
-                                        >
-                                            <MdDeleteForever />
-                                        </Link>
-
-                                        {isModalOpen &&
-                                            deleteSubjectId ===
-                                                subject.subject_id && (
-                                                <ModalConfirm
-                                                    message="Bạn có chắc chắn muốn xóa môn học này?"
-                                                    onConfirm={handleDelete}
-                                                    onCancel={handleCancel}
-                                                />
-                                            )}
-                                    </td>
-                                </tr>
-                            ))}
-                            {subjectsData.length === 0 && (
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.table}>
+                            <thead className={styles.thead}>
                                 <tr>
-                                    <td colSpan={5} className={styles.noData}>
-                                        Không có dữ liệu
-                                    </td>
+                                    <th style={{ minWidth: "100px" }}>Mã MH</th>
+                                    <th style={{ minWidth: "350px" }}>
+                                        Tên môn học
+                                    </th>
+                                    <th style={{ minWidth: "100px" }}>
+                                        Tín chỉ
+                                    </th>
+                                    <th style={{ minWidth: "120px" }}>
+                                        Thao tác
+                                    </th>
                                 </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {subjectsData.map((subject) => (
+                                    <tr key={subject.subject_id}>
+                                        <td>{subject.subject_id}</td>
+                                        <td>{subject.subject_name}</td>
+                                        <td>
+                                            {subject.it_credits} +
+                                            {subject.th_credits}*
+                                        </td>
+                                        <td className={styles.buttonAction}>
+                                            <Link
+                                                href={`/subject/view?id=${subject.subject_id}`} // Đường dẫn xem chi tiết
+                                                className={clsx(
+                                                    styles.viewButton
+                                                )}
+                                            >
+                                                <FaEye />
+                                            </Link>
+                                            <Link
+                                                href={`/subject/create-edit?id=${subject.subject_id}&mode=edit`} // Đường dẫn chỉnh sửa
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.viewButtonUpdate
+                                                )}
+                                            >
+                                                <AiFillEdit />
+                                            </Link>
+                                            <Link
+                                                href="#"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setIsModalOpen(true);
+                                                    setDeleteSubjectId(
+                                                        subject.subject_id
+                                                    );
+                                                }}
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.viewButtonDelete
+                                                )}
+                                            >
+                                                <MdDeleteForever />
+                                            </Link>
 
-                <div className={styles.paginationWrapper}>
-                    <Pagination
-                        pageNumber={currentPage}
-                        setPageNumber={setCurrentPage}
-                        totalItem={subjectsData.length}
-                        parPage={parPage}
-                        showItem={3}
-                    />
+                                            {isModalOpen &&
+                                                deleteSubjectId ===
+                                                    subject.subject_id && (
+                                                    <ModalConfirm
+                                                        message="Bạn có chắc chắn muốn xóa môn học này?"
+                                                        onConfirm={handleDelete}
+                                                        onCancel={handleCancel}
+                                                    />
+                                                )}
+                                        </td>
+                                    </tr>
+                                ))}
+                                {subjectsData.length === 0 && (
+                                    <tr>
+                                        <td
+                                            colSpan={5}
+                                            className={styles.noData}
+                                        >
+                                            Không có dữ liệu
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className={styles.paginationWrapper}>
+                        <Pagination
+                            pageNumber={currentPage}
+                            setPageNumber={setCurrentPage}
+                            totalItem={subjectsData.length}
+                            parPage={parPage}
+                            showItem={3}
+                        />
+                    </div>
                 </div>
-            </div>
-        </BorderBox>
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

@@ -9,12 +9,13 @@ import { IoMdAddCircle } from "react-icons/io";
 import Modal from "@/components/Modal";
 import SelectWithLabel from "@/components/SelectWithLabel";
 import { TypographyBody } from "@/components/TypographyBody";
+import AuthGuard from "@/components/AuthGuard";
 
 type TrainingProgram = {
     training_program_id: string;
     specialization_id: string;
     train_code: string;
-    specialization_name?: string; // Optional, if fetched
+    specialization_name?: string;
 };
 
 type Subject = {
@@ -27,7 +28,6 @@ type Subject = {
 type Intermediary = {
     training_program_id: string;
     subject_id: string;
-    // ... other fields from intermediary table if needed
 };
 
 const ViewTrainingProgram = () => {
@@ -102,7 +102,6 @@ const ViewTrainingProgram = () => {
         { subject_id: "SUB004", subject_name: "Thiết kế Web" },
         { subject_id: "SUB005", subject_name: "Cơ sở dữ liệu" },
         { subject_id: "SUB006", subject_name: "Mạng máy tính" },
-        // Thêm các môn học khác
     ];
 
     const availableSubjectsToAdd = allSubjects.filter(
@@ -133,148 +132,160 @@ const ViewTrainingProgram = () => {
     };
 
     return (
-        <BorderBox
-            title={`Xem Chương trình Đào tạo: ${trainingProgram.train_code} - ${
-                trainingProgram.specialization_name ||
-                trainingProgram.specialization_id
-            }`}
-        >
-            <div className={styles.groupTitle}>
-                <div className={styles.group}>
-                    <div>
-                        <TypographyHeading tag="span" theme="lg">
-                            Mã CTĐT:
-                        </TypographyHeading>
-                        {trainingProgram.training_program_id}
-                    </div>
-
-                    <div>
-                        <TypographyHeading tag="span" theme="lg">
-                            Chuyên ngành:
-                        </TypographyHeading>
-                        {trainingProgram.specialization_name ||
-                            trainingProgram.specialization_id}
-                    </div>
-
-                    <div>
-                        <TypographyHeading tag="span" theme="lg">
-                            Mã khóa học:
-                        </TypographyHeading>
-                        {trainingProgram.train_code}
-                    </div>
-                </div>
-
-                <div
-                    className={styles.buttonAdd}
-                    onClick={() => {
-                        setIsOpenModal(true);
-                    }}
-                >
-                    <IoMdAddCircle /> Thêm mới
-                </div>
-            </div>
-
-            <TypographyHeading
-                tag="h5"
-                theme="xl"
-                color="var(--secondary-blue)"
-                className={styles.headingSubject}
+        <AuthGuard allowedRoles={["admin"]}>
+            <BorderBox
+                title={`Xem Chương trình Đào tạo: ${
+                    trainingProgram.train_code
+                } - ${
+                    trainingProgram.specialization_name ||
+                    trainingProgram.specialization_id
+                }`}
             >
-                Các môn học trong chương trình
-            </TypographyHeading>
-            {subjects.length > 0 ? (
-                <div className={styles.tableWrapper}>
-                    <table className={styles.table}>
-                        <thead className={styles.thead}>
-                            <tr>
-                                <th>Tên môn học</th>
-                                <th>Loại môn học</th>
-                                <th>Môn học phụ thuộc</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {subjects.map((subject) => (
-                                <tr key={subject.subject_id}>
-                                    <td>{subject.subject_name}</td>
-                                    <td>{subject.subject_type}</td>
-                                    <td>{subject.prerequisite_for || "-"}</td>
-                                    <td>
-                                        <Button
-                                            className={styles.actionButton}
-                                            onClick={() => {
-                                                handleRemoveSubject(
-                                                    subject.subject_id
-                                                );
-                                            }}
-                                        >
-                                            <FaMinusCircle />
-                                        </Button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            ) : (
-                <p className={styles.noSubjects}>
-                    Chưa có môn học nào trong chương trình này.
-                </p>
-            )}
+                <div className={styles.groupTitle}>
+                    <div className={styles.group}>
+                        <div>
+                            <TypographyHeading tag="span" theme="lg">
+                                Mã CTĐT:
+                            </TypographyHeading>
+                            {trainingProgram.training_program_id}
+                        </div>
 
-            <Modal
-                isOpen={isOpenModal}
-                onClose={() => setIsOpenModal(false)}
-                title={`Thêm môn học vào CTĐT: ${trainingProgram.specialization_name}`}
-            >
-                <div className={styles.checkboxTableWrapper}>
-                    <TypographyBody tag="span" className={styles.titleModal}>
-                        Các môn học chưa tồn tại trong CTĐT: Công nghệ thông tin
-                    </TypographyBody>
-                    <table className={styles.checkboxTable}>
-                        <thead>
-                            <tr>
-                                <th>Chọn</th>
-                                <th>Mã học phần</th>
-                                <th>Tên học phần</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {availableSubjectsToAdd.map((subject) => (
-                                <tr key={subject.subject_id}>
-                                    <td>
-                                        <input
-                                            type="checkbox"
-                                            value={subject.subject_id}
-                                            checked={selectedSubjectsToAdd.includes(
-                                                subject.subject_id
-                                            )}
-                                            onChange={(e) =>
-                                                handleCheckboxChange(
-                                                    subject.subject_id,
-                                                    e.target.checked
-                                                )
-                                            }
-                                        />
-                                    </td>
-                                    <td>{subject.subject_id}</td>
-                                    <td>{subject.subject_name}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                <div className={styles.modalActions}>
-                    <Button
-                        onClick={handleAddSelectedSubjects}
-                        disabled={selectedSubjectsToAdd.length === 0}
+                        <div>
+                            <TypographyHeading tag="span" theme="lg">
+                                Chuyên ngành:
+                            </TypographyHeading>
+                            {trainingProgram.specialization_name ||
+                                trainingProgram.specialization_id}
+                        </div>
+
+                        <div>
+                            <TypographyHeading tag="span" theme="lg">
+                                Mã khóa học:
+                            </TypographyHeading>
+                            {trainingProgram.train_code}
+                        </div>
+                    </div>
+
+                    <div
+                        className={styles.buttonAdd}
+                        onClick={() => {
+                            setIsOpenModal(true);
+                        }}
                     >
-                        Thêm
-                    </Button>
-                    <Button onClick={() => setIsOpenModal(false)}>Hủy</Button>
+                        <IoMdAddCircle /> Thêm mới
+                    </div>
                 </div>
-            </Modal>
-        </BorderBox>
+
+                <TypographyHeading
+                    tag="h5"
+                    theme="xl"
+                    color="var(--secondary-blue)"
+                    className={styles.headingSubject}
+                >
+                    Các môn học trong chương trình
+                </TypographyHeading>
+                {subjects.length > 0 ? (
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.table}>
+                            <thead className={styles.thead}>
+                                <tr>
+                                    <th>Tên môn học</th>
+                                    <th>Loại môn học</th>
+                                    <th>Môn học phụ thuộc</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {subjects.map((subject) => (
+                                    <tr key={subject.subject_id}>
+                                        <td>{subject.subject_name}</td>
+                                        <td>{subject.subject_type}</td>
+                                        <td>
+                                            {subject.prerequisite_for || "-"}
+                                        </td>
+                                        <td>
+                                            <Button
+                                                className={styles.actionButton}
+                                                onClick={() => {
+                                                    handleRemoveSubject(
+                                                        subject.subject_id
+                                                    );
+                                                }}
+                                            >
+                                                <FaMinusCircle />
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <p className={styles.noSubjects}>
+                        Chưa có môn học nào trong chương trình này.
+                    </p>
+                )}
+
+                <Modal
+                    isOpen={isOpenModal}
+                    onClose={() => setIsOpenModal(false)}
+                    title={`Thêm môn học vào CTĐT: ${trainingProgram.specialization_name}`}
+                >
+                    <div className={styles.checkboxTableWrapper}>
+                        <TypographyBody
+                            tag="span"
+                            className={styles.titleModal}
+                        >
+                            Các môn học chưa tồn tại trong CTĐT: Công nghệ thông
+                            tin
+                        </TypographyBody>
+                        <table className={styles.checkboxTable}>
+                            <thead>
+                                <tr>
+                                    <th>Chọn</th>
+                                    <th>Mã học phần</th>
+                                    <th>Tên học phần</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {availableSubjectsToAdd.map((subject) => (
+                                    <tr key={subject.subject_id}>
+                                        <td>
+                                            <input
+                                                type="checkbox"
+                                                value={subject.subject_id}
+                                                checked={selectedSubjectsToAdd.includes(
+                                                    subject.subject_id
+                                                )}
+                                                onChange={(e) =>
+                                                    handleCheckboxChange(
+                                                        subject.subject_id,
+                                                        e.target.checked
+                                                    )
+                                                }
+                                            />
+                                        </td>
+                                        <td>{subject.subject_id}</td>
+                                        <td>{subject.subject_name}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className={styles.modalActions}>
+                        <Button
+                            onClick={handleAddSelectedSubjects}
+                            disabled={selectedSubjectsToAdd.length === 0}
+                        >
+                            Thêm
+                        </Button>
+                        <Button onClick={() => setIsOpenModal(false)}>
+                            Hủy
+                        </Button>
+                    </div>
+                </Modal>
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

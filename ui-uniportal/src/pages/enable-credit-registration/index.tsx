@@ -4,6 +4,7 @@ import InputWithLabel from "@/components/InputWithLabel";
 import { Button } from "@/components/Button";
 import styles from "./styles.module.css";
 import { TypographyBody } from "@/components/TypographyBody";
+import AuthGuard from "@/components/AuthGuard";
 
 interface RegistrationTime {
     id: string;
@@ -81,83 +82,85 @@ const RegistrationTimeActivation = () => {
     }, []);
 
     return (
-        <BorderBox title="Kích hoạt thời gian đăng ký tín chỉ">
-            <div className={styles.activationForm}>
-                <InputWithLabel
-                    label="Ngày giờ Bắt đầu"
-                    type="datetime-local"
-                    value={startTime}
-                    onChange={handleStartTimeChange}
-                    required
-                />
-                <InputWithLabel
-                    label="Ngày giờ Kết thúc"
-                    type="datetime-local"
-                    value={endTime}
-                    onChange={handleEndTimeChange}
-                    required
-                />
-                <Button
-                    onClick={handleActivateTime}
-                    className={styles.activateButton}
-                >
-                    Kích hoạt
-                </Button>
-            </div>
+        <AuthGuard allowedRoles={["admin"]}>
+            <BorderBox title="Kích hoạt thời gian đăng ký tín chỉ">
+                <div className={styles.activationForm}>
+                    <InputWithLabel
+                        label="Ngày giờ Bắt đầu"
+                        type="datetime-local"
+                        value={startTime}
+                        onChange={handleStartTimeChange}
+                        required
+                    />
+                    <InputWithLabel
+                        label="Ngày giờ Kết thúc"
+                        type="datetime-local"
+                        value={endTime}
+                        onChange={handleEndTimeChange}
+                        required
+                    />
+                    <Button
+                        onClick={handleActivateTime}
+                        className={styles.activateButton}
+                    >
+                        Kích hoạt
+                    </Button>
+                </div>
 
-            <div className={styles.activatedList}>
-                <TypographyBody
-                    tag="span"
-                    theme="md-bold"
-                    className={styles.listTitle}
-                >
-                    Danh sách Thời gian đã kích hoạt
-                </TypographyBody>
-                {activatedTimes.length > 0 ? (
-                    <table className={styles.activatedTable}>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Thời gian Bắt đầu</th>
-                                <th>Thời gian Kết thúc</th>
-                                <th>Ngày Kích hoạt</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {activatedTimes.map((time) => (
-                                <tr key={time.id}>
-                                    <td>{time.id}</td>
-                                    <td>
-                                        {new Date(
-                                            time.startTime
-                                        ).toLocaleString()}
-                                    </td>
-                                    <td>
-                                        {new Date(
-                                            time.endTime
-                                        ).toLocaleString()}
-                                    </td>
-                                    <td>
-                                        {new Date(
-                                            time.createdAt
-                                        ).toLocaleString()}
-                                    </td>
-                                    {/* Thêm các cột khác nếu cần */}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                ) : (
+                <div className={styles.activatedList}>
                     <TypographyBody
                         tag="span"
-                        theme="sm"
-                        className={styles.noData}
+                        theme="md-bold"
+                        className={styles.listTitle}
                     >
-                        Chưa có thời gian nào được kích hoạt.
+                        Danh sách Thời gian đã kích hoạt
                     </TypographyBody>
-                )}
-            </div>
-        </BorderBox>
+                    {activatedTimes.length > 0 ? (
+                        <table className={styles.activatedTable}>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Thời gian Bắt đầu</th>
+                                    <th>Thời gian Kết thúc</th>
+                                    <th>Ngày Kích hoạt</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {activatedTimes.map((time) => (
+                                    <tr key={time.id}>
+                                        <td>{time.id}</td>
+                                        <td>
+                                            {new Date(
+                                                time.startTime
+                                            ).toLocaleString()}
+                                        </td>
+                                        <td>
+                                            {new Date(
+                                                time.endTime
+                                            ).toLocaleString()}
+                                        </td>
+                                        <td>
+                                            {new Date(
+                                                time.createdAt
+                                            ).toLocaleString()}
+                                        </td>
+                                        {/* Thêm các cột khác nếu cần */}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <TypographyBody
+                            tag="span"
+                            theme="sm"
+                            className={styles.noData}
+                        >
+                            Chưa có thời gian nào được kích hoạt.
+                        </TypographyBody>
+                    )}
+                </div>
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

@@ -7,6 +7,7 @@ import SelectWithLabel from "@/components/SelectWithLabel";
 import { TypographyBody } from "@/components/TypographyBody";
 import { Button } from "@/components/Button";
 import Image from "next/image";
+import AuthGuard from "@/components/AuthGuard";
 
 type StudentState = {
     user_id: string;
@@ -209,286 +210,292 @@ const CreateEditStudent = () => {
     };
 
     return (
-        <BorderBox
-            title={mode === "create" ? "Thêm sinh viên" : "Chỉnh sửa sinh viên"}
-        >
-            <div className={styles.headerActions}>
-                {mode === "create" && !showImportFile && (
-                    <Button
-                        onClick={handleImportButtonClick}
-                        className={styles.importButton}
-                    >
-                        Import từ Excel
-                    </Button>
-                )}
-            </div>
+        <AuthGuard allowedRoles={["admin"]}>
+            <BorderBox
+                title={
+                    mode === "create" ? "Thêm sinh viên" : "Chỉnh sửa sinh viên"
+                }
+            >
+                <div className={styles.headerActions}>
+                    {mode === "create" && !showImportFile && (
+                        <Button
+                            onClick={handleImportButtonClick}
+                            className={styles.importButton}
+                        >
+                            Import từ Excel
+                        </Button>
+                    )}
+                </div>
 
-            {mode === "create" && showImportFile && (
-                <>
-                    <div className={styles.template}>
-                        <TypographyBody tag="span" theme="md-bold">
-                            Template:
-                        </TypographyBody>
-                        <Image
-                            src={require("./assets/template.png")}
-                            alt="Picture of the author"
-                            className={styles.imageTemplate}
-                        />
-                    </div>
-                    <div className={styles.excelImportSection}>
-                        <div className={styles.fileUpload}>
-                            <label
-                                htmlFor="fileInput"
-                                className={styles.fileLabel}
-                            >
-                                Chọn file Excel
-                            </label>
-                            <input
-                                id="fileInput"
-                                type="file"
-                                accept=".xlsx, .csv"
-                                className={styles.fileInput}
-                                onChange={handleFileChange}
-                                ref={fileInputRef}
+                {mode === "create" && showImportFile && (
+                    <>
+                        <div className={styles.template}>
+                            <TypographyBody tag="span" theme="md-bold">
+                                Template:
+                            </TypographyBody>
+                            <Image
+                                src={require("./assets/template.png")}
+                                alt="Picture of the author"
+                                className={styles.imageTemplate}
                             />
-                            {fileName && (
-                                <TypographyBody
-                                    tag="span"
-                                    className={styles.fileName}
-                                    onClick={handleDownloadClick}
-                                    style={{
-                                        cursor: "pointer",
-                                        fontWeight: "bold",
-                                        color: "blue",
-                                    }}
-                                >
-                                    Đã chọn: {fileName}
-                                </TypographyBody>
-                            )}
                         </div>
-                        <div className={styles.importActions}>
-                            <Button
-                                onClick={handleCancelImport}
-                                className={styles.buttonAction}
-                            >
-                                Hủy
-                            </Button>
-                            {fileName && (
+                        <div className={styles.excelImportSection}>
+                            <div className={styles.fileUpload}>
+                                <label
+                                    htmlFor="fileInput"
+                                    className={styles.fileLabel}
+                                >
+                                    Chọn file Excel
+                                </label>
+                                <input
+                                    id="fileInput"
+                                    type="file"
+                                    accept=".xlsx, .csv"
+                                    className={styles.fileInput}
+                                    onChange={handleFileChange}
+                                    ref={fileInputRef}
+                                />
+                                {fileName && (
+                                    <TypographyBody
+                                        tag="span"
+                                        className={styles.fileName}
+                                        onClick={handleDownloadClick}
+                                        style={{
+                                            cursor: "pointer",
+                                            fontWeight: "bold",
+                                            color: "blue",
+                                        }}
+                                    >
+                                        Đã chọn: {fileName}
+                                    </TypographyBody>
+                                )}
+                            </div>
+                            <div className={styles.importActions}>
                                 <Button
-                                    onClick={handleProcessImport}
+                                    onClick={handleCancelImport}
                                     className={styles.buttonAction}
                                 >
-                                    Xử lý Import
+                                    Hủy
                                 </Button>
-                            )}
+                                {fileName && (
+                                    <Button
+                                        onClick={handleProcessImport}
+                                        className={styles.buttonAction}
+                                    >
+                                        Xử lý Import
+                                    </Button>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </>
-            )}
+                    </>
+                )}
 
-            {(mode === "edit" || (mode === "create" && !showImportFile)) && (
-                <section className={styles.container}>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Mã sinh viên"
-                            name="user_id"
-                            value={state.user_id}
-                            onChange={inputHandle}
-                            type="text"
-                            required
-                            disabled={mode === "edit"}
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Tên sinh viên"
-                            name="user_name"
-                            value={state.user_name}
-                            onChange={inputHandle}
-                            type="text"
-                            required
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <SelectWithLabel
-                            label="Giới tính"
-                            name="gender"
-                            value={state.gender}
-                            onChange={
-                                inputHandle as React.ChangeEventHandler<HTMLSelectElement>
-                            }
-                            options={genderOptions}
-                            required
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Ngày sinh"
-                            name="date_of_birth"
-                            value={state.date_of_birth}
-                            onChange={inputHandle}
-                            type="date"
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Số điện thoại"
-                            name="phone_number"
-                            value={state.phone_number}
-                            onChange={inputHandle}
-                            type="text"
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Email"
-                            name="email"
-                            value={state.email}
-                            onChange={inputHandle}
-                            type="email"
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Số CMND/CCCD"
-                            name="id_number"
-                            value={state.id_number}
-                            onChange={inputHandle}
-                            type="text"
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Ngày nhập học"
-                            name="admission_date"
-                            value={state.admission_date}
-                            onChange={inputHandle}
-                            type="date"
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Dân tộc"
-                            name="ethnic_group"
-                            value={state.ethnic_group}
-                            onChange={inputHandle}
-                            type="text"
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Tôn giáo"
-                            name="religion"
-                            value={state.religion}
-                            onChange={inputHandle}
-                            type="text"
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Nơi sinh"
-                            name="place_of_birth"
-                            value={state.place_of_birth}
-                            onChange={inputHandle}
-                            type="text"
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Thường trú"
-                            name="permanent_resident"
-                            value={state.permanent_resident}
-                            onChange={inputHandle}
-                            type="text"
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Ngân hàng"
-                            name="bank"
-                            value={state.bank}
-                            onChange={inputHandle}
-                            type="text"
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Chủ tài khoản"
-                            name="bank_account_owner"
-                            value={state.bank_account_owner}
-                            onChange={inputHandle}
-                            type="text"
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Số tài khoản"
-                            name="bank_account_number"
-                            value={state.bank_account_number}
-                            onChange={inputHandle}
-                            type="text"
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <SelectWithLabel
-                            label="Trình độ học vấn"
-                            name="education_level"
-                            value={state.education_level}
-                            onChange={
-                                inputHandle as React.ChangeEventHandler<HTMLSelectElement>
-                            }
-                            options={educationLevelOptions}
-                            required
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <SelectWithLabel
-                            label="Chuyên ngành"
-                            name="specialization_id"
-                            value={state.specialization_id}
-                            onChange={
-                                inputHandle as React.ChangeEventHandler<HTMLSelectElement>
-                            }
-                            options={specializationOptions}
-                            required
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <SelectWithLabel
-                            label="Hình thức đào tạo"
-                            name="type_of_training"
-                            value={state.type_of_training}
-                            onChange={
-                                inputHandle as React.ChangeEventHandler<HTMLSelectElement>
-                            }
-                            options={trainingTypeOptions}
-                            required
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Lớp"
-                            name="class_id"
-                            value={state.class_id}
-                            onChange={inputHandle}
-                            type="text"
-                            required
-                        />
-                    </div>
-                </section>
-            )}
+                {(mode === "edit" ||
+                    (mode === "create" && !showImportFile)) && (
+                    <section className={styles.container}>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Mã sinh viên"
+                                name="user_id"
+                                value={state.user_id}
+                                onChange={inputHandle}
+                                type="text"
+                                required
+                                disabled={mode === "edit"}
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Tên sinh viên"
+                                name="user_name"
+                                value={state.user_name}
+                                onChange={inputHandle}
+                                type="text"
+                                required
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <SelectWithLabel
+                                label="Giới tính"
+                                name="gender"
+                                value={state.gender}
+                                onChange={
+                                    inputHandle as React.ChangeEventHandler<HTMLSelectElement>
+                                }
+                                options={genderOptions}
+                                required
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Ngày sinh"
+                                name="date_of_birth"
+                                value={state.date_of_birth}
+                                onChange={inputHandle}
+                                type="date"
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Số điện thoại"
+                                name="phone_number"
+                                value={state.phone_number}
+                                onChange={inputHandle}
+                                type="text"
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Email"
+                                name="email"
+                                value={state.email}
+                                onChange={inputHandle}
+                                type="email"
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Số CMND/CCCD"
+                                name="id_number"
+                                value={state.id_number}
+                                onChange={inputHandle}
+                                type="text"
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Ngày nhập học"
+                                name="admission_date"
+                                value={state.admission_date}
+                                onChange={inputHandle}
+                                type="date"
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Dân tộc"
+                                name="ethnic_group"
+                                value={state.ethnic_group}
+                                onChange={inputHandle}
+                                type="text"
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Tôn giáo"
+                                name="religion"
+                                value={state.religion}
+                                onChange={inputHandle}
+                                type="text"
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Nơi sinh"
+                                name="place_of_birth"
+                                value={state.place_of_birth}
+                                onChange={inputHandle}
+                                type="text"
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Thường trú"
+                                name="permanent_resident"
+                                value={state.permanent_resident}
+                                onChange={inputHandle}
+                                type="text"
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Ngân hàng"
+                                name="bank"
+                                value={state.bank}
+                                onChange={inputHandle}
+                                type="text"
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Chủ tài khoản"
+                                name="bank_account_owner"
+                                value={state.bank_account_owner}
+                                onChange={inputHandle}
+                                type="text"
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Số tài khoản"
+                                name="bank_account_number"
+                                value={state.bank_account_number}
+                                onChange={inputHandle}
+                                type="text"
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <SelectWithLabel
+                                label="Trình độ học vấn"
+                                name="education_level"
+                                value={state.education_level}
+                                onChange={
+                                    inputHandle as React.ChangeEventHandler<HTMLSelectElement>
+                                }
+                                options={educationLevelOptions}
+                                required
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <SelectWithLabel
+                                label="Chuyên ngành"
+                                name="specialization_id"
+                                value={state.specialization_id}
+                                onChange={
+                                    inputHandle as React.ChangeEventHandler<HTMLSelectElement>
+                                }
+                                options={specializationOptions}
+                                required
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <SelectWithLabel
+                                label="Hình thức đào tạo"
+                                name="type_of_training"
+                                value={state.type_of_training}
+                                onChange={
+                                    inputHandle as React.ChangeEventHandler<HTMLSelectElement>
+                                }
+                                options={trainingTypeOptions}
+                                required
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Lớp"
+                                name="class_id"
+                                value={state.class_id}
+                                onChange={inputHandle}
+                                type="text"
+                                required
+                            />
+                        </div>
+                    </section>
+                )}
 
-            {(mode === "edit" || (mode === "create" && !showImportFile)) && (
-                <div className={styles.button}>
-                    <Button
-                        className={styles.buttonAction}
-                        onClick={handleSubmit}
-                    >
-                        {mode === "create" ? "Lưu" : "Cập nhật"}
-                    </Button>
-                </div>
-            )}
-        </BorderBox>
+                {(mode === "edit" ||
+                    (mode === "create" && !showImportFile)) && (
+                    <div className={styles.button}>
+                        <Button
+                            className={styles.buttonAction}
+                            onClick={handleSubmit}
+                        >
+                            {mode === "create" ? "Lưu" : "Cập nhật"}
+                        </Button>
+                    </div>
+                )}
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

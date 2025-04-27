@@ -10,90 +10,83 @@ import { MdDeleteForever } from "react-icons/md";
 import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
-import { TypographyBody } from "@/components/TypographyBody";
 import AuthGuard from "@/components/AuthGuard";
 
-type ClassroomType = {
-    id: string;
-    ma: string;
-    number_of_seats: number;
-    classroom_type: string;
-    device: string[];
+type TeachingAssignmentType = {
+    assignment_id: string;
+    lecturer_id: string;
+    subject_id: string;
+    term_class_id: string;
 };
 
-const classrooms: ClassroomType[] = [
+const teachingAssignments: TeachingAssignmentType[] = [
     {
-        id: "CLA001",
-        ma: "P.101",
-        number_of_seats: 30,
-        classroom_type: "Lý thuyết",
-        device: ["Máy chiếu", "Bảng trắng", "Điều hòa"],
+        assignment_id: "ASS001",
+        lecturer_id: "LEC001",
+        subject_id: "SUB001",
+        term_class_id: "TERM001",
     },
     {
-        id: "CLA002",
-        ma: "Lab.A",
-        number_of_seats: 25,
-        classroom_type: "Thực hành",
-        device: ["Máy tính", "Bàn thực hành", "Máy lạnh"],
+        assignment_id: "ASS002",
+        lecturer_id: "LEC002",
+        subject_id: "SUB002",
+        term_class_id: "TERM002",
     },
     {
-        id: "CLA003",
-        ma: "H.205",
-        number_of_seats: 40,
-        classroom_type: "Hội trường",
-        device: ["Âm thanh", "Máy chiếu", "Bục giảng"],
+        assignment_id: "ASS003",
+        lecturer_id: "LEC003",
+        subject_id: "SUB003",
+        term_class_id: "TERM003",
     },
     {
-        id: "CLA004",
-        ma: "P.102",
-        number_of_seats: 30,
-        classroom_type: "Lý thuyết",
-        device: ["Máy chiếu", "Bảng tương tác"],
+        assignment_id: "ASS004",
+        lecturer_id: "LEC004",
+        subject_id: "SUB004",
+        term_class_id: "TERM004",
     },
     {
-        id: "CLA005",
-        ma: "Lab.B",
-        number_of_seats: 20,
-        classroom_type: "Thực hành",
-        device: ["Thiết bị thí nghiệm", "Máy lạnh"],
+        assignment_id: "ASS005",
+        lecturer_id: "LEC005",
+        subject_id: "SUB005",
+        term_class_id: "TERM005",
     },
 ];
 
-const Classroom = () => {
+const TeachingAssignment = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [deleteClassroomId, setDeleteClassroomId] = useState<string | null>(
+    const [deleteAssignmentId, setDeleteAssignmentId] = useState<string | null>(
         null
     );
 
     const handleDelete = () => {
-        if (deleteClassroomId) {
-            // dispatch(delete_classroom(deleteClassroomId));
+        if (deleteAssignmentId) {
+            // dispatch(delete_teaching_assignment(deleteAssignmentId));
             setIsModalOpen(false);
-            setDeleteClassroomId(null);
+            setDeleteAssignmentId(null);
         }
     };
 
     const handleCancel = () => {
         setIsModalOpen(false);
-        setDeleteClassroomId(null);
+        setDeleteAssignmentId(null);
     };
 
-    const filteredClassrooms = classrooms.filter((classroom) =>
-        Object.values(classroom).some((value) =>
+    const filteredAssignments = teachingAssignments.filter((assignment) =>
+        Object.values(assignment).some((value) =>
             String(value).toLowerCase().includes(searchValue.toLowerCase())
         )
     );
 
     const startIndex = (currentPage - 1) * parPage;
     const endIndex = startIndex + parPage;
-    const currentClassrooms = filteredClassrooms.slice(startIndex, endIndex);
+    const currentAssignments = filteredAssignments.slice(startIndex, endIndex);
 
     return (
         <AuthGuard allowedRoles={["admin", "employee"]}>
-            <BorderBox title="Quản lý phòng học">
+            <BorderBox title="Quản lý Phân công Giảng dạy">
                 <div className={styles.box}>
                     <div className={styles.add}>
                         <Search
@@ -103,7 +96,7 @@ const Classroom = () => {
                         />
 
                         <Link
-                            href={"/classroom/create-edit"}
+                            href={"/teaching-assignment/create-edit"}
                             className={styles.buttonAdd}
                         >
                             <IoMdAddCircle /> Thêm mới
@@ -115,15 +108,17 @@ const Classroom = () => {
                             <thead className={styles.thead}>
                                 <tr>
                                     <th style={{ minWidth: "80px" }}>No</th>
-                                    <th style={{ minWidth: "120px" }}>Mã</th>
                                     <th style={{ minWidth: "150px" }}>
-                                        Số chỗ ngồi
+                                        Mã phân công
                                     </th>
                                     <th style={{ minWidth: "150px" }}>
-                                        Loại phòng
+                                        Mã giảng viên
                                     </th>
-                                    <th style={{ minWidth: "200px" }}>
-                                        Thiết bị
+                                    <th style={{ minWidth: "150px" }}>
+                                        Mã môn học
+                                    </th>
+                                    <th style={{ minWidth: "150px" }}>
+                                        Mã học kỳ - lớp
                                     </th>
                                     <th style={{ minWidth: "70px" }}>
                                         Hành động
@@ -131,38 +126,33 @@ const Classroom = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentClassrooms.map((classroom, index) => (
-                                    <tr key={classroom.id}>
-                                        <td>
+                                {currentAssignments.map((assignment, index) => (
+                                    <tr key={assignment.assignment_id}>
+                                        <td className={styles.tableCell}>
                                             {(currentPage - 1) * parPage +
                                                 index +
                                                 1}
                                         </td>
-                                        <td>{classroom.ma}</td>
-                                        <td>{classroom.number_of_seats}</td>
-                                        <td>{classroom.classroom_type}</td>
-                                        <td>
-                                            {classroom.device.map(
-                                                (dev, idx) => (
-                                                    <TypographyBody
-                                                        key={idx}
-                                                        tag="span"
-                                                        className={
-                                                            styles.deviceItem
-                                                        }
-                                                    >
-                                                        {dev}
-                                                        {idx <
-                                                            classroom.device
-                                                                .length -
-                                                                1 && ", "}
-                                                    </TypographyBody>
-                                                )
-                                            )}
+                                        <td className={styles.tableCell}>
+                                            {assignment.assignment_id}
                                         </td>
-                                        <td className={styles.buttonAction}>
+                                        <td className={styles.tableCell}>
+                                            {assignment.lecturer_id}
+                                        </td>
+                                        <td className={styles.tableCell}>
+                                            {assignment.subject_id}
+                                        </td>
+                                        <td className={styles.tableCell}>
+                                            {assignment.term_class_id}
+                                        </td>
+                                        <td
+                                            className={clsx(
+                                                styles.buttonAction,
+                                                styles.tableCell
+                                            )}
+                                        >
                                             <Link
-                                                href={`/classroom/view?id=${classroom.id}`}
+                                                href={`/teaching-assignment/view?id=${assignment.assignment_id}`}
                                                 className={clsx(
                                                     styles.viewButton
                                                 )}
@@ -170,7 +160,7 @@ const Classroom = () => {
                                                 <FaEye />
                                             </Link>
                                             <Link
-                                                href={`/classroom/create-edit?id=${classroom.id}&mode=edit`}
+                                                href={`/teaching-assignment/create-edit?id=${assignment.assignment_id}&mode=edit`}
                                                 className={clsx(
                                                     styles.viewButton,
                                                     styles.viewButtonUpdate
@@ -182,8 +172,8 @@ const Classroom = () => {
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     setIsModalOpen(true);
-                                                    setDeleteClassroomId(
-                                                        classroom.id
+                                                    setDeleteAssignmentId(
+                                                        assignment.assignment_id
                                                     );
                                                 }}
                                                 href="#"
@@ -196,10 +186,10 @@ const Classroom = () => {
                                             </Link>
 
                                             {isModalOpen &&
-                                                deleteClassroomId ===
-                                                    classroom.id && (
+                                                deleteAssignmentId ===
+                                                    assignment.assignment_id && (
                                                     <ModalConfirm
-                                                        message="Bạn có chắc chắn muốn xóa?"
+                                                        message="Bạn có chắc chắn muốn xóa phân công giảng dạy này?"
                                                         onConfirm={handleDelete}
                                                         onCancel={handleCancel}
                                                     />
@@ -215,7 +205,7 @@ const Classroom = () => {
                         <Pagination
                             pageNumber={currentPage}
                             setPageNumber={setCurrentPage}
-                            totalItem={filteredClassrooms.length}
+                            totalItem={filteredAssignments.length}
                             parPage={parPage}
                             showItem={3}
                         />
@@ -226,4 +216,4 @@ const Classroom = () => {
     );
 };
 
-export default Classroom;
+export default TeachingAssignment;

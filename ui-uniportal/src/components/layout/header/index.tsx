@@ -51,7 +51,11 @@ const Header: React.FC = () => {
                             />
                         </button>
                         <span>
-                            <FaBell size={20} color="white" />
+                            <FaBell
+                                size={20}
+                                color="white"
+                                className={styles.iconLabel}
+                            />
                         </span>
                         <Image
                             src={require("./assets/user-image.webp")}

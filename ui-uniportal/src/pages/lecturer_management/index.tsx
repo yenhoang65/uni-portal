@@ -10,6 +10,7 @@ import { MdDeleteForever } from "react-icons/md";
 import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
+import AuthGuard from "@/components/AuthGuard";
 
 // Dữ liệu giảng viên mẫu (thay thế bằng API call thực tế)
 const lecturersData = [
@@ -77,105 +78,117 @@ const LecturerManagement = () => {
     };
 
     return (
-        <BorderBox title="Quản lý giảng viên">
-            <div className={styles.box}>
-                <div className={styles.add}>
-                    <Search
-                        setParPage={setParPage}
-                        setSearchValue={setSearchValue}
-                        searchValue={searchValue}
-                    />
+        <AuthGuard allowedRoles={["admin"]}>
+            <BorderBox title="Quản lý giảng viên">
+                <div className={styles.box}>
+                    <div className={styles.add}>
+                        <Search
+                            setParPage={setParPage}
+                            setSearchValue={setSearchValue}
+                            searchValue={searchValue}
+                        />
 
-                    <Link
-                        href="/lecturer_management/create-edit" // Đường dẫn đến trang thêm mới giảng viên
-                        className={styles.buttonAdd}
-                    >
-                        <IoMdAddCircle /> Thêm mới
-                    </Link>
-                </div>
+                        <Link
+                            href="/lecturer_management/create-edit" // Đường dẫn đến trang thêm mới giảng viên
+                            className={styles.buttonAdd}
+                        >
+                            <IoMdAddCircle /> Thêm mới
+                        </Link>
+                    </div>
 
-                <div className={styles.tableWrapper}>
-                    <table className={styles.table}>
-                        <thead className={styles.thead}>
-                            <tr>
-                                <th style={{ minWidth: "100px" }}>Mã GV</th>
-                                <th style={{ minWidth: "200px" }}>Tên GV</th>
-                                <th style={{ minWidth: "250px" }}>Tên ngành</th>
-                                <th style={{ minWidth: "150px" }}>Vị trí</th>
-                                <th style={{ minWidth: "150px" }}>
-                                    Số điện thoại
-                                </th>
-                                <th style={{ minWidth: "120px" }}>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {lecturersData.map((lecturer) => (
-                                <tr key={lecturer.user_id}>
-                                    <td>{lecturer.user_id}</td>
-                                    <td>{lecturer.user_name}</td>
-                                    <td>{lecturer.major_name}</td>
-                                    <td>{lecturer.position}</td>
-                                    <td>{lecturer.phone_number}</td>
-                                    <td className={styles.buttonAction}>
-                                        <Link
-                                            href={`/lecturer_management/view?id=${lecturer.user_id}`} // Đường dẫn xem chi tiết
-                                            className={clsx(styles.viewButton)}
-                                        >
-                                            <FaEye />
-                                        </Link>
-                                        <Link
-                                            href={`/lecturer_management/create-edit?id=${lecturer.user_id}&mode=edit`} // Đường dẫn chỉnh sửa
-                                            className={clsx(
-                                                styles.viewButton,
-                                                styles.viewButtonUpdate
-                                            )}
-                                        >
-                                            <AiFillEdit />
-                                        </Link>
-                                        <Link
-                                            href="#"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setIsModalOpen(true);
-                                                setDeleteLecturerId(
-                                                    lecturer.user_id
-                                                );
-                                            }}
-                                            className={clsx(
-                                                styles.viewButton,
-                                                styles.viewButtonDelete
-                                            )}
-                                        >
-                                            <MdDeleteForever />
-                                        </Link>
-
-                                        {isModalOpen &&
-                                            deleteLecturerId ===
-                                                lecturer.user_id && (
-                                                <ModalConfirm
-                                                    message="Bạn có chắc chắn muốn xóa giảng viên này?"
-                                                    onConfirm={handleDelete}
-                                                    onCancel={handleCancel}
-                                                />
-                                            )}
-                                    </td>
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.table}>
+                            <thead className={styles.thead}>
+                                <tr>
+                                    <th style={{ minWidth: "100px" }}>Mã GV</th>
+                                    <th style={{ minWidth: "200px" }}>
+                                        Tên GV
+                                    </th>
+                                    <th style={{ minWidth: "250px" }}>
+                                        Tên ngành
+                                    </th>
+                                    <th style={{ minWidth: "150px" }}>
+                                        Vị trí
+                                    </th>
+                                    <th style={{ minWidth: "150px" }}>
+                                        Số điện thoại
+                                    </th>
+                                    <th style={{ minWidth: "120px" }}>
+                                        Thao tác
+                                    </th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {lecturersData.map((lecturer) => (
+                                    <tr key={lecturer.user_id}>
+                                        <td>{lecturer.user_id}</td>
+                                        <td>{lecturer.user_name}</td>
+                                        <td>{lecturer.major_name}</td>
+                                        <td>{lecturer.position}</td>
+                                        <td>{lecturer.phone_number}</td>
+                                        <td className={styles.buttonAction}>
+                                            <Link
+                                                href={`/lecturer_management/view?id=${lecturer.user_id}`} // Đường dẫn xem chi tiết
+                                                className={clsx(
+                                                    styles.viewButton
+                                                )}
+                                            >
+                                                <FaEye />
+                                            </Link>
+                                            <Link
+                                                href={`/lecturer_management/create-edit?id=${lecturer.user_id}&mode=edit`} // Đường dẫn chỉnh sửa
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.viewButtonUpdate
+                                                )}
+                                            >
+                                                <AiFillEdit />
+                                            </Link>
+                                            <Link
+                                                href="#"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setIsModalOpen(true);
+                                                    setDeleteLecturerId(
+                                                        lecturer.user_id
+                                                    );
+                                                }}
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.viewButtonDelete
+                                                )}
+                                            >
+                                                <MdDeleteForever />
+                                            </Link>
 
-                <div className={styles.paginationWrapper}>
-                    <Pagination
-                        pageNumber={currentPage}
-                        setPageNumber={setCurrentPage}
-                        totalItem={lecturersData.length}
-                        parPage={parPage}
-                        showItem={3}
-                    />
+                                            {isModalOpen &&
+                                                deleteLecturerId ===
+                                                    lecturer.user_id && (
+                                                    <ModalConfirm
+                                                        message="Bạn có chắc chắn muốn xóa giảng viên này?"
+                                                        onConfirm={handleDelete}
+                                                        onCancel={handleCancel}
+                                                    />
+                                                )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className={styles.paginationWrapper}>
+                        <Pagination
+                            pageNumber={currentPage}
+                            setPageNumber={setCurrentPage}
+                            totalItem={lecturersData.length}
+                            parPage={parPage}
+                            showItem={3}
+                        />
+                    </div>
                 </div>
-            </div>
-        </BorderBox>
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

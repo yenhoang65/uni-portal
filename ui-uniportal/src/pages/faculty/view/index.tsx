@@ -3,9 +3,9 @@ import Link from "next/link";
 import styles from "./styles.module.css"; // Import CSS Module
 import BorderBox from "@/components/BorderBox";
 import { TypographyHeading } from "@/components/TypographyHeading";
+import AuthGuard from "@/components/AuthGuard";
 
 const FacultyDetailPage: React.FC = () => {
-    // Dữ liệu khoa mẫu (thay thế bằng dữ liệu thực tế sau này)
     const faculty = {
         id_khoa: 123,
         ten_khoa: "Khoa Công nghệ Thông tin",
@@ -15,7 +15,7 @@ const FacultyDetailPage: React.FC = () => {
         dien_thoai: "024 123 4567",
         dia_chi: "Tòa nhà A1, Trường Đại học XYZ, Hà Nội",
         mo_ta: "Khoa Công nghệ Thông tin là một trong những khoa hàng đầu của trường, chuyên đào tạo các chuyên gia trong lĩnh vực phát triển phần mềm, khoa học máy tính, an ninh mạng và trí tuệ nhân tạo. Khoa có đội ngũ giảng viên giàu kinh nghiệm và cơ sở vật chất hiện đại...",
-        logo: "/images/fit_logo.png", // Đường dẫn tương đối đến thư mục public
+        logo: "/images/fit_logo.png",
     };
 
     const {
@@ -31,93 +31,96 @@ const FacultyDetailPage: React.FC = () => {
     } = faculty;
 
     return (
-        <BorderBox title={`Chi tiết khoa ${ten_khoa}`}>
-            <header className={styles.facultyHeader}>
-                {logo && (
-                    <div className={styles.logoContainer}>
-                        <Image
-                            src={require("./assets/logo.jpg")}
-                            alt={`Logo của khoa ${ten_khoa}`}
-                            width={200}
-                            height={200}
-                            objectFit="contain"
-                        />
+        <AuthGuard allowedRoles={["admin"]}>
+            <BorderBox title={`Chi tiết khoa ${ten_khoa}`}>
+                <header className={styles.facultyHeader}>
+                    {logo && (
+                        <div className={styles.logoContainer}>
+                            <Image
+                                src={require("./assets/logo.jpg")}
+                                alt={`Logo của khoa ${ten_khoa}`}
+                                width={200}
+                                height={200}
+                                objectFit="contain"
+                            />
+                        </div>
+                    )}
+                    <div className={styles.titleInfo}>
+                        <TypographyHeading
+                            tag="h1"
+                            theme="2xl"
+                            className={styles.description}
+                            color="var(--secondary-blue)"
+                        >
+                            {ten_khoa}
+                        </TypographyHeading>
+                        <p className={styles.facultyId}>Mã khoa: {id_khoa}</p>
                     </div>
-                )}
-                <div className={styles.titleInfo}>
-                    <TypographyHeading
-                        tag="h1"
-                        theme="2xl"
-                        className={styles.description}
-                        color="var(--secondary-blue)"
-                    >
-                        {ten_khoa}
-                    </TypographyHeading>
-                    <p className={styles.facultyId}>Mã khoa: {id_khoa}</p>
-                </div>
-            </header>
+                </header>
 
-            <section className={styles.facultyOverview}>
-                <TypographyHeading
-                    tag="h5"
-                    theme="2xl"
-                    className={styles.description}
-                    color="var(--secondary-blue)"
-                >
-                    Thông tin chung
-                </TypographyHeading>
-                <div className={styles.infoGrid}>
-                    {ngay_thanh_lap && (
-                        <div className={styles.infoItem}>
-                            <strong>Ngày thành lập:</strong> {ngay_thanh_lap}
-                        </div>
-                    )}
-                    {website && (
-                        <div className={styles.infoItem}>
-                            <strong>Website:</strong>
-                            <Link
-                                href={website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                {website}
-                            </Link>
-                        </div>
-                    )}
-                    {email && (
-                        <div className={styles.infoItem}>
-                            <strong>Email:</strong>
-                            <a href={`mailto:${email}`}>{email}</a>
-                        </div>
-                    )}
-                    {dien_thoai && (
-                        <div className={styles.infoItem}>
-                            <strong>Điện thoại:</strong>
-                            <a href={`tel:${dien_thoai}`}>{dien_thoai}</a>
-                        </div>
-                    )}
-                </div>
-                {dia_chi && (
-                    <div className={styles.infoItemAddress}>
-                        <strong>Địa chỉ:</strong> {dia_chi}
-                    </div>
-                )}
-            </section>
-
-            {mo_ta && (
-                <section className={styles.facultyDescription}>
+                <section className={styles.facultyOverview}>
                     <TypographyHeading
                         tag="h5"
                         theme="2xl"
                         className={styles.description}
                         color="var(--secondary-blue)"
                     >
-                        Mô tả
+                        Thông tin chung
                     </TypographyHeading>
-                    <p className={styles.desc}>{mo_ta}</p>
+                    <div className={styles.infoGrid}>
+                        {ngay_thanh_lap && (
+                            <div className={styles.infoItem}>
+                                <strong>Ngày thành lập:</strong>{" "}
+                                {ngay_thanh_lap}
+                            </div>
+                        )}
+                        {website && (
+                            <div className={styles.infoItem}>
+                                <strong>Website:</strong>
+                                <Link
+                                    href={website}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    {website}
+                                </Link>
+                            </div>
+                        )}
+                        {email && (
+                            <div className={styles.infoItem}>
+                                <strong>Email:</strong>
+                                <a href={`mailto:${email}`}>{email}</a>
+                            </div>
+                        )}
+                        {dien_thoai && (
+                            <div className={styles.infoItem}>
+                                <strong>Điện thoại:</strong>
+                                <a href={`tel:${dien_thoai}`}>{dien_thoai}</a>
+                            </div>
+                        )}
+                    </div>
+                    {dia_chi && (
+                        <div className={styles.infoItemAddress}>
+                            <strong>Địa chỉ:</strong> {dia_chi}
+                        </div>
+                    )}
                 </section>
-            )}
-        </BorderBox>
+
+                {mo_ta && (
+                    <section className={styles.facultyDescription}>
+                        <TypographyHeading
+                            tag="h5"
+                            theme="2xl"
+                            className={styles.description}
+                            color="var(--secondary-blue)"
+                        >
+                            Mô tả
+                        </TypographyHeading>
+                        <p className={styles.desc}>{mo_ta}</p>
+                    </section>
+                )}
+            </BorderBox>
+        </AuthGuard>
     );
 };
 
