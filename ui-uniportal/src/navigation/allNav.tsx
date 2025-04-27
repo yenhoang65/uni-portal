@@ -1,15 +1,13 @@
 import {
-    AiOutlineDashboard,
     AiOutlineTeam,
-    AiOutlineBarChart,
-    AiOutlineWallet,
+    AiOutlineBook,
+    AiOutlineFile,
+    AiOutlineCheckCircle,
+    AiOutlineUser,
+    AiOutlineHome,
+    AiOutlineCalendar,
 } from "react-icons/ai";
-import {
-    FaTasks,
-    FaChartLine,
-    FaArchive,
-    FaShoppingCart,
-} from "react-icons/fa";
+import { FaUserGraduate, FaUserTie } from "react-icons/fa";
 
 export const allNav = [
     {
@@ -18,14 +16,14 @@ export const allNav = [
             {
                 id: 1,
                 title: "Quản lý khoa",
-                icon: <AiOutlineDashboard />,
+                icon: <AiOutlineHome />,
                 role: ["admin"],
                 path: "/faculty",
             },
             {
                 id: 2,
                 title: "Quản lý ngành học",
-                icon: <FaTasks />,
+                icon: <AiOutlineBook />,
                 role: ["admin"],
                 path: "/major",
             },
@@ -44,14 +42,14 @@ export const allNav = [
             {
                 id: 4,
                 title: "Quản lý học phần",
-                icon: <AiOutlineBarChart />,
+                icon: <AiOutlineBook />,
                 role: ["admin"],
                 path: "/subject",
             },
             {
                 id: 5,
                 title: "Quản lý chương trình đào tạo",
-                icon: <FaArchive />,
+                icon: <AiOutlineFile />,
                 role: ["admin"],
                 path: "/training-program",
             },
@@ -63,28 +61,28 @@ export const allNav = [
             {
                 id: 6,
                 title: "Kích hoạt đăng ký lịch dạy",
-                icon: <FaChartLine />,
+                icon: <AiOutlineCheckCircle />,
                 role: ["admin"],
                 path: "/activate-teaching-schedule-registration",
             },
             {
                 id: 7,
                 title: "Kích hoạt đăng ký tín chỉ",
-                icon: <FaShoppingCart />,
+                icon: <AiOutlineCheckCircle />,
                 role: ["admin"],
                 path: "/enable-credit-registration",
             },
             {
                 id: 13,
                 title: "Phân công lịch giảng dạy",
-                icon: <FaShoppingCart />,
+                icon: <AiOutlineCalendar />,
                 role: ["admin"],
                 path: "/teaching-assignment",
             },
             {
-                id: 13,
+                id: 14,
                 title: "Đăng ký lịch giảng dạy",
-                icon: <FaShoppingCart />,
+                icon: <AiOutlineCalendar />,
                 role: ["admin"],
                 path: "/teaching-schedule-request",
             },
@@ -96,14 +94,14 @@ export const allNav = [
             {
                 id: 8,
                 title: "Quản lý giảng viên",
-                icon: <AiOutlineTeam />,
+                icon: <FaUserTie />,
                 role: ["admin"],
                 path: "/lecturer_management",
             },
             {
                 id: 9,
                 title: "Quản lý sinh viên",
-                icon: <AiOutlineTeam />,
+                icon: <FaUserGraduate />,
                 role: ["admin"],
                 path: "/student_management",
             },
@@ -115,14 +113,14 @@ export const allNav = [
             {
                 id: 10,
                 title: "Quản lý phòng học",
-                icon: <AiOutlineDashboard />,
+                icon: <AiOutlineHome />,
                 role: ["admin", "employee"],
                 path: "/classroom",
             },
             {
                 id: 12,
                 title: "Quản lý lớp học phần",
-                icon: <AiOutlineDashboard />,
+                icon: <AiOutlineBook />,
                 role: ["admin", "employee"],
                 path: "/class-term-subject",
             },
@@ -134,7 +132,7 @@ export const allNav = [
             {
                 id: 11,
                 title: "Quản lý thông tin cá nhân",
-                icon: <AiOutlineWallet />,
+                icon: <AiOutlineUser />,
                 role: ["admin", "employee", "student", "lecturer"],
                 path: "/profile/view",
             },

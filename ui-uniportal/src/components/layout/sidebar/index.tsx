@@ -20,10 +20,10 @@ const Sidebar: React.FC = () => {
             <div className={styles.userSection}>
                 <div className={styles.avatarWrapper}>
                     <Image
-                        src={require("./assets/user.jpg")}
+                        src={require("./assets/utehy.webp")}
                         alt="User Avatar"
-                        width={60}
-                        height={60}
+                        width={70}
+                        height={70}
                         className={styles.avatarIcon}
                     />
                 </div>
