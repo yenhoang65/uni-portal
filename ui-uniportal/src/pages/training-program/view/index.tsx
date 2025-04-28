@@ -46,6 +46,11 @@ const ViewTrainingProgram = () => {
 
     const [isOpenModal, setIsOpenModal] = useState(false);
 
+    const user = {
+        role: "adminq",
+    };
+    const isStudent = user?.role === "student";
+
     useEffect(() => {
         if (id) {
             // Mô phỏng gọi API để lấy Training Program
@@ -132,11 +137,9 @@ const ViewTrainingProgram = () => {
     };
 
     return (
-        <AuthGuard allowedRoles={["admin"]}>
+        <AuthGuard allowedRoles={["admin", "student"]}>
             <BorderBox
-                title={`Xem Chương trình Đào tạo: ${
-                    trainingProgram.train_code
-                } - ${
+                title={`Chương trình Đào tạo: ${trainingProgram.train_code} - ${
                     trainingProgram.specialization_name ||
                     trainingProgram.specialization_id
                 }`}
@@ -146,14 +149,14 @@ const ViewTrainingProgram = () => {
                         <div>
                             <TypographyHeading tag="span" theme="lg">
                                 Mã CTĐT:
-                            </TypographyHeading>
+                            </TypographyHeading>{" "}
                             {trainingProgram.training_program_id}
                         </div>
 
                         <div>
                             <TypographyHeading tag="span" theme="lg">
                                 Chuyên ngành:
-                            </TypographyHeading>
+                            </TypographyHeading>{" "}
                             {trainingProgram.specialization_name ||
                                 trainingProgram.specialization_id}
                         </div>
@@ -161,19 +164,21 @@ const ViewTrainingProgram = () => {
                         <div>
                             <TypographyHeading tag="span" theme="lg">
                                 Mã khóa học:
-                            </TypographyHeading>
+                            </TypographyHeading>{" "}
                             {trainingProgram.train_code}
                         </div>
                     </div>
 
-                    <div
-                        className={styles.buttonAdd}
-                        onClick={() => {
-                            setIsOpenModal(true);
-                        }}
-                    >
-                        <IoMdAddCircle /> Thêm mới
-                    </div>
+                    {!isStudent && (
+                        <div
+                            className={styles.buttonAdd}
+                            onClick={() => {
+                                setIsOpenModal(true);
+                            }}
+                        >
+                            <IoMdAddCircle /> Thêm mới
+                        </div>
+                    )}
                 </div>
 
                 <TypographyHeading
@@ -189,21 +194,39 @@ const ViewTrainingProgram = () => {
                         <table className={styles.table}>
                             <thead className={styles.thead}>
                                 <tr>
-                                    <th>Tên môn học</th>
+                                    <th>Mã học phần</th>
+                                    <th>Tên học phần</th>
                                     <th>Loại môn học</th>
                                     <th>Môn học phụ thuộc</th>
-                                    <th>Hành động</th>
+                                    {!isStudent && <th>Hành động</th>}
                                 </tr>
                             </thead>
                             <tbody>
                                 {subjects.map((subject) => (
                                     <tr key={subject.subject_id}>
+                                        <td>{subject.subject_id}</td>
                                         <td>{subject.subject_name}</td>
                                         <td>{subject.subject_type}</td>
                                         <td>
                                             {subject.prerequisite_for || "-"}
                                         </td>
-                                        <td>
+                                        {!isStudent && (
+                                            <td>
+                                                <Button
+                                                    className={
+                                                        styles.actionButton
+                                                    }
+                                                    onClick={() => {
+                                                        handleRemoveSubject(
+                                                            subject.subject_id
+                                                        );
+                                                    }}
+                                                >
+                                                    <FaMinusCircle />
+                                                </Button>
+                                            </td>
+                                        )}
+                                        {/* <td>
                                             <Button
                                                 className={styles.actionButton}
                                                 onClick={() => {
@@ -214,7 +237,7 @@ const ViewTrainingProgram = () => {
                                             >
                                                 <FaMinusCircle />
                                             </Button>
-                                        </td>
+                                        </td> */}
                                     </tr>
                                 ))}
                             </tbody>
