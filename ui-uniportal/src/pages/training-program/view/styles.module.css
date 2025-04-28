@@ -91,21 +91,28 @@
 }
 
 .group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 16px;
+    word-break: break-word;
 }
 
 .groupTitle {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    align-items: center;
+    width: 100%;
+    gap: 16px;
 }
 
 .buttonAdd {
+    width: 150px;
     height: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
+    justify-self: end;
     padding: 3px 8px;
     color: white;
     border-radius: 8px;

@@ -9,8 +9,8 @@
 .pageButton {
     width: 33px;
     height: 33px;
-    border-radius: 8px;
-    background-color: var(--third, #e5e7eb); /* fallback light gray */
+    border-radius: 999px;
+    background-color: var(--secondary-grey);
     color: #000;
     display: flex;
     justify-content: center;
@@ -21,12 +21,12 @@
 }
 
 .pageButton:hover {
-    background-color: var(--second, #6366f1); /* indigo */
+    background-color: var(--secondary-grey);
     color: white;
 }
 
 .active {
-    background-color: var(--second, #6366f1);
+    background-color: var(--secondary-blue);
     color: white;
     box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
