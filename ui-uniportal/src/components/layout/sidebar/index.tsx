@@ -11,7 +11,7 @@ const Sidebar: React.FC = () => {
     const [allNav, setAllNav] = useState<NavGroup[]>([]);
 
     useEffect(() => {
-        const navs = getNav(["admin"]);
+        const navs = getNav(["student"]);
         setAllNav(navs);
     }, []);
 
@@ -27,7 +27,7 @@ const Sidebar: React.FC = () => {
                         className={styles.avatarIcon}
                     />
                 </div>
-                <span className={styles.username}>Nicola Web Design</span>
+                <span className={styles.username}>ThaoDT46</span>
                 <span className={styles.position}>Giảng viên</span>
             </div>
 
