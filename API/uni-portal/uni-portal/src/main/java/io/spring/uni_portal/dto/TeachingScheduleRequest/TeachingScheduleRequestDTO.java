@@ -1,63 +1,52 @@
 package io.spring.uni_portal.dto.TeachingScheduleRequest;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class TeachingScheduleRequestDTO {
-
-    private Long classroomId;
-    private Long lesson;
-    private LocalDateTime dateTime;
+    private Long scheduleId;
+    private List<String> classTypes;  // List of class types
     private Long status;
-    private Long classType;
-    private Long assignmentId;
+    private LocalDateTime createdAt;
 
-    // Getters and Setters
-
-    public Long getClassroomId() {
-        return classroomId;
+    // Getter for scheduleId
+    public Long getScheduleId() {
+        return scheduleId;
     }
 
-    public void setClassroomId(Long classroomId) {
-        this.classroomId = classroomId;
+    // Setter for scheduleId
+    public void setScheduleId(Long scheduleId) {
+        this.scheduleId = scheduleId;
     }
 
-    public Long getLesson() {
-        return lesson;
+    // Getter for classTypes
+    public List<String> getClassTypes() {
+        return classTypes;
     }
 
-    public void setLesson(Long lesson) {
-        this.lesson = lesson;
+    // Setter for classTypes
+    public void setClassTypes(List<String> classTypes) {
+        this.classTypes = classTypes;
     }
 
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
-    }
-
+    // Getter for status
     public Long getStatus() {
         return status;
     }
 
+    // Setter for status
     public void setStatus(Long status) {
         this.status = status;
     }
 
-    public Long getClassType() {
-        return classType;
+    // Getter for createdAt
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setClassType(Long classType) {
-        this.classType = classType;
-    }
-
-    public Long getAssignmentId() {
-        return assignmentId;
-    }
-
-    public void setAssignmentId(Long assignmentId) {
-        this.assignmentId = assignmentId;
+    // Setter for createdAt
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
+

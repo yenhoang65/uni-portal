@@ -16,8 +16,8 @@ public class ClassStudent {
     @JoinColumn(name = "termclass_id")
     private TermClass termClass;
 
-//    @Column(name = "class_name")
-//    private String className;
+    @Column(name = "class_name")
+    private String className;
 
     @Column(name = "class_type")
     private Long classType;
@@ -33,24 +33,15 @@ public class ClassStudent {
     @JoinColumn(name = "user_id")
     private Lecturer lecturer;
 
-    @Column(name = "date_time")
-    private LocalDateTime dateTime;
-
     @ManyToOne
     @JoinColumn(name = "classroom_id")
     private Classroom classroom;
 
     @Column(name = "status")
-    private Long status;
-
-    @Column(name = "approved_by")
-    private Long approvedBy;
+    private String status;
 
     @Column(name = "minimum_quantity")
     private Long minimumQuantity;
-
-    @Column(name = "semester")
-    private Long semester;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -62,20 +53,19 @@ public class ClassStudent {
     public ClassStudent() {
     }
 
-    public ClassStudent( Long classType, Subject subject, String lesson, Lecturer lecturer, LocalDateTime dateTime, Classroom classroom, Long status, Long approvedBy, Long minimumQuantity, Long semester, LocalDateTime createdAt, LocalDateTime endDate) {
+    public ClassStudent(Long classType, Subject subject, String lesson, Lecturer lecturer, Classroom classroom, String status, Long minimumQuantity, LocalDateTime createdAt, LocalDateTime endDate) {
         this.classType = classType;
         this.subject = subject;
         this.lesson = lesson;
         this.lecturer = lecturer;
-        this.dateTime = dateTime;
         this.classroom = classroom;
         this.status = status;
-        this.approvedBy = approvedBy;
         this.minimumQuantity = minimumQuantity;
-        this.semester = semester;
         this.createdAt = createdAt;
         this.endDate = endDate;
     }
+
+    // Getters and Setters
 
     public Long getTermclassId() {
         return termclassId;
@@ -93,7 +83,13 @@ public class ClassStudent {
         this.termClass = termClass;
     }
 
+    public String getClassName() {
+        return className;
+    }
 
+    public void setClassName(String className) {
+        this.className = className;
+    }
 
     public Long getClassType() {
         return classType;
@@ -127,14 +123,6 @@ public class ClassStudent {
         this.lecturer = lecturer;
     }
 
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
-    }
-
     public Classroom getClassroom() {
         return classroom;
     }
@@ -143,20 +131,12 @@ public class ClassStudent {
         this.classroom = classroom;
     }
 
-    public Long getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(Long status) {
+    public void setStatus(String status) {
         this.status = status;
-    }
-
-    public Long getApprovedBy() {
-        return approvedBy;
-    }
-
-    public void setApprovedBy(Long approvedBy) {
-        this.approvedBy = approvedBy;
     }
 
     public Long getMinimumQuantity() {
@@ -165,14 +145,6 @@ public class ClassStudent {
 
     public void setMinimumQuantity(Long minimumQuantity) {
         this.minimumQuantity = minimumQuantity;
-    }
-
-    public Long getSemester() {
-        return semester;
-    }
-
-    public void setSemester(Long semester) {
-        this.semester = semester;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -190,5 +162,4 @@ public class ClassStudent {
     public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
     }
-
 }

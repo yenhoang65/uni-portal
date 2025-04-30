@@ -5,6 +5,7 @@ public class TeachingAssignmentDTO {
     private Long lecturerId;
     private Long subjectId;
     private Long termClassId;  // Chỉ cần trường này
+    private String assignmentType;
 
     // Getters and setters
     public Long getLecturerId() {
@@ -29,5 +30,12 @@ public class TeachingAssignmentDTO {
 
     public void setTermClassId(Long termClassId) {
         this.termClassId = termClassId;
+    }
+    public String getAssignmentType() {
+        return assignmentType;
+    }
+
+    public void setAssignmentType(String assignmentType) {
+        this.assignmentType = assignmentType;
     }
 }

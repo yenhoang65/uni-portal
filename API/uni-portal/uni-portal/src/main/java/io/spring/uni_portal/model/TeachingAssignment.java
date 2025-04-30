@@ -20,10 +20,18 @@ public class TeachingAssignment {
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "termclass_id", nullable = false)
     private TermClass termClass;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "assignment_type", nullable = true)
+    private AssignmentType assignmentType;
+
+    public enum AssignmentType {
+        ltCredits, // Lý thuyết
+        thCredits // Thực hành
+    }
     // Getters & Setters
 
     public Long getAssignmentId() {
@@ -57,6 +65,12 @@ public class TeachingAssignment {
     public void setTermClass(TermClass termClass) {
         this.termClass = termClass;
     }
+
+    public AssignmentType getAssignmentType() {
+        return assignmentType;
+    }
+
+    public void setAssignmentType(AssignmentType assignmentType) {
+        this.assignmentType = assignmentType;
+    }
 }
-
-

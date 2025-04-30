@@ -19,15 +19,12 @@ import java.util.List;
 public class TeachingAssignmentController {
 
     @Autowired
-    private TeachingAssignmentService teachingAssignmentService;
-
-    @Autowired
     private ITeachingAssignmentService iteachingAssignmentService;
 
     // API phân chia lớp học cho giảng viên (POST)
     @PostMapping
-    public ResponseEntity<Response<TeachingAssignmentResponse>> assignClassToLecturer(@RequestBody TeachingAssignmentDTO dto) {
-        Response<TeachingAssignmentResponse> response = iteachingAssignmentService.assignClassToLecturer(dto);
+    public ResponseEntity<Response<List<TeachingAssignmentResponse>>> assignClassToLecturer(@RequestBody TeachingAssignmentDTO dto) {
+        Response<List<TeachingAssignmentResponse>> response = iteachingAssignmentService.assignClassToLecturer(dto);
         return ResponseEntity.ok(response);
     }
 
@@ -38,7 +35,7 @@ public class TeachingAssignmentController {
         return ResponseEntity.ok(response);
     }
 
-    // API lấy phân công giảng viên dạy theo ID assignement (GET)
+    // API lấy phân công giảng viên dạy theo ID assignment (GET)
     @GetMapping("/{id}")
     public ResponseEntity<Response<TeachingAssignmentResponse>> getAssignmentById(@PathVariable Long id) {
         Response<TeachingAssignmentResponse> response = iteachingAssignmentService.getAssignmentById(id);
@@ -68,9 +65,7 @@ public class TeachingAssignmentController {
 
     @GetMapping("/unassigned-classes")
     public ResponseEntity<Response<List<TermClassResponseUnassignedClasses>>> getUnassignedClasses() {
-        // Gọi service để lấy danh sách các lớp chưa phân công giảng viên
-        Response<List<TermClassResponseUnassignedClasses>> response = teachingAssignmentService.getUnassignedClasses();
+        Response<List<TermClassResponseUnassignedClasses>> response = iteachingAssignmentService.getUnassignedClasses();
         return ResponseEntity.ok(response);
     }
-
 }

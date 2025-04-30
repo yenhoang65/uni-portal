@@ -19,8 +19,6 @@ public class TermClassService implements ITermClassService {
 
     @Override
     public Response<TermClassResponse> createTermClass(TermClassDTO termClassDTO) {
-
-
         // Kiểm tra trùng classname
         if (termClassRepository.existsByClassname(termClassDTO.getClassname())) {
             return Response.failure("Tên lớp đã tồn tại.");
@@ -101,18 +99,29 @@ public class TermClassService implements ITermClassService {
         String semester = termClassDTO.getSemester();  // Example: "1", "2", or "3"
         String schoolYear = termClassDTO.getSchoolyears().substring(2); // Get last 2 digits of school year
 
-        // Sử dụng một biến lưu số tăng dần, ví dụ, đây là một số cố định. Thực tế bạn có thể lấy từ CSDL để tự động tăng.
-        long sequence = getNextSequenceNumber();
+        long sequence = getNextSequenceNumber(progress, semester, schoolYear);
 
         String termclassIdStr = progress + semester + schoolYear + String.format("%04d", sequence);
         return Long.valueOf(termclassIdStr);
     }
 
-    // Đây là một hàm giả lập việc tăng số tự động, bạn có thể thay thế bằng cơ chế lấy số tự động từ CSDL
-    private long getNextSequenceNumber() {
-        // Ví dụ: Lấy số tiếp theo từ cơ sở dữ liệu hoặc tạo số tự động tại đây.
-        // Thay vì sử dụng System.currentTimeMillis(), bạn có thể duy trì một biến hoặc database để tăng dần số tự động.
-        return 1;  // Thay đổi 1 bằng cách tăng dần số tự động
+    private long getNextSequenceNumber(String progress, String semester, String schoolYear) {
+        // Tạo tiền tố 4 số đầu: progress + semester + schoolYear
+        String prefix = progress + semester + schoolYear;
+        // Tìm ID lớn nhất có cùng tiền tố
+        List<TermClass> termClasses = termClassRepository.findAll();
+        long maxSequence = 0;
+
+        for (TermClass termClass : termClasses) {
+            String termClassIdStr = termClass.getTermclassId().toString();
+            if (termClassIdStr.startsWith(prefix) && termClassIdStr.length() == 8) {
+                long sequence = Long.parseLong(termClassIdStr.substring(4));
+                maxSequence = Math.max(maxSequence, sequence);
+            }
+        }
+
+        // Tăng số thứ tự lên 1
+        return maxSequence + 1;
     }
 
     private TermClassResponse mapToResponse(TermClass termClass) {
