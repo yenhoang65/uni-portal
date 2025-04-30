@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface TeachingScheduleRequestRepository extends JpaRepository<TeachingScheduleRequest, Long> {
-
+    TeachingScheduleRequest findByAssignment(TeachingAssignment assignment);
 }

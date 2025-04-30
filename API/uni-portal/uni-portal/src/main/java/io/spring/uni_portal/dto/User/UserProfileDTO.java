@@ -10,10 +10,9 @@ public class UserProfileDTO {
     private String email;
     private String phoneNumber;
     private String address;
+    private String religion;
     private LocalDate dateOfBirth;
-    private String educationLevel; // Chỉ cho sinh viên
-    private String academicDegree; // Chỉ cho giảng viên
-    private String position; // Chỉ cho giảng viên
+    private LocalDate admissionDate;
     private String ethnicGroup;
     private String idNumber;
     private String placeOfBirth;
@@ -22,19 +21,28 @@ public class UserProfileDTO {
     private String bankAccountOwner;
     private String bankAccountNumber;
     private String status;
+    private String educationLevel; // Chỉ cho sinh viên
+    private String academicDegree; // Chỉ cho giảng viên
+    private String position; // Chỉ cho giảng viên
+    private String majorName; // Tên ngành học
+    private String facultyName; // Tên khoa
 
-    // Constructors, Getters and Setters
-    public UserProfileDTO(Long userId, String userName, String role, String email, String phoneNumber, String address,
-                          LocalDate dateOfBirth, String ethnicGroup, String idNumber, String placeOfBirth, String permanentResident,
+    // Constructor chỉ nhận 21 tham số
+    public UserProfileDTO(Long userId, String userName, String role, String email, String phoneNumber,
+                          String address, String religion, LocalDate dateOfBirth, LocalDate admissionDate,
+                          String ethnicGroup, String idNumber, String placeOfBirth, String permanentResident,
                           String bank, String bankAccountOwner, String bankAccountNumber, String status,
-                          String educationLevel, String academicDegree, String position) {
+                          String educationLevel, String academicDegree, String position,
+                          String majorName, String facultyName) {
         this.userId = userId;
         this.userName = userName;
         this.role = role;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.address = address;
+        this.religion = religion;
         this.dateOfBirth = dateOfBirth;
+        this.admissionDate = admissionDate;
         this.ethnicGroup = ethnicGroup;
         this.idNumber = idNumber;
         this.placeOfBirth = placeOfBirth;
@@ -46,10 +54,11 @@ public class UserProfileDTO {
         this.educationLevel = educationLevel;
         this.academicDegree = academicDegree;
         this.position = position;
+        this.majorName = majorName;
+        this.facultyName = facultyName;
     }
 
-    // Getters and setters
-
+    // Getters and Setters
     public Long getUserId() {
         return userId;
     }
@@ -98,6 +107,14 @@ public class UserProfileDTO {
         this.address = address;
     }
 
+    public String getReligion() {
+        return religion;
+    }
+
+    public void setReligion(String religion) {
+        this.religion = religion;
+    }
+
     public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
@@ -106,28 +123,12 @@ public class UserProfileDTO {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getEducationLevel() {
-        return educationLevel;
+    public LocalDate getAdmissionDate() {
+        return admissionDate;
     }
 
-    public void setEducationLevel(String educationLevel) {
-        this.educationLevel = educationLevel;
-    }
-
-    public String getAcademicDegree() {
-        return academicDegree;
-    }
-
-    public void setAcademicDegree(String academicDegree) {
-        this.academicDegree = academicDegree;
-    }
-
-    public String getPosition() {
-        return position;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
+    public void setAdmissionDate(LocalDate admissionDate) {
+        this.admissionDate = admissionDate;
     }
 
     public String getEthnicGroup() {
@@ -192,5 +193,45 @@ public class UserProfileDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getEducationLevel() {
+        return educationLevel;
+    }
+
+    public void setEducationLevel(String educationLevel) {
+        this.educationLevel = educationLevel;
+    }
+
+    public String getAcademicDegree() {
+        return academicDegree;
+    }
+
+    public void setAcademicDegree(String academicDegree) {
+        this.academicDegree = academicDegree;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public String getMajorName() {
+        return majorName;
+    }
+
+    public void setMajorName(String majorName) {
+        this.majorName = majorName;
+    }
+
+    public String getFacultyName() {
+        return facultyName;
+    }
+
+    public void setFacultyName(String facultyName) {
+        this.facultyName = facultyName;
     }
 }

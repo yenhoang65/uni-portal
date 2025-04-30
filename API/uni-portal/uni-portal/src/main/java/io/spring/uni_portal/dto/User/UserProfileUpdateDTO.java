@@ -1,10 +1,16 @@
 package io.spring.uni_portal.dto.User;
 
+import java.time.LocalDate;
+
 public class UserProfileUpdateDTO {
 
+    // Các trường của bảng User
+    private String userName;
     private String email;
     private String phoneNumber;
     private String address;
+    private String religion;
+    private LocalDate dateOfBirth;
     private String ethnicGroup;
     private String idNumber;
     private String placeOfBirth;
@@ -12,15 +18,30 @@ public class UserProfileUpdateDTO {
     private String bank;
     private String bankAccountOwner;
     private String bankAccountNumber;
-    private String status; // Trạng thái tài khoản, ví dụ "active", "inactive"
+    private String status;
+
+    // Các trường của bảng Student
+    private String educationLevel;
+
+    // Các trường của bảng Lecturer
+    private String academicDegree;
+    private String position;
+
+    // Các trường bổ sung từ bảng Major và Faculty cho Lecturer
+    private String majorName;
+    private String facultyName;
 
     // Constructors
-    public UserProfileUpdateDTO(String email, String phoneNumber, String address, String ethnicGroup,
-                                String idNumber, String placeOfBirth, String permanentResident, String bank,
-                                String bankAccountOwner, String bankAccountNumber, String status) {
+    public UserProfileUpdateDTO(String userName,String email, String phoneNumber, String address, String religion, LocalDate dateOfBirth,
+                                String ethnicGroup, String idNumber, String placeOfBirth, String permanentResident,
+                                String bank, String bankAccountOwner, String bankAccountNumber, String status,
+                                String educationLevel, String academicDegree, String position, String majorName, String facultyName) {
+        this.userName = userName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.address = address;
+        this.religion = religion;
+        this.dateOfBirth = dateOfBirth;
         this.ethnicGroup = ethnicGroup;
         this.idNumber = idNumber;
         this.placeOfBirth = placeOfBirth;
@@ -29,6 +50,11 @@ public class UserProfileUpdateDTO {
         this.bankAccountOwner = bankAccountOwner;
         this.bankAccountNumber = bankAccountNumber;
         this.status = status;
+        this.educationLevel = educationLevel;
+        this.academicDegree = academicDegree;
+        this.position = position;
+        this.majorName = majorName;
+        this.facultyName = facultyName;
     }
 
     // Getters and Setters
@@ -38,6 +64,14 @@ public class UserProfileUpdateDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getPhoneNumber() {
@@ -54,6 +88,22 @@ public class UserProfileUpdateDTO {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getReligion() {
+        return religion;
+    }
+
+    public void setReligion(String religion) {
+        this.religion = religion;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getEthnicGroup() {
@@ -118,5 +168,45 @@ public class UserProfileUpdateDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getEducationLevel() {
+        return educationLevel;
+    }
+
+    public void setEducationLevel(String educationLevel) {
+        this.educationLevel = educationLevel;
+    }
+
+    public String getAcademicDegree() {
+        return academicDegree;
+    }
+
+    public void setAcademicDegree(String academicDegree) {
+        this.academicDegree = academicDegree;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public String getMajorName() {
+        return majorName;
+    }
+
+    public void setMajorName(String majorName) {
+        this.majorName = majorName;
+    }
+
+    public String getFacultyName() {
+        return facultyName;
+    }
+
+    public void setFacultyName(String facultyName) {
+        this.facultyName = facultyName;
     }
 }

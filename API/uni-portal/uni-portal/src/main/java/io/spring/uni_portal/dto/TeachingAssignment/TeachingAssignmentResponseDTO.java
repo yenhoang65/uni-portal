@@ -1,7 +1,7 @@
 package io.spring.uni_portal.dto.TeachingAssignment;
 
+public class TeachingAssignmentResponseDTO {
 
-public class TeachingAssignmentResponse {
     private Long assignmentId;
     private Long lecturerId;
     private String lecturerName;
@@ -12,11 +12,11 @@ public class TeachingAssignmentResponse {
     private String progress;
     private String semester;
     private String schoolYears;
-    private String assignmentType;
 
-    public TeachingAssignmentResponse(Long assignmentId, Long lecturerId, String lecturerName, Long subjectId,
-                                      String subjectName, Long termClassId, String className, String progress,
-                                      String semester, String schoolYears, String assignmentType) {
+    // Getters, Setters, Constructors
+    public TeachingAssignmentResponseDTO(Long assignmentId, Long lecturerId, String lecturerName, Long subjectId,
+                                         String subjectName, Long termClassId, String className, String progress,
+                                         String semester, String schoolYears) {
         this.assignmentId = assignmentId;
         this.lecturerId = lecturerId;
         this.lecturerName = lecturerName;
@@ -27,10 +27,10 @@ public class TeachingAssignmentResponse {
         this.progress = progress;
         this.semester = semester;
         this.schoolYears = schoolYears;
-        this.assignmentType = assignmentType;
     }
 
-    // Getters & Setters
+    // Getters and Setters
+
     public Long getAssignmentId() {
         return assignmentId;
     }
@@ -109,13 +109,5 @@ public class TeachingAssignmentResponse {
 
     public void setSchoolYears(String schoolYears) {
         this.schoolYears = schoolYears;
-    }
-
-    public String getAssignmentType() {
-        return assignmentType;
-    }
-
-    public void setAssignmentType(String assignmentType) {
-        this.assignmentType = assignmentType;
     }
 }
