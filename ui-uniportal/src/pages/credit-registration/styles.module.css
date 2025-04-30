@@ -1,4 +1,4 @@
-styles.module.css .box {
+.box {
     padding: 20px;
 }
 
@@ -50,11 +50,13 @@ styles.module.css .box {
 .tableCell {
     padding: 12px 16px;
     color: #4b5563;
+    border-bottom: 1px solid var(--secondary-grey);
 }
 
-.buttonAction {
-    display: flex;
-    gap: 8px;
+.action {
+    padding: 5px;
+    cursor: pointer;
+    font-size: 20px;
 }
 
 .viewButton {

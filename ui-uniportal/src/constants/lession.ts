@@ -1,0 +1,15 @@
+export const lessonTimeMap: Record<number, { start: string; end: string }> = {
+    1: { start: "7:00 a.m.", end: "7:50 a.m." },
+    2: { start: "7:50 a.m.", end: "8:40 a.m." },
+    3: { start: "8:40 a.m.", end: "9:30 a.m." },
+    4: { start: "9:40 a.m.", end: "10:20 a.m." },
+    5: { start: "10:20 a.m.", end: "11:10 a.m." },
+    6: { start: "11:10 a.m.", end: "12:00 p.m." },
+    7: { start: "13:00 p.m.", end: "13:50 p.m." },
+    8: { start: "13:50 p.m.", end: "14:40 p.m." },
+    9: { start: "14:40 p.m.", end: "15:30 p.m." },
+    10: { start: "15:30 p.m.", end: "16:20 p.m." },
+    11: { start: "16:20 p.m.", end: "17:10 p.m." },
+    12: { start: "17:10 p.m.", end: "18:00 p.m." },
+    13: { start: "18:00 p.m.", end: "18:50 p.m." },
+};
