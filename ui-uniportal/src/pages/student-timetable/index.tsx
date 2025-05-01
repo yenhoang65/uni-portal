@@ -312,6 +312,7 @@ import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import BorderBox from "@/components/BorderBox";
 import { lessonTimeMap } from "@/constants/lession";
+import AuthGuard from "@/components/AuthGuard";
 
 moment.updateLocale("en", {
     week: {
@@ -485,30 +486,32 @@ const TimeLine = () => {
     const events = generateEvents();
 
     return (
-        <BorderBox title="Thời khóa biểu">
-            <Calendar
-                localizer={localizer}
-                events={events}
-                startAccessor="start"
-                endAccessor="end"
-                defaultView="week"
-                views={["month", "week", "day"]}
-                timeslots={1}
-                step={60}
-                min={new Date(2024, 0, 1, 6, 0)}
-                max={new Date(2024, 0, 1, 23, 59)}
-                style={{ height: "75vh" }}
-                eventPropGetter={(event) => ({
-                    style: {
-                        backgroundColor: event.color,
-                        color: "white",
-                        borderRadius: "4px",
-                        padding: "4px",
-                        border: "none",
-                    },
-                })}
-            />
-        </BorderBox>
+        <AuthGuard allowedRoles={["student"]}>
+            <BorderBox title="Thời khóa biểu">
+                <Calendar
+                    localizer={localizer}
+                    events={events}
+                    startAccessor="start"
+                    endAccessor="end"
+                    defaultView="week"
+                    views={["month", "week", "day"]}
+                    timeslots={1}
+                    step={60}
+                    min={new Date(2024, 0, 1, 6, 0)}
+                    max={new Date(2024, 0, 1, 23, 59)}
+                    style={{ height: "75vh" }}
+                    eventPropGetter={(event) => ({
+                        style: {
+                            backgroundColor: event.color,
+                            color: "white",
+                            borderRadius: "4px",
+                            padding: "4px",
+                            border: "none",
+                        },
+                    })}
+                />
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

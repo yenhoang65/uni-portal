@@ -107,6 +107,13 @@ export const allNav = [
                 role: ["student", "admin"],
                 path: "/student-timetable",
             },
+            {
+                id: 17,
+                title: "Thời khóa biểu giảng viên",
+                icon: <AiOutlineCalendar />,
+                role: ["lecturer", "admin"],
+                path: "/lecturer-timetable",
+            },
         ],
     },
     {
