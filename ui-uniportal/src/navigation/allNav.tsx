@@ -60,6 +60,13 @@ export const allNav = [
                 role: ["student"],
                 path: "/training-program/view",
             },
+            {
+                id: 18,
+                title: "Quản lý lớp học phần",
+                icon: <AiOutlineCalendar />,
+                role: ["lecturer"],
+                path: "/class-subject-management",
+            },
         ],
     },
     {
