@@ -11,7 +11,7 @@ const Sidebar: React.FC = () => {
     const [allNav, setAllNav] = useState<NavGroup[]>([]);
 
     useEffect(() => {
-        const navs = getNav(["lecturer"]);
+        const navs = getNav(["employee"]);
         setAllNav(navs);
     }, []);
 

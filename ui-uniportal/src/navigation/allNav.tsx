@@ -67,6 +67,13 @@ export const allNav = [
                 role: ["lecturer"],
                 path: "/class-subject-management",
             },
+            {
+                id: 18,
+                title: "Danh sách lớp học",
+                icon: <AiOutlineCalendar />,
+                role: ["employee", "admin"],
+                path: "/list-class-follow-day",
+            },
         ],
     },
     {
@@ -154,9 +161,9 @@ export const allNav = [
             },
             {
                 id: 12,
-                title: "Quản lý lớp học phần",
+                title: "Quản lý lớp học phần tạm",
                 icon: <AiOutlineBook />,
-                role: ["admin", "employee"],
+                role: ["admin"],
                 path: "/class-term-subject",
             },
         ],
