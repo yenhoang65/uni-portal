@@ -180,4 +180,16 @@ export const allNav = [
             },
         ],
     },
+    {
+        group: "QUẢN LÝ BÀI TẬP",
+        items: [
+            {
+                id: 20,
+                title: "Quản lý bài tập",
+                icon: <AiOutlineUser />,
+                role: ["student"],
+                path: "submit-assignment",
+            },
+        ],
+    },
 ];

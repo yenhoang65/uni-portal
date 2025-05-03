@@ -98,19 +98,19 @@ const ClassSubjectManagement = () => {
                         <table className={styles.table}>
                             <thead className={styles.thead}>
                                 <tr>
-                                    <th style={{ minWidth: "80px" }}>No</th>
+                                    <th style={{ minWidth: "50px" }}>No</th>
                                     <th style={{ minWidth: "200px" }}>
                                         Tên Lớp Học
                                     </th>
-                                    <th style={{ minWidth: "200px" }}>
+                                    <th style={{ minWidth: "150px" }}>
                                         Tên Môn Học
                                     </th>
-                                    <th style={{ minWidth: "150px" }}>
+                                    <th style={{ minWidth: "100px" }}>
                                         Tổng Số Sinh Viên
                                     </th>
                                     <th
                                         style={{
-                                            minWidth: "200px",
+                                            minWidth: "300px",
                                             textAlign: "center",
                                         }}
                                     >
@@ -160,6 +160,15 @@ const ClassSubjectManagement = () => {
                                                     )}
                                                 >
                                                     <BiListCheck /> In danh sách
+                                                </Link>
+                                                <Link
+                                                    href={`../assignment/${classSubject.id}`}
+                                                    className={clsx(
+                                                        styles.viewButton,
+                                                        styles.assignment
+                                                    )}
+                                                >
+                                                    <BiListCheck /> Giao bài tập
                                                 </Link>
                                             </td>
                                         </tr>
