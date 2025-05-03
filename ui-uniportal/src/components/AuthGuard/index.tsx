@@ -12,7 +12,7 @@ async function getCurrentUser() {
     // TODO: Viết code lấy user từ Cookie hoặc LocalStorage
     // Tạm thời fake user là "admin"
     return {
-        role: "employee",
+        role: "student",
     };
 }
 
