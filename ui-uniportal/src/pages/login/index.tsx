@@ -3,23 +3,40 @@ import styles from "./styles.module.css";
 import Image from "next/image";
 import logo from "./assets/utehy_logo.png";
 import { useRouter } from "next/router";
+import { login } from "@/store/reducer/authReducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
+
+type LoginData = {
+    userId: string;
+    password: string;
+};
 
 const Login = () => {
     // const router = useRouter();
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+    const dispatch = useDispatch<AppDispatch>();
+    const [state, setState] = useState({
+        userId: "",
+        password: "",
+    });
 
-    const isFormValid = username.trim() !== "" && password.trim() !== "";
+    const inputHandle = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setState({
+            ...state,
+            [e.target.name]: e.target.value,
+        });
+    };
 
-    // const isAuthenticated = !!role && !!userInfo;
+    const isFormValid =
+        state.userId.trim() !== "" && state.password.trim() !== "";
 
-    // useEffect(() => {
-    //     if (isAuthenticated) {
-    //         router.replace("/");
-    //     }
-    // }, [isAuthenticated, router]);
+    const submit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
 
-    // if (isAuthenticated) return null;
+        const loginData: LoginData = { ...state };
+
+        dispatch(login(loginData));
+    };
 
     return (
         <div className={styles.wrapper}>
@@ -39,13 +56,14 @@ const Login = () => {
             <div className={styles.right}>
                 <span className={styles.title}>CỔNG THÔNG TIN SINH VIÊN</span>
 
-                <form className={styles.form}>
+                <form className={styles.form} onSubmit={submit}>
                     <div className={styles.inputGroup}>
                         <input
                             type="text"
-                            id="username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            id="userId"
+                            value={state.userId}
+                            name="userId"
+                            onChange={inputHandle}
                             placeholder="Tên đăng nhập"
                             className={styles.input}
                             autoComplete="off"
@@ -59,8 +77,9 @@ const Login = () => {
                         <input
                             type="password"
                             id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            value={state.password}
+                            name="password"
+                            onChange={inputHandle}
                             placeholder="Mật khẩu"
                             className={styles.input}
                             autoComplete="off"
@@ -73,7 +92,6 @@ const Login = () => {
                     <div className={styles.forgotPassword}>Quên mật khẩu</div>
 
                     <button
-                        type="submit"
                         className={`${styles.loginBtn} ${
                             !isFormValid ? styles.disabledBtn : ""
                         }`}

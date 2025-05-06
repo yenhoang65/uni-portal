@@ -51,7 +51,7 @@ const AssignmentDetail = () => {
     const createdDate = new Date(assignment.created_at);
 
     return (
-        <AuthGuard allowedRoles={["admin", "lecturer", "student"]}>
+        <AuthGuard allowedRoles={["admin", "lecturer"]}>
             <BorderBox title={`Chi tiết bài tập: ${assignment.title}`}>
                 <div className={styles.detailContainer}>
                     <div className={styles.detailItem}>

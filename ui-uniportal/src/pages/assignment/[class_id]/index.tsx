@@ -1,9 +1,11 @@
+//xem list bài tập theo lớp của giảng viên
 import React, { useState } from "react";
-import { Button } from "@/components/Button";
 import Link from "next/link";
 import { IoMdAddCircle } from "react-icons/io";
 import styles from "./styles.module.css";
 import { useRouter } from "next/router";
+import AuthGuard from "@/components/AuthGuard";
+import BorderBox from "@/components/BorderBox";
 
 type Assignment = {
     deadline: string;
@@ -69,6 +71,12 @@ const AssignmentItem = ({
                 >
                     Chỉnh sửa
                 </Link>
+                <Link
+                    href={`/assignment/${assignment.class_subject_id}/view_submissions/?id=${assignment.exercise_id}`}
+                    className={styles.viewSubmissions}
+                >
+                    Xem bài nộp
+                </Link>
             </div>
         </div>
     );
@@ -121,25 +129,30 @@ const AssignmentList = () => {
     const { class_id } = router.query;
 
     return (
-        <div className={styles.assignmentList}>
-            <Link
-                href={`/assignment/${class_id}/create-edit`}
-                className={styles.addAssignmentButton}
-            >
-                <IoMdAddCircle /> Thêm mới
-            </Link>
-            <div className={styles.assignmentGrid}>
-                {assignments.map((assignment) => (
-                    <AssignmentItem
-                        key={assignment.exercise_id}
-                        assignment={assignment}
-                        submissionsCount={
-                            submissionsCounts[assignment.exercise_id] || 0
-                        }
-                    />
-                ))}
-            </div>
-        </div>
+        <AuthGuard allowedRoles={["admin", "lecturer"]}>
+            <BorderBox title="Danh sách bài tập lớp 125213">
+                <div className={styles.assignmentList}>
+                    <Link
+                        href={`/assignment/${class_id}/create-edit`}
+                        className={styles.addAssignmentButton}
+                    >
+                        <IoMdAddCircle /> Thêm mới
+                    </Link>
+                    <div className={styles.assignmentGrid}>
+                        {assignments.map((assignment) => (
+                            <AssignmentItem
+                                key={assignment.exercise_id}
+                                assignment={assignment}
+                                submissionsCount={
+                                    submissionsCounts[assignment.exercise_id] ||
+                                    0
+                                }
+                            />
+                        ))}
+                    </div>
+                </div>
+            </BorderBox>
+        </AuthGuard>
     );
 };
 
