@@ -120,9 +120,21 @@
 
 .buttonUpdate,
 .buttonDetail,
-.addAssignmentButton {
-    padding: 0 10px !important;
+.addAssignmentButton,
+.viewSubmissions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    padding: 5 10px !important;
     cursor: pointer !important;
+}
+
+.buttonUpdate,
+.buttonDetail,
+.viewSubmissions {
+    border-radius: 4px;
 }
 
 .buttonDetail {
@@ -132,4 +144,10 @@
 
 .buttonUpdate {
     background-color: var(--primary-red) !important;
+    color: #fff;
+}
+
+.viewSubmissions {
+    background-color: var(--primary-blue) !important;
+    color: #fff;
 }

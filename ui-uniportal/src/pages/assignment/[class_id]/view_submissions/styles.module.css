@@ -1,0 +1,117 @@
+.viewSubmissionsContainer {
+    padding: 16px;
+}
+
+.viewSubmissionsTitle {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 16px;
+}
+
+.assignmentDeadline {
+    font-size: 14px;
+    color: #4b5563;
+    margin-bottom: 24px;
+}
+
+.submissionsScrollArea {
+    height: 60vh;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    overflow-y: auto;
+}
+
+.submissionsList {
+    padding: 16px;
+}
+
+.noSubmissions {
+    color: #6b7280;
+    text-align: center;
+}
+
+.submissionsTable {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.submissionsThead {
+    background-color: #f3f4f6;
+}
+
+.tableHeader {
+    text-align: left;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    border-bottom: 1px solid #d1d5db;
+}
+
+.submissionsTbody {
+    background-color: #fff;
+}
+
+.submissionRow {
+    &:nth-child(odd) {
+        background-color: #f9fafb;
+    }
+}
+
+.tableCell {
+    padding: 12px;
+    font-size: 14px;
+    color: #4b5563;
+    border-bottom: 1px solid #d1d5db;
+}
+
+.fileLink {
+    color: #0078d7;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.fileLink:hover {
+    text-decoration: underline;
+}
+
+.statusBadge {
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.lateIndicator {
+    color: red;
+    margin-left: 4px;
+    font-size: 16px;
+    vertical-align: middle;
+}
+
+.alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.375rem;
+    border-width: 1px;
+    background-color: #fef0f0;
+    border-color: #fecaca;
+    color: #b91c1c;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alertTitle {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #b91c1c;
+}
+
+.alertDescription {
+    font-size: 1rem;
+    color: #b91c1c;
+}
