@@ -6,6 +6,8 @@ import "../config-translation";
 import MainLayout from "@/components/layout/main";
 import { useRouter } from "next/router";
 import { useEffect, useMemo } from "react";
+import { Provider } from "react-redux";
+import store from "@/store";
 
 const publicRoutes = ["/login", "/not-found"];
 
@@ -87,7 +89,7 @@ function App({ Component, pageProps }: AppProps) {
     }, [router.pathname]);
 
     return (
-        <>
+        <Provider store={store}>
             {isPublicRoute ? (
                 <Component {...pageProps} />
             ) : (
@@ -95,7 +97,7 @@ function App({ Component, pageProps }: AppProps) {
                     <Component {...pageProps} />
                 </MainLayout>
             )}
-        </>
+        </Provider>
     );
 }
 

@@ -1,0 +1,113 @@
+.attendanceContainer {
+    width: 1200px;
+    max-width: 100%;
+    overflow-x: auto;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    overflow-y: auto;
+    max-height: 500px;
+}
+
+.attendanceTable {
+    border-collapse: collapse;
+    background-color: #fff;
+    width: auto;
+    flex-grow: 1;
+}
+
+.attendanceTable th,
+.attendanceTable td {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+}
+
+.stickyColumn {
+    position: sticky;
+    left: 0;
+    background-color: #f0f0f0;
+    z-index: 1;
+    min-width: 40px;
+}
+
+.stickySecondColumn {
+    position: sticky;
+    left: 40px;
+    background-color: #f0f0f0;
+    z-index: 1;
+    min-width: 80px;
+}
+
+.stickyThirdColumn {
+    position: sticky;
+    left: 120px;
+    background-color: #f0f0f0;
+    z-index: 1;
+    min-width: 150px;
+}
+
+.attendanceTable th.stickyColumn,
+.attendanceTable th.stickySecondColumn,
+.attendanceTable th.stickyThirdColumn {
+    z-index: 3;
+}
+
+.attendanceCell {
+    min-width: 100px;
+}
+
+.attendanceSelect {
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+    width: 90px;
+}
+
+.attendanceActions button {
+    padding: 0 20px !important;
+    margin-top: 16px;
+    text-align: right;
+    cursor: pointer;
+}
+
+.attendanceTable th {
+    font-weight: 600;
+    position: sticky;
+    top: -2px;
+    background-color: #f0f0f0;
+    z-index: 2;
+}
+
+/* Tùy chỉnh thanh cuộn dọc giống thanh cuộn ngang */
+.attendanceContainer::-webkit-scrollbar {
+    width: 6px; /* Điều chỉnh cho phù hợp với 'height' của thanh cuộn ngang */
+    background-color: transparent; /* Giữ trong suốt như thanh cuộn ngang */
+}
+
+.attendanceContainer::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3); /* Màu xám nhạt */
+    border-radius: 3px; /* Bo tròn góc */
+}
+
+.attendanceContainer::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.5); /* Màu đậm hơn khi hover */
+}
+
+.attendanceContainer::-webkit-scrollbar-track {
+    background-color: transparent; /* Giữ trong suốt */
+}
+
+.attendanceContainer::-webkit-scrollbar-corner {
+    background-color: transparent;
+}
+
+/* Tùy chỉnh cho Firefox để tương đồng (nếu có thể) */
+.attendanceContainer {
+    scrollbar-width: thin; /* Làm cho thanh cuộn mỏng hơn */
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent; /* Màu nút kéo và rãnh */
+}

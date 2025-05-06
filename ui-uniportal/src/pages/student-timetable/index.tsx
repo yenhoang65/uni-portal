@@ -1,3 +1,5 @@
+"use client";
+
 // import React, { useState } from "react";
 // import styles from "./styles.module.css";
 
@@ -312,6 +314,8 @@ import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import BorderBox from "@/components/BorderBox";
 import { lessonTimeMap } from "@/constants/lession";
+import AuthGuard from "@/components/AuthGuard";
+import { useState } from "react";
 
 moment.updateLocale("en", {
     week: {
@@ -484,31 +488,45 @@ ${cls.subject_name} (${cls.class_name})
 const TimeLine = () => {
     const events = generateEvents();
 
+    const [view, setView] = useState<"month" | "week" | "day">("week");
+
+    const [date, setDate] = useState(new Date());
+
     return (
-        <BorderBox title="Thời khóa biểu">
-            <Calendar
-                localizer={localizer}
-                events={events}
-                startAccessor="start"
-                endAccessor="end"
-                defaultView="week"
-                views={["month", "week", "day"]}
-                timeslots={1}
-                step={60}
-                min={new Date(2024, 0, 1, 6, 0)}
-                max={new Date(2024, 0, 1, 23, 59)}
-                style={{ height: "75vh" }}
-                eventPropGetter={(event) => ({
-                    style: {
-                        backgroundColor: event.color,
-                        color: "white",
-                        borderRadius: "4px",
-                        padding: "4px",
-                        border: "none",
-                    },
-                })}
-            />
-        </BorderBox>
+        <AuthGuard allowedRoles={["student"]}>
+            <BorderBox title="Thời khóa biểu">
+                <Calendar
+                    localizer={localizer}
+                    events={events}
+                    startAccessor="start"
+                    endAccessor="end"
+                    views={["month", "week", "day"]}
+                    view={view}
+                    onView={(newView) => {
+                        if (["month", "week", "day"].includes(newView)) {
+                            setView(newView as "month" | "week" | "day");
+                        }
+                    }}
+                    date={date}
+                    onNavigate={(newDate) => setDate(newDate)}
+                    defaultView="week"
+                    timeslots={1}
+                    step={60}
+                    min={new Date(2024, 0, 1, 6, 0)}
+                    max={new Date(2024, 0, 1, 23, 59)}
+                    style={{ height: "75vh" }}
+                    eventPropGetter={(event) => ({
+                        style: {
+                            backgroundColor: event.color,
+                            color: "white",
+                            borderRadius: "4px",
+                            padding: "4px",
+                            border: "none",
+                        },
+                    })}
+                />
+            </BorderBox>
+        </AuthGuard>
     );
 };
 

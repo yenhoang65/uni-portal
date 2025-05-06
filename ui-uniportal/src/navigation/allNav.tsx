@@ -60,6 +60,20 @@ export const allNav = [
                 role: ["student"],
                 path: "/training-program/view",
             },
+            {
+                id: 18,
+                title: "Quản lý lớp học phần",
+                icon: <AiOutlineCalendar />,
+                role: ["lecturer"],
+                path: "/class-subject-management",
+            },
+            {
+                id: 18,
+                title: "Danh sách lớp học",
+                icon: <AiOutlineCalendar />,
+                role: ["employee", "admin"],
+                path: "/list-class-follow-day",
+            },
         ],
     },
     {
@@ -107,6 +121,13 @@ export const allNav = [
                 role: ["student", "admin"],
                 path: "/student-timetable",
             },
+            {
+                id: 17,
+                title: "Thời khóa biểu giảng viên",
+                icon: <AiOutlineCalendar />,
+                role: ["lecturer", "admin"],
+                path: "/lecturer-timetable",
+            },
         ],
     },
     {
@@ -140,9 +161,9 @@ export const allNav = [
             },
             {
                 id: 12,
-                title: "Quản lý lớp học phần",
+                title: "Quản lý lớp học phần tạm",
                 icon: <AiOutlineBook />,
-                role: ["admin", "employee"],
+                role: ["admin"],
                 path: "/class-term-subject",
             },
         ],
@@ -156,6 +177,18 @@ export const allNav = [
                 icon: <AiOutlineUser />,
                 role: ["admin", "employee", "student", "lecturer"],
                 path: "/profile/view",
+            },
+        ],
+    },
+    {
+        group: "QUẢN LÝ BÀI TẬP",
+        items: [
+            {
+                id: 20,
+                title: "Quản lý bài tập",
+                icon: <AiOutlineUser />,
+                role: ["student"],
+                path: "submit-assignment",
             },
         ],
     },
