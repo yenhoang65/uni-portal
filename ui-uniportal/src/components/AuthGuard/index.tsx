@@ -1,44 +1,49 @@
 "use client";
 
+import { AppDispatch, RootState } from "@/store";
+import { getUserInfo } from "@/store/reducer/authReducer";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 type Props = {
     allowedRoles?: string[];
     children: React.ReactNode;
 };
 
-async function getCurrentUser() {
-    // TODO: Viết code lấy user từ Cookie hoặc LocalStorage
-    // Tạm thời fake user là "admin"
-    return {
-        role: "lecturer",
-    };
-}
-
 export default function AuthGuard({ allowedRoles, children }: Props) {
     const router = useRouter();
+    const dispatch = useDispatch<AppDispatch>();
     const [authorized, setAuthorized] = useState(false);
+    const { role, token } = useSelector((state: RootState) => state.auth);
 
     useEffect(() => {
         async function checkAuth() {
-            const user = await getCurrentUser();
+            if (token && role) {
+                if (router.pathname === "/login") {
+                    router.push("/dashboard");
+                    return;
+                }
 
-            if (!user) {
-                router.push("/login");
+                if (allowedRoles && !allowedRoles.includes(role)) {
+                    router.push("/not-allowed");
+                    return;
+                }
+
+                setAuthorized(true);
+                dispatch(getUserInfo(token));
                 return;
             }
 
-            if (allowedRoles && !allowedRoles.includes(user.role)) {
-                router.push("/not-allowed");
-                return;
+            if (!token || !role) {
+                if (router.pathname !== "/login") {
+                    router.push("/login");
+                }
             }
-
-            setAuthorized(true);
         }
 
         checkAuth();
-    }, [router, allowedRoles]);
+    }, [router, allowedRoles, role, token]);
 
     if (!authorized) {
         return null;

@@ -1,7 +1,7 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -12,8 +12,11 @@ import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getListFaculty } from "@/store/reducer/facultyReducer";
 
-const faculties = [
+const faculty = [
     {
         id: "FAC001",
         name: "Khoa Công nghệ thông tin",
@@ -53,6 +56,10 @@ const faculties = [
 
 const Faculty = () => {
     const { t } = useTranslation();
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { faculties } = useSelector((state: RootState) => state.faculty);
+
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
@@ -71,6 +78,10 @@ const Faculty = () => {
         setIsModalOpen(false);
         setDeleteFacultyId(null);
     };
+
+    useEffect(() => {
+        dispatch(getListFaculty());
+    }, []);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -95,39 +106,48 @@ const Faculty = () => {
                         <table className={styles.table}>
                             <thead className={styles.thead}>
                                 <tr>
-                                    <th style={{ minWidth: "80px" }}>No</th>
-                                    <th style={{ minWidth: "230px" }}>
+                                    <th style={{ width: "70px" }}>No</th>
+                                    <th style={{ width: "250px" }}>
                                         {t("common.name")}
                                     </th>
-                                    <th style={{ minWidth: "150px" }}>
+                                    <th style={{ width: "150px" }}>
                                         {t("common.logo")}
                                     </th>
-                                    <th style={{ minWidth: "180px" }}>
+                                    <th style={{ width: "180px" }}>
                                         {t("common.established-date")}
                                     </th>
-                                    <th style={{ minWidth: "200px" }}>
+                                    {/* <th style={{ width: "200px" }}>
                                         {t("common.website")}
-                                    </th>
-                                    <th style={{ minWidth: "70px" }}>
+                                    </th> */}
+                                    <th
+                                        style={{
+                                            width: "170px",
+                                            textAlign: "center",
+                                        }}
+                                    >
                                         {t("common.action")}
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {faculties.map((faculty, index) => (
-                                    <tr key={faculty.id}>
+                                    <tr key={faculty.facultyId}>
                                         <td>{index + 1}</td>
-                                        <td>{faculty.name}</td>
+                                        <td>{faculty.facultyName}</td>
                                         <td>
-                                            <img
-                                                src={faculty.logo}
-                                                alt="logo"
-                                                width={80}
-                                                height={40}
-                                            />
+                                            {faculty.facultyLogo && (
+                                                <img
+                                                    src={faculty.facultyLogo}
+                                                    alt="logo"
+                                                    width={80}
+                                                    height={80}
+                                                />
+                                            )}
                                         </td>
-                                        <td>{faculty.establishDate}</td>
                                         <td>
+                                            {faculty.facultyDateOfEstablishment}
+                                        </td>
+                                        {/* <td>
                                             <a
                                                 href={faculty.website}
                                                 target="_blank"
@@ -135,10 +155,10 @@ const Faculty = () => {
                                             >
                                                 {faculty.website}
                                             </a>
-                                        </td>
+                                        </td> */}
                                         <td className={styles.buttonAction}>
                                             <Link
-                                                href={`/faculty/view?id=${faculty.id}`}
+                                                href={`/faculty/view?id=${faculty.facultyId}`}
                                                 className={clsx(
                                                     styles.viewButton
                                                 )}
@@ -146,7 +166,7 @@ const Faculty = () => {
                                                 <FaEye />
                                             </Link>
                                             <Link
-                                                href={`/faculty/create-edit?id=${faculty.id}&mode=edit`}
+                                                href={`/faculty/create-edit?id=${faculty.facultyId}&mode=edit`}
                                                 className={clsx(
                                                     styles.viewButton,
                                                     styles.viewButtonUpdate
@@ -159,7 +179,12 @@ const Faculty = () => {
                                                     e.preventDefault();
                                                     setIsModalOpen(true);
                                                     setDeleteFacultyId(
-                                                        faculty.id
+                                                        faculty.facultyId !==
+                                                            null
+                                                            ? String(
+                                                                  faculty.facultyId
+                                                              )
+                                                            : null
                                                     );
                                                 }}
                                                 href="#"
@@ -173,7 +198,7 @@ const Faculty = () => {
 
                                             {isModalOpen &&
                                                 deleteFacultyId ===
-                                                    faculty.id && (
+                                                    faculty.facultyId && (
                                                     <ModalConfirm
                                                         message="Are you sure you want to delete?"
                                                         onConfirm={handleDelete}

@@ -4,14 +4,18 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const Sidebar: React.FC = () => {
     const router = useRouter();
     const { pathname } = router;
     const [allNav, setAllNav] = useState<NavGroup[]>([]);
 
+    const { role, userInfo } = useSelector((state: RootState) => state.auth);
+
     useEffect(() => {
-        const navs = getNav(["lecturer"]);
+        const navs = getNav([role]);
         setAllNav(navs);
     }, []);
 
@@ -27,8 +31,11 @@ const Sidebar: React.FC = () => {
                         className={styles.avatarIcon}
                     />
                 </div>
-                <span className={styles.username}>ThaoDT46</span>
-                <span className={styles.position}>Giảng viên</span>
+                <span className={styles.username}>{userInfo.userName}</span>
+                <span className={styles.position}>
+                    {userInfo.role} {userInfo.position && "|"}
+                    {userInfo.position}
+                </span>
             </div>
 
             <div className={styles.navList}>

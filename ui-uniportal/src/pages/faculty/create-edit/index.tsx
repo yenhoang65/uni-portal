@@ -9,42 +9,49 @@ import { TypographyBody } from "@/components/TypographyBody";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getFacultyDetail } from "@/store/reducer/facultyReducer";
 
 const JoditEditor = dynamic(() => import("jodit-react"), {
     ssr: false,
 });
 
 type state = {
-    image: string | File;
-    name: string;
-    description: string;
-    facultyId: string;
-    establishDate: string;
-    website: string;
-    email: string;
-    phone: string;
-    address: string;
+    facultyId: number | null;
+    facultyName: string | null;
+    facultyDateOfEstablishment: string | null;
+    facultyEmail: string | null;
+    facultyPhoneNumber: string | null;
+    facultyAddress: string | null;
+    facultyDescription: string | null;
+    facultyLogo: string | null;
+    facultyStatus: string | null;
 };
 
 const CreateEditFaculty = () => {
     const { t } = useTranslation();
+
+    const dispatch = useDispatch<AppDispatch>();
+    const { faculty } = useSelector((state: RootState) => state.faculty);
+
     const router = useRouter();
     const { query } = router;
     const [mode, setMode] = useState<"create" | "edit">("create");
     const editor = useRef(null);
     const [state, setState] = useState<state>({
-        image: "",
-        name: "",
-        description: "",
-        facultyId: "",
-        establishDate: "",
-        website: "",
-        email: "",
-        phone: "",
-        address: "",
+        facultyId: null,
+        facultyName: "",
+        facultyDateOfEstablishment: "",
+        facultyEmail: "",
+        facultyPhoneNumber: "",
+        facultyAddress: "",
+        facultyDescription: "",
+        facultyLogo: "",
+        facultyStatus: "",
     });
 
-    const [imageShow, setImageShow] = useState("");
+    const [imageShow, setImageShow] = useState<string>("");
 
     const inputHandle = (e: React.ChangeEvent<HTMLInputElement>) => {
         setState({
@@ -52,6 +59,7 @@ const CreateEditFaculty = () => {
             [e.target.name]: e.target.value,
         });
     };
+
     const imageHandle = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
 
@@ -66,43 +74,50 @@ const CreateEditFaculty = () => {
     };
 
     useEffect(() => {
-        if (query.mode === "edit" && query.id) {
+        if (query.id && typeof query.id === "string") {
+            dispatch(getFacultyDetail(query.id));
+        }
+    }, [query.id]);
+
+    useEffect(() => {
+        if (faculty) {
             setMode("edit");
-            // Gọi API để lấy dữ liệu khoa dựa trên query.id
             setState({
-                image: "", //api
-                name: "",
-                description: "",
-                facultyId: "",
-                establishDate: "",
-                website: "",
-                email: "",
-                phone: "",
-                address: "",
+                facultyId: faculty.facultyId,
+                facultyName: faculty.facultyName,
+                facultyDateOfEstablishment: faculty.facultyDateOfEstablishment,
+                facultyEmail: faculty.facultyEmail,
+                facultyPhoneNumber: faculty.facultyPhoneNumber,
+                facultyAddress: faculty.facultyAddress,
+                facultyDescription: faculty.facultyDescription,
+                facultyLogo: faculty.facultyLogo,
+                facultyStatus: faculty.facultyStatus,
             });
+
+            if (faculty.facultyLogo) {
+                setImageShow(faculty.facultyLogo);
+            }
         } else {
-            // Trường hợp không khớp (có thể điều hướng sai)
             setMode("create");
-            //set ô input rỗng
             setState({
-                image: "",
-                name: "",
-                description: "",
-                facultyId: "",
-                establishDate: "",
-                website: "",
-                email: "",
-                phone: "",
-                address: "",
+                facultyId: null,
+                facultyName: "",
+                facultyDateOfEstablishment: "",
+                facultyEmail: "",
+                facultyPhoneNumber: "",
+                facultyAddress: "",
+                facultyDescription: "",
+                facultyLogo: "",
+                facultyStatus: "",
             });
         }
-    }, [query.mode, query.id]);
+    }, [faculty]);
 
     const handleSubmit = async (formData: any) => {
         if (mode === "create") {
-            // Gọi API để tạo khoa mới
+            // API call to create a new faculty
         } else if (mode === "edit") {
-            // Gọi API để cập nhật khoa với ID từ query
+            // API call to update the faculty with the ID from query
         }
     };
 
@@ -120,7 +135,7 @@ const CreateEditFaculty = () => {
                         <InputWithLabel
                             label="Mã khoa"
                             name="facultyId"
-                            value={state.facultyId}
+                            value={String(state.facultyId) || ""}
                             type="text"
                             required
                             onChange={inputHandle}
@@ -130,8 +145,8 @@ const CreateEditFaculty = () => {
                     <div className={styles.gridItem}>
                         <InputWithLabel
                             label="Tên khoa"
-                            name="name"
-                            value={state.name}
+                            name="facultyName"
+                            value={state.facultyName || ""}
                             type="text"
                             required
                             onChange={inputHandle}
@@ -140,8 +155,8 @@ const CreateEditFaculty = () => {
                     <div className={styles.gridItem}>
                         <InputWithLabel
                             label="Ngày thành lập"
-                            name="establishDate"
-                            value={state.establishDate}
+                            name="facultyDateOfEstablishment"
+                            value={state.facultyDateOfEstablishment || ""}
                             type="date"
                             required
                             onChange={inputHandle}
@@ -149,18 +164,9 @@ const CreateEditFaculty = () => {
                     </div>
                     <div className={styles.gridItem}>
                         <InputWithLabel
-                            label="Website"
-                            name="website"
-                            value={state.website}
-                            type="url"
-                            onChange={inputHandle}
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
                             label="Email"
-                            name="email"
-                            value={state.email}
+                            name="facultyEmail"
+                            value={state.facultyEmail || ""}
                             type="email"
                             onChange={inputHandle}
                         />
@@ -168,8 +174,8 @@ const CreateEditFaculty = () => {
                     <div className={styles.gridItem}>
                         <InputWithLabel
                             label="Điện thoại"
-                            name="phone"
-                            value={state.phone}
+                            name="facultyPhoneNumber"
+                            value={state.facultyPhoneNumber || ""}
                             type="text"
                             onChange={inputHandle}
                         />
@@ -178,8 +184,8 @@ const CreateEditFaculty = () => {
                 <div className={styles.address}>
                     <InputWithLabel
                         label="Địa chỉ"
-                        name="address"
-                        value={state.address}
+                        name="facultyAddress"
+                        value={state.facultyAddress || ""}
                         type="text"
                         onChange={inputHandle}
                     />
@@ -195,11 +201,11 @@ const CreateEditFaculty = () => {
 
                     <JoditEditor
                         ref={editor}
-                        value={state.description}
+                        value={state.facultyDescription || ""}
                         onChange={(newContent) =>
                             setState({
                                 ...state,
-                                description: newContent,
+                                facultyDescription: newContent,
                             })
                         }
                         className={styles.inputDesc}
@@ -211,7 +217,7 @@ const CreateEditFaculty = () => {
                         theme="md"
                         className={styles.titleLogo}
                     >
-                        {t("common.logo")} {/* Đã thêm translation */}
+                        {t("common.logo")}
                     </TypographyBody>
                     <label htmlFor="image" className={styles.imageWrapper}>
                         {imageShow ? (

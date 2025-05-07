@@ -4,44 +4,37 @@ import styles from "./styles.module.css"; // Import CSS Module
 import BorderBox from "@/components/BorderBox";
 import { TypographyHeading } from "@/components/TypographyHeading";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { getFacultyDetail } from "@/store/reducer/facultyReducer";
 
 const FacultyDetailPage: React.FC = () => {
-    const faculty = {
-        id_khoa: 123,
-        ten_khoa: "Khoa Công nghệ Thông tin",
-        ngay_thanh_lap: "20/05/2005",
-        website: "https://fit.example.edu.vn",
-        email: "fit@example.edu.vn",
-        dien_thoai: "024 123 4567",
-        dia_chi: "Tòa nhà A1, Trường Đại học XYZ, Hà Nội",
-        mo_ta: "Khoa Công nghệ Thông tin là một trong những khoa hàng đầu của trường, chuyên đào tạo các chuyên gia trong lĩnh vực phát triển phần mềm, khoa học máy tính, an ninh mạng và trí tuệ nhân tạo. Khoa có đội ngũ giảng viên giàu kinh nghiệm và cơ sở vật chất hiện đại...",
-        logo: "/images/fit_logo.png",
-    };
+    const dispatch = useDispatch<AppDispatch>();
+    const router = useRouter();
+    const { id } = router.query;
 
-    const {
-        id_khoa,
-        ten_khoa,
-        ngay_thanh_lap,
-        website,
-        email,
-        dien_thoai,
-        dia_chi,
-        mo_ta,
-        logo,
-    } = faculty;
+    const { faculty } = useSelector((state: RootState) => state.faculty);
+
+    useEffect(() => {
+        if (id && typeof id === "string") {
+            dispatch(getFacultyDetail(id));
+        }
+    }, [id]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
-            <BorderBox title={`Chi tiết khoa ${ten_khoa}`}>
-                <header className={styles.facultyHeader}>
-                    {logo && (
+            <BorderBox title={`Chi tiết khoa ${faculty.facultyName}`}>
+                <section className={styles.facultyHeader}>
+                    {faculty.facultyLogo && (
                         <div className={styles.logoContainer}>
-                            <Image
-                                src={require("./assets/logo.jpg")}
-                                alt={`Logo của khoa ${ten_khoa}`}
+                            <img
+                                src={faculty.facultyLogo}
+                                alt={`Logo của khoa ${faculty.facultyLogo}`}
                                 width={200}
                                 height={200}
-                                objectFit="contain"
+                                // objectFit="contain"
                             />
                         </div>
                     )}
@@ -52,11 +45,13 @@ const FacultyDetailPage: React.FC = () => {
                             className={styles.description}
                             color="var(--secondary-blue)"
                         >
-                            {ten_khoa}
+                            {faculty.facultyName}
                         </TypographyHeading>
-                        <p className={styles.facultyId}>Mã khoa: {id_khoa}</p>
+                        <p className={styles.facultyId}>
+                            Mã khoa: {faculty.facultyId}
+                        </p>
                     </div>
-                </header>
+                </section>
 
                 <section className={styles.facultyOverview}>
                     <TypographyHeading
@@ -68,13 +63,13 @@ const FacultyDetailPage: React.FC = () => {
                         Thông tin chung
                     </TypographyHeading>
                     <div className={styles.infoGrid}>
-                        {ngay_thanh_lap && (
+                        {faculty.facultyDateOfEstablishment && (
                             <div className={styles.infoItem}>
                                 <strong>Ngày thành lập:</strong>{" "}
-                                {ngay_thanh_lap}
+                                {faculty.facultyDateOfEstablishment}
                             </div>
                         )}
-                        {website && (
+                        {/* {website && (
                             <div className={styles.infoItem}>
                                 <strong>Website:</strong>
                                 <Link
@@ -85,28 +80,32 @@ const FacultyDetailPage: React.FC = () => {
                                     {website}
                                 </Link>
                             </div>
-                        )}
-                        {email && (
+                        )} */}
+                        {faculty.facultyEmail && (
                             <div className={styles.infoItem}>
                                 <strong>Email:</strong>
-                                <a href={`mailto:${email}`}>{email}</a>
+                                <a href={`mailto:${faculty.facultyEmail}`}>
+                                    {faculty.facultyEmail}
+                                </a>
                             </div>
                         )}
-                        {dien_thoai && (
+                        {faculty.facultyPhoneNumber && (
                             <div className={styles.infoItem}>
                                 <strong>Điện thoại:</strong>
-                                <a href={`tel:${dien_thoai}`}>{dien_thoai}</a>
+                                <a href={`tel:${faculty.facultyPhoneNumber}`}>
+                                    {faculty.facultyPhoneNumber}
+                                </a>
                             </div>
                         )}
                     </div>
-                    {dia_chi && (
+                    {faculty.facultyAddress && (
                         <div className={styles.infoItemAddress}>
-                            <strong>Địa chỉ:</strong> {dia_chi}
+                            <strong>Địa chỉ:</strong> {faculty.facultyAddress}
                         </div>
                     )}
                 </section>
 
-                {mo_ta && (
+                {faculty.facultyDescription && (
                     <section className={styles.facultyDescription}>
                         <TypographyHeading
                             tag="h5"
@@ -116,7 +115,9 @@ const FacultyDetailPage: React.FC = () => {
                         >
                             Mô tả
                         </TypographyHeading>
-                        <p className={styles.desc}>{mo_ta}</p>
+                        <p className={styles.desc}>
+                            {faculty.facultyDescription}
+                        </p>
                     </section>
                 )}
             </BorderBox>

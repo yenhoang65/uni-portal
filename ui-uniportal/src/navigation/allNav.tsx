@@ -68,7 +68,7 @@ export const allNav = [
                 path: "/class-subject-management",
             },
             {
-                id: 18,
+                id: 19,
                 title: "Danh sách lớp học",
                 icon: <AiOutlineCalendar />,
                 role: ["employee", "admin"],
@@ -122,7 +122,7 @@ export const allNav = [
                 path: "/student-timetable",
             },
             {
-                id: 17,
+                id: 21,
                 title: "Thời khóa biểu giảng viên",
                 icon: <AiOutlineCalendar />,
                 role: ["lecturer", "admin"],

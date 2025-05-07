@@ -13,6 +13,31 @@ type LoginData = {
     password: string;
 };
 
+type UserInfo = {
+    academicDegree: string | null;
+    address: string | null;
+    admissionDate: string | null;
+    bank: string | null;
+    bankAccountNumber: string | null;
+    bankAccountOwner: string | null;
+    dateOfBirth: string | null;
+    educationLevel: string | null;
+    email: string | null;
+    ethnicGroup: string | null;
+    facultyName: string | null;
+    idNumber: string | null;
+    majorName: string | null;
+    permanentResident: string | null;
+    phoneNumber: string | null;
+    placeOfBirth: string | null;
+    position: string | null;
+    religion: string | null;
+    role: string | null;
+    status: string | null;
+    userId: number;
+    userName: string;
+};
+
 export const login = createAsyncThunk(
     "auth/login",
     async (info: LoginData, { rejectWithValue, fulfillWithValue }) => {
@@ -33,7 +58,28 @@ export const login = createAsyncThunk(
     }
 );
 
-const returnRole = (token: string | null | undefined): string[] => {
+export const getUserInfo = createAsyncThunk(
+    "auth/getUserInfo",
+    async (token: string, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            if (!token) {
+                throw new Error("Token is required");
+            }
+
+            const { data } = await api.get("user/profile", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            // return rejectWithValue(error.message || error.response?.data);
+        }
+    }
+);
+
+const returnRole = (token: string | null | undefined): string => {
     if (token) {
         try {
             const decodedToken: CustomJwtPayload = jwtDecode(token);
@@ -42,18 +88,18 @@ const returnRole = (token: string | null | undefined): string[] => {
                 const expiryDate = new Date(decodedToken.exp * 1000);
                 const now = new Date();
                 if (expiryDate < now) {
-                    return [];
+                    return "";
                 }
             }
 
             const role = decodedToken?.role || [];
-            return Array.isArray(role) ? role : [role];
+            return Array.isArray(role) ? role[0] : role || "";
         } catch (error) {
             console.error("Lỗi giải mã token:", error);
-            return [];
+            return "";
         }
     } else {
-        return [];
+        return "";
     }
 };
 
@@ -63,11 +109,11 @@ export const authReducer = createSlice({
         successMessage: "",
         errorMessage: "",
         loader: false,
-        userInfo: "",
+        userInfo: {} as UserInfo,
         role:
             typeof window !== "undefined"
                 ? returnRole(window.localStorage.getItem("accessToken"))
-                : [],
+                : "",
         token:
             typeof window !== "undefined"
                 ? window.localStorage.getItem("accessToken")
@@ -80,19 +126,22 @@ export const authReducer = createSlice({
         },
     },
     extraReducers: (builder) => {
-        builder;
-        // .addCase(login.pending, (state) => {
-        //     state.loader = true;
-        // })
-        // .addCase(login.rejected, (state, { payload }) => {
-        //     state.loader = false;
-        // })
-        // .addCase(login.fulfilled, (state, { payload }) => {
-        //     state.loader = false;
-        //     // state.successMessage = payload.message;
-        //     state.token = payload.token;
-        //     state.role = returnRole(payload.token);
-        // });
+        builder
+            .addCase(login.pending, (state) => {
+                state.loader = true;
+            })
+            .addCase(login.rejected, (state, { payload }) => {
+                state.loader = false;
+            })
+            .addCase(login.fulfilled, (state, { payload }) => {
+                state.loader = false;
+                state.successMessage = "Đăng nhập thành công";
+                state.token = payload.token;
+                state.role = returnRole(payload.token);
+            })
+            .addCase(getUserInfo.fulfilled, (state, { payload }) => {
+                state.userInfo = payload.data;
+            });
     },
 });
 

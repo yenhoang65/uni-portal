@@ -11,6 +11,10 @@
     justify-content: space-between;
 }
 
+.facultyLogo {
+    object-fit: contain;
+}
+
 .buttonAdd {
     text-decoration: none;
     background-color: var(--secondary-blue);
@@ -88,7 +92,11 @@
 .buttonAction {
     display: flex;
     gap: 10px;
+    justify-content: center;
     align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    height: 100%;
 }
 
 .paginationWrapper {

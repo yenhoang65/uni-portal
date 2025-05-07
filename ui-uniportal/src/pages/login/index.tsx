@@ -3,9 +3,10 @@ import styles from "./styles.module.css";
 import Image from "next/image";
 import logo from "./assets/utehy_logo.png";
 import { useRouter } from "next/router";
-import { login } from "@/store/reducer/authReducer";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store";
+import { login, messageClear } from "@/store/reducer/authReducer";
+import { useDispatch, useSelector } from "react-redux";
+import toast from "react-hot-toast";
+import { AppDispatch, RootState } from "@/store";
 
 type LoginData = {
     userId: string;
@@ -13,8 +14,13 @@ type LoginData = {
 };
 
 const Login = () => {
-    // const router = useRouter();
+    const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
+
+    const { token, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.auth
+    );
+
     const [state, setState] = useState({
         userId: "",
         password: "",
@@ -37,6 +43,18 @@ const Login = () => {
 
         dispatch(login(loginData));
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+            router.push("/");
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <div className={styles.wrapper}>

@@ -13,6 +13,7 @@
 
 .position {
     font-size: 13px;
+    text-transform: uppercase;
 }
 .overlayVisible {
     visibility: visible;
