@@ -87,7 +87,9 @@ const returnRole = (token: string | null | undefined): string => {
             if (decodedToken?.exp) {
                 const expiryDate = new Date(decodedToken.exp * 1000);
                 const now = new Date();
+
                 if (expiryDate < now) {
+                    window.localStorage.removeItem("accessToken");
                     return "";
                 }
             }
