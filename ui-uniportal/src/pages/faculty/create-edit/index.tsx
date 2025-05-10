@@ -18,7 +18,7 @@ import {
 } from "@/store/reducer/facultyReducer";
 import SelectWithLabel from "@/components/SelectWithLabel";
 import toast from "react-hot-toast";
-import { messageClear } from "@/store/reducer/authReducer";
+import { messageClear } from "@/store/reducer/facultyReducer";
 
 const JoditEditor = dynamic(() => import("jodit-react"), {
     ssr: false,

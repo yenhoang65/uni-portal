@@ -34,7 +34,7 @@ type UserInfo = {
     religion: string | null;
     role: string | null;
     status: string | null;
-    userId: number;
+    userId: string;
     userName: string;
 };
 
@@ -67,6 +67,28 @@ export const getUserInfo = createAsyncThunk(
             }
 
             const { data } = await api.get("user/profile", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            // return rejectWithValue(error.message || error.response?.data);
+        }
+    }
+);
+
+export const updateUserInfo = createAsyncThunk(
+    "auth/updateUserInfo",
+    async (
+        { dto }: { dto: any },
+        { getState, rejectWithValue, fulfillWithValue }
+    ) => {
+        try {
+            const token = (getState() as any).auth.token;
+
+            const { data } = await api.post("user/update", dto, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -143,6 +165,9 @@ export const authReducer = createSlice({
             })
             .addCase(getUserInfo.fulfilled, (state, { payload }) => {
                 state.userInfo = payload.data;
+            })
+            .addCase(updateUserInfo.fulfilled, (state, { payload }) => {
+                state.successMessage = "Update profile thành công";
             });
     },
 });

@@ -7,43 +7,29 @@ import { Button } from "@/components/Button";
 import { IoIosArrowBack } from "react-icons/io";
 import { AiFillEdit } from "react-icons/ai";
 import AuthGuard from "@/components/AuthGuard";
-
-type SubjectDetailType = {
-    subject_id: string;
-    subject_name: string;
-    it_credits: number;
-    th_credits: number;
-    subject_description?: string;
-    subject_type?: string;
-    subject_he_so?: number;
-};
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getSubjectDetail } from "@/store/reducer/subjectReducer";
 
 const SubjectDetail = () => {
     const router = useRouter();
     const { query } = router;
     const { id } = query;
-    const [subject, setSubject] = useState<SubjectDetailType | null>(null);
 
-    const dummySubject: SubjectDetailType = {
-        subject_id: "SUB001",
-        subject_name: "Nhập môn Lập trình",
-        it_credits: 3,
-        th_credits: 2,
-        subject_description: "Môn học cơ bản về lập trình.",
-        subject_type: "Bắt buộc",
-        subject_he_so: 1,
-    };
+    const dispatch = useDispatch<AppDispatch>();
+    const { subject, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.subject
+    );
 
     useEffect(() => {
-        // Trong thực tế, bạn sẽ gọi API ở đây để lấy thông tin chi tiết của môn học dựa trên 'id'
         if (id) {
-            setSubject(dummySubject);
+            dispatch(getSubjectDetail(id));
         }
     }, [id]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
-            <BorderBox title={`Chi tiết môn học: ${dummySubject.subject_name}`}>
+            <BorderBox title={`Chi tiết môn học: ${subject.subjectName}`}>
                 <div className={styles.detailGrid}>
                     <div className={styles.detailItem}>
                         <TypographyBody
@@ -53,7 +39,7 @@ const SubjectDetail = () => {
                             Mã môn học:
                         </TypographyBody>
                         <TypographyBody tag="span">
-                            {dummySubject.subject_id}
+                            {subject.subjectId}
                         </TypographyBody>
                     </div>
 
@@ -65,7 +51,7 @@ const SubjectDetail = () => {
                             Tên môn học:
                         </TypographyBody>
                         <TypographyBody tag="span">
-                            {dummySubject.subject_name}
+                            {subject.subjectName}
                         </TypographyBody>
                     </div>
 
@@ -77,7 +63,7 @@ const SubjectDetail = () => {
                             Số tín chỉ lý thuyết:
                         </TypographyBody>
                         <TypographyBody tag="span">
-                            {dummySubject.it_credits}
+                            {subject.ltCredits}
                         </TypographyBody>
                     </div>
 
@@ -89,25 +75,11 @@ const SubjectDetail = () => {
                             Số tín chỉ thực hành:
                         </TypographyBody>
                         <TypographyBody tag="span">
-                            {dummySubject.th_credits}
+                            {subject.thCredits}
                         </TypographyBody>
                     </div>
 
-                    {dummySubject.subject_type && (
-                        <div className={styles.detailItem}>
-                            <TypographyBody
-                                tag="span"
-                                className={styles.detailLabel}
-                            >
-                                Loại môn học:
-                            </TypographyBody>
-                            <TypographyBody tag="span">
-                                {dummySubject.subject_type}
-                            </TypographyBody>
-                        </div>
-                    )}
-
-                    {dummySubject.subject_he_so !== undefined && (
+                    {subject.subjectCoefficient !== undefined && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -116,12 +88,12 @@ const SubjectDetail = () => {
                                 Hệ số môn học:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummySubject.subject_he_so}
+                                {subject.subjectCoefficient}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummySubject.subject_description && (
+                    {subject.subjectDescription && (
                         <div className={styles.detailItemFull}>
                             <TypographyBody
                                 tag="span"
@@ -129,9 +101,12 @@ const SubjectDetail = () => {
                             >
                                 Mô tả:
                             </TypographyBody>
-                            <TypographyBody tag="span">
-                                {dummySubject.subject_description}
-                            </TypographyBody>
+                            <TypographyBody
+                                tag="span"
+                                dangerouslySetInnerHTML={{
+                                    __html: subject.subjectDescription || "",
+                                }}
+                            ></TypographyBody>
                         </div>
                     )}
 
@@ -147,7 +122,7 @@ const SubjectDetail = () => {
                             className={styles.editButton}
                             onClick={() =>
                                 router.push(
-                                    `/subject/create-edit?id=${dummySubject.subject_id}&mode=edit`
+                                    `/subject/create-edit?id=${subject.subjectId}&mode=edit`
                                 )
                             }
                         >

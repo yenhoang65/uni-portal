@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -12,59 +12,21 @@ import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
 import { TypographyBody } from "@/components/TypographyBody";
 import AuthGuard from "@/components/AuthGuard";
-
-type ClassroomType = {
-    id: string;
-    ma: string;
-    number_of_seats: number;
-    classroom_type: string;
-    device: string[];
-};
-
-const classrooms: ClassroomType[] = [
-    {
-        id: "CLA001",
-        ma: "P.101",
-        number_of_seats: 30,
-        classroom_type: "Lý thuyết",
-        device: ["Máy chiếu", "Bảng trắng", "Điều hòa"],
-    },
-    {
-        id: "CLA002",
-        ma: "Lab.A",
-        number_of_seats: 25,
-        classroom_type: "Thực hành",
-        device: ["Máy tính", "Bàn thực hành", "Máy lạnh"],
-    },
-    {
-        id: "CLA003",
-        ma: "H.205",
-        number_of_seats: 40,
-        classroom_type: "Hội trường",
-        device: ["Âm thanh", "Máy chiếu", "Bục giảng"],
-    },
-    {
-        id: "CLA004",
-        ma: "P.102",
-        number_of_seats: 30,
-        classroom_type: "Lý thuyết",
-        device: ["Máy chiếu", "Bảng tương tác"],
-    },
-    {
-        id: "CLA005",
-        ma: "Lab.B",
-        number_of_seats: 20,
-        classroom_type: "Thực hành",
-        device: ["Thiết bị thí nghiệm", "Máy lạnh"],
-    },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getListClassroom } from "@/store/reducer/classroomReducer";
 
 const Classroom = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { classrooms, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.classroom
+    );
+
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [deleteClassroomId, setDeleteClassroomId] = useState<string | null>(
+    const [deleteClassroomId, setDeleteClassroomId] = useState<number | null>(
         null
     );
 
@@ -81,16 +43,9 @@ const Classroom = () => {
         setDeleteClassroomId(null);
     };
 
-    const filteredClassrooms = classrooms.filter((classroom) =>
-        Object.values(classroom).some((value) =>
-            String(value).toLowerCase().includes(searchValue.toLowerCase())
-        )
-    );
-
-    const startIndex = (currentPage - 1) * parPage;
-    const endIndex = startIndex + parPage;
-    const currentClassrooms = filteredClassrooms.slice(startIndex, endIndex);
-
+    useEffect(() => {
+        dispatch(getListClassroom());
+    }, []);
     return (
         <AuthGuard allowedRoles={["admin", "employee"]}>
             <BorderBox title="Quản lý phòng học">
@@ -114,8 +69,8 @@ const Classroom = () => {
                         <table className={styles.table}>
                             <thead className={styles.thead}>
                                 <tr>
-                                    <th style={{ minWidth: "80px" }}>No</th>
-                                    <th style={{ minWidth: "120px" }}>Mã</th>
+                                    <th style={{ width: "70px" }}>No</th>
+                                    <th style={{ width: "120px" }}>Mã</th>
                                     <th style={{ minWidth: "150px" }}>
                                         Số chỗ ngồi
                                     </th>
@@ -131,18 +86,18 @@ const Classroom = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentClassrooms.map((classroom, index) => (
-                                    <tr key={classroom.id}>
+                                {classrooms.map((classroom, index) => (
+                                    <tr key={classroom.classroomId}>
                                         <td>
                                             {(currentPage - 1) * parPage +
                                                 index +
                                                 1}
                                         </td>
-                                        <td>{classroom.ma}</td>
-                                        <td>{classroom.number_of_seats}</td>
-                                        <td>{classroom.classroom_type}</td>
+                                        <td>{classroom.classroomId}</td>
+                                        <td>{classroom.numberOfSeats}</td>
+                                        <td>{classroom.classroomName}</td>
                                         <td>
-                                            {classroom.device.map(
+                                            {classroom.devices.map(
                                                 (dev, idx) => (
                                                     <TypographyBody
                                                         key={idx}
@@ -153,7 +108,7 @@ const Classroom = () => {
                                                     >
                                                         {dev}
                                                         {idx <
-                                                            classroom.device
+                                                            classroom.devices
                                                                 .length -
                                                                 1 && ", "}
                                                     </TypographyBody>
@@ -162,7 +117,7 @@ const Classroom = () => {
                                         </td>
                                         <td className={styles.buttonAction}>
                                             <Link
-                                                href={`/classroom/view?id=${classroom.id}`}
+                                                href={`/classroom/view?id=${classroom.classroomId}`}
                                                 className={clsx(
                                                     styles.viewButton
                                                 )}
@@ -170,7 +125,7 @@ const Classroom = () => {
                                                 <FaEye />
                                             </Link>
                                             <Link
-                                                href={`/classroom/create-edit?id=${classroom.id}&mode=edit`}
+                                                href={`/classroom/create-edit?id=${classroom.classroomId}&mode=edit`}
                                                 className={clsx(
                                                     styles.viewButton,
                                                     styles.viewButtonUpdate
@@ -183,7 +138,7 @@ const Classroom = () => {
                                                     e.preventDefault();
                                                     setIsModalOpen(true);
                                                     setDeleteClassroomId(
-                                                        classroom.id
+                                                        classroom.classroomId
                                                     );
                                                 }}
                                                 href="#"
@@ -197,7 +152,7 @@ const Classroom = () => {
 
                                             {isModalOpen &&
                                                 deleteClassroomId ===
-                                                    classroom.id && (
+                                                    classroom.classroomId && (
                                                     <ModalConfirm
                                                         message="Bạn có chắc chắn muốn xóa?"
                                                         onConfirm={handleDelete}
@@ -215,7 +170,7 @@ const Classroom = () => {
                         <Pagination
                             pageNumber={currentPage}
                             setPageNumber={setCurrentPage}
-                            totalItem={filteredClassrooms.length}
+                            totalItem={classrooms.length}
                             parPage={parPage}
                             showItem={3}
                         />

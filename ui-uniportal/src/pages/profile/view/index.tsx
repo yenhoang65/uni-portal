@@ -1,21 +1,30 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useTranslation } from "react-i18next";
-import Image from "next/image";
+import InputWithLabel from "@/components/InputWithLabel";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { TypographyBody } from "@/components/TypographyBody";
 import { Button } from "@/components/Button";
 import { RiEdit2Fill } from "react-icons/ri";
 import BasicInfomation from "./components/basic-infomation";
 import Title from "./components/title";
-import { useRouter } from "next/router";
 import AuthGuard from "@/components/AuthGuard";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import Image from "next/image";
 
 const Profile = () => {
-    const { t } = useTranslation();
     const router = useRouter();
+    const { userInfo, role } = useSelector((state: RootState) => state.auth);
+
+    const isLecturer = role === "lecturer";
+    const isStudent = role === "student";
+    const isAdminOrEmployee = role === "admin" || role === "employee";
+
     return (
         <AuthGuard allowedRoles={["admin", "employee", "student", "lecturer"]}>
             <div className={styles.content}>
-                <BorderBox title={t("common.title-profile")}>
+                <BorderBox title="Profile">
                     <main className={styles.container}>
                         <div className={styles.left}>
                             <div className={styles.userImageProfile}>
@@ -29,180 +38,236 @@ const Profile = () => {
                             </div>
                             <div className={styles.basicInfo}>
                                 <BasicInfomation
-                                    title={t("common.teacher-code")}
-                                    content="1252"
+                                    title="User ID"
+                                    content={userInfo.userId}
                                 />
                                 <BasicInfomation
-                                    title={t("common.full-name")}
-                                    content="1252"
+                                    title="Full Name"
+                                    content={userInfo.userName}
                                 />
                                 <BasicInfomation
-                                    title={t("common.gender")}
-                                    content="1252"
+                                    title="Gender"
+                                    content={"N/A"}
                                 />
                                 <BasicInfomation
-                                    title={t("common.email")}
-                                    content="1252"
+                                    title="Email"
+                                    content={userInfo.email || "N/A"}
                                 />
                                 <BasicInfomation
-                                    title={t("common.address-permanent")}
-                                    content="1252"
+                                    title="Permanent Address"
+                                    content={
+                                        userInfo.permanentResident || "N/A"
+                                    }
                                 />
                                 <Button
-                                    onClick={() =>
-                                        router.push("admin/profile/edit")
-                                    }
+                                    onClick={() => router.push(`/profile/edit`)}
                                     size="large"
                                     className={styles.button}
                                 >
                                     <RiEdit2Fill />
-                                    {t("common.update-profile")}
+                                    Update Profile
                                 </Button>
                             </div>
                         </div>
                         <div className={styles.right}>
                             <div className={styles.basicInformation}>
-                                <Title title={t("common.basic-info")} />
+                                <Title title="Basic Information" />
                                 <div className={styles.informationContent}>
                                     <div>
                                         <BasicInfomation
-                                            title={t("common.citizen-id")}
-                                            content="1252"
-                                        />
-                                        <br />
-                                        <BasicInfomation
-                                            title={t("common.phone")}
-                                            content="1252"
+                                            title="Citizen ID"
+                                            content={userInfo.idNumber || "N/A"}
                                         />
                                         <BasicInfomation
-                                            title={t("common.ethnicity")}
-                                            content="1252"
+                                            title="Phone"
+                                            content={
+                                                userInfo.phoneNumber || "N/A"
+                                            }
                                         />
                                         <BasicInfomation
-                                            title={t("common.birth-date")}
-                                            content="1252"
+                                            title="Ethnicity"
+                                            content={
+                                                userInfo.ethnicGroup || "N/A"
+                                            }
+                                        />
+                                        <BasicInfomation
+                                            title="Date of Birth"
+                                            content={
+                                                userInfo.dateOfBirth || "N/A"
+                                            }
                                         />
                                     </div>
                                     <div>
                                         <BasicInfomation
-                                            title={t("common.id-issue-place")}
-                                            content="1252"
+                                            title="ID Issue Place"
+                                            content={
+                                                userInfo.placeOfBirth || "N/A"
+                                            }
                                         />
                                         <BasicInfomation
-                                            title={t("common.id-issue-date")}
-                                            content="1252"
+                                            title="ID Issue Date"
+                                            content={"N/A"}
                                         />
                                         <BasicInfomation
-                                            title={t("common.mobile")}
-                                            content="1252"
-                                        />
-                                        <BasicInfomation
-                                            title={t("common.religion")}
-                                            content="1252"
-                                        />
-                                        <BasicInfomation
-                                            title={t("common.birth-place")}
-                                            content="1252"
+                                            title="Religion"
+                                            content={userInfo.religion || "N/A"}
                                         />
                                     </div>
                                 </div>
                             </div>
 
-                            <div className={styles.positionInformation}>
-                                <Title title={t("common.position-info")} />
-                                <div className={styles.informationContent}>
-                                    <div>
-                                        <BasicInfomation
-                                            title={t("common.academic-rank")}
-                                            content="1252"
-                                        />
-                                        <BasicInfomation
-                                            title={t("common.position")}
-                                            content="1252"
-                                        />
-                                        <BasicInfomation
-                                            title={t("common.major")}
-                                            content="1252"
-                                        />
+                            {isLecturer ||
+                                (isAdminOrEmployee && (
+                                    <div className={styles.positionInformation}>
+                                        <Title title="Position Information" />
+                                        <div
+                                            className={
+                                                styles.informationContent
+                                            }
+                                        >
+                                            <div>
+                                                <BasicInfomation
+                                                    title="Academic Rank"
+                                                    content={
+                                                        userInfo.academicDegree ||
+                                                        "N/A"
+                                                    }
+                                                />
+                                                <BasicInfomation
+                                                    title="Position"
+                                                    content={
+                                                        userInfo.position ||
+                                                        "N/A"
+                                                    }
+                                                />
+                                                <BasicInfomation
+                                                    title="Major"
+                                                    content={
+                                                        userInfo.majorName ||
+                                                        "N/A"
+                                                    }
+                                                />
+                                            </div>
+                                            <div>
+                                                <BasicInfomation
+                                                    title="Degree"
+                                                    content={
+                                                        userInfo.academicDegree ||
+                                                        "N/A"
+                                                    }
+                                                />
+                                                <BasicInfomation
+                                                    title="Faculty"
+                                                    content={
+                                                        userInfo.facultyName ||
+                                                        "N/A"
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <BasicInfomation
-                                            title={t("common.degree")}
-                                            content="1252"
-                                        />
-                                        <BasicInfomation
-                                            title={t("common.lecturer-type")}
-                                            content="1252"
-                                        />
-                                        <BasicInfomation
-                                            title={t("common.faculty")}
-                                            content="1252"
-                                        />
+                                ))}
+
+                            {isStudent && (
+                                <div className={styles.academicInformation}>
+                                    <Title title="Academic Information" />
+                                    <div className={styles.informationContent}>
+                                        <div>
+                                            <BasicInfomation
+                                                title="Education Level"
+                                                content={
+                                                    userInfo.educationLevel ||
+                                                    "N/A"
+                                                }
+                                            />
+                                            <BasicInfomation
+                                                title="Type of Training"
+                                                content={"N/A"}
+                                            />
+                                            <BasicInfomation
+                                                title="Specialization"
+                                                content={"N/A"}
+                                            />
+                                        </div>
+                                        <div
+                                            className={
+                                                styles.informationContent
+                                            }
+                                        >
+                                            <div>
+                                                <BasicInfomation
+                                                    title="Major"
+                                                    content={
+                                                        userInfo.majorName ||
+                                                        "N/A"
+                                                    }
+                                                />
+                                            </div>
+                                            <div>
+                                                <BasicInfomation
+                                                    title="Faculty"
+                                                    content={
+                                                        userInfo.facultyName ||
+                                                        "N/A"
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div className={styles.bankInformation}>
-                                <Title title={t("common.bank-info")} />
+                                <Title title="Bank Information" />
                                 <div className={styles.informationContent}>
                                     <div>
                                         <BasicInfomation
-                                            title={t("common.bank-number")}
-                                            content="1252"
-                                        />
-                                        <BasicInfomation
-                                            title={t("common.tax-number")}
-                                            content="1252"
+                                            title="Bank Account Number"
+                                            content={
+                                                userInfo.bankAccountNumber ||
+                                                "N/A"
+                                            }
                                         />
                                     </div>
                                     <div>
                                         <BasicInfomation
-                                            title={t("common.bank-name")}
-                                            content="1252"
+                                            title="Bank Account Type"
+                                            content={userInfo.bank || "N/A"}
+                                        />
+                                    </div>
+                                    <div>
+                                        <BasicInfomation
+                                            title="Bank Account Owner"
+                                            content={
+                                                userInfo.bankAccountOwner ||
+                                                "N/A"
+                                            }
                                         />
                                     </div>
                                 </div>
                             </div>
 
                             <div className={styles.relationshipInformation}>
-                                <Title title={t("common.relation-info")} />
+                                <Title title="Relationship Information" />
                                 <div className={styles.informationContent}>
                                     <div>
                                         <BasicInfomation
-                                            title={t("common.parent-name")}
-                                            content="1252"
+                                            title="Parent Name"
+                                            content={"N/A"}
                                         />
                                         <BasicInfomation
-                                            title={t("common.nationality")}
-                                            content="1252"
-                                        />
-                                        <BasicInfomation
-                                            title={t("common.religion")}
-                                            content="1252"
-                                        />
-                                        <BasicInfomation
-                                            title={t("common.job")}
-                                            content="1252"
+                                            title="Nationality"
+                                            content={"N/A"}
                                         />
                                     </div>
                                     <div>
                                         <BasicInfomation
-                                            title={t("common.birth-year")}
-                                            content="1252"
+                                            title="Contact Number"
+                                            content={"N/A"}
                                         />
                                         <BasicInfomation
-                                            title={t("common.contact-number")}
-                                            content="1252"
-                                        />
-                                        <BasicInfomation
-                                            title={t(
-                                                "common.address-permanent"
-                                            )}
-                                            content="1252"
-                                        />
-                                        <BasicInfomation
-                                            title={t("common.current-address")}
-                                            content="1252"
+                                            title="Permanent Address"
+                                            content={"N/A"}
                                         />
                                     </div>
                                 </div>

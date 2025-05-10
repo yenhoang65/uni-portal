@@ -8,38 +8,50 @@ import { Button } from "@/components/Button";
 import Image from "next/image";
 import { TypographyBody } from "@/components/TypographyBody";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import {
+    createSubject,
+    getSubjectDetail,
+    updateSubject,
+} from "@/store/reducer/subjectReducer";
+import dynamic from "next/dynamic";
+import toast from "react-hot-toast";
+import { messageClear } from "@/store/reducer/subjectReducer";
 
-type SubjectState = {
-    subject_id: string;
-    subject_name: string;
-    it_credits: string;
-    th_credits: string;
-    subject_description: string;
-    subject_type: string;
-    subject_he_so: string;
+const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
+
+type Subject = {
+    subjectId: string | null;
+    subjectName: string | null;
+    ltCredits: number;
+    thCredits: number;
+    subjectDescription: string | null;
+    subjectCoefficient: number;
 };
 
-const subjectTypeOptions = [
-    { value: "Bắt buộc", label: "Bắt buộc" },
-    { value: "Tự chọn", label: "Tự chọn" },
-];
-
 const CreateEditSubject = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { subject, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.subject
+    );
+    const editor = useRef(null);
     const router = useRouter();
     const { query } = router;
     const [mode, setMode] = useState<"create" | "edit">("create");
+
     const [showImportFile, setShowImportFile] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [fileName, setFileName] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [state, setState] = useState<SubjectState>({
-        subject_id: "",
-        subject_name: "",
-        it_credits: "",
-        th_credits: "",
-        subject_description: "",
-        subject_type: subjectTypeOptions[0]?.value || "",
-        subject_he_so: "",
+
+    const [state, setState] = useState<Subject>({
+        subjectId: "",
+        subjectName: "",
+        ltCredits: 0,
+        thCredits: 0,
+        subjectDescription: "",
+        subjectCoefficient: 0,
     });
 
     const inputHandle = (
@@ -52,47 +64,61 @@ const CreateEditSubject = () => {
     };
 
     useEffect(() => {
-        if (query.mode === "edit" && query.id) {
+        if (query.id) {
+            dispatch(getSubjectDetail(query.id));
+        }
+    }, [query.id]);
+
+    useEffect(() => {
+        if (subject && query.id) {
             setMode("edit");
-            setShowImportFile(false); // Hide import section in edit mode
-            // Call API to get subject data by ID
-            // Replace this with your actual API call
+            setShowImportFile(false);
+
             setState({
-                subject_id: "SUB001",
-                subject_name: "Nhập môn Lập trình",
-                it_credits: "3",
-                th_credits: "2",
-                subject_description: "Môn học cơ bản về lập trình.",
-                subject_type: "Bắt buộc",
-                subject_he_so: "1",
+                subjectId: subject.subjectId,
+                subjectName: subject.subjectName,
+                ltCredits: subject.ltCredits,
+                thCredits: subject.thCredits,
+                subjectDescription: subject.subjectDescription,
+                subjectCoefficient: subject.subjectCoefficient,
             });
         } else {
             setMode("create");
             setShowImportFile(false);
             setState({
-                subject_id: "",
-                subject_name: "",
-                it_credits: "",
-                th_credits: "",
-                subject_description: "",
-                subject_type: subjectTypeOptions[0]?.value || "",
-                subject_he_so: "",
+                subjectId: "",
+                subjectName: "",
+                ltCredits: 0,
+                thCredits: 0,
+                subjectDescription: "",
+                subjectCoefficient: 0,
             });
             setSelectedFile(null);
             setFileName(null);
         }
-    }, [query.mode, query.id]);
+    }, [subject, query.id]);
 
     const handleSubmit = () => {
         if (mode === "create") {
-            // Call API to create subject with state
-            console.log("Creating subject:", state);
+            const obj = {
+                subjectId: state.subjectId,
+                subjectName: state.subjectName,
+                ltCredits: state.ltCredits,
+                thCredits: state.thCredits,
+                subjectDescription: state.subjectDescription,
+                subjectCoefficient: state.subjectCoefficient,
+            };
+            dispatch(createSubject({ dto: obj }));
         } else {
-            // Call API to update subject with state
-            console.log("Updating subject:", state);
+            const obj = {
+                subjectName: state.subjectName,
+                ltCredits: state.ltCredits,
+                thCredits: state.thCredits,
+                subjectDescription: state.subjectDescription,
+                subjectCoefficient: state.subjectCoefficient,
+            };
+            dispatch(updateSubject({ id: subject.subjectId, dto: obj }));
         }
-        // After successful submission, you might want to redirect
-        router.push("/subject_management");
     };
 
     const handleImportButtonClick = () => {
@@ -113,7 +139,7 @@ const CreateEditSubject = () => {
         setSelectedFile(null);
         setFileName(null);
         if (fileInputRef.current) {
-            fileInputRef.current.value = ""; // Reset the file input
+            fileInputRef.current.value = "";
         }
     };
 
@@ -139,6 +165,34 @@ const CreateEditSubject = () => {
             alert("Vui lòng chọn một file để import.");
         }
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+
+            router.push("/subject");
+
+            // const obj = {
+            //     parPage: parseInt(parPage),
+            //     currentPage: parseInt(currentPage),
+            //     searchValue,
+            //     typeCate,
+            // };
+            // dispatch(get_category(obj));
+
+            // setState({
+            //     name: "",
+            //     image: "",
+            //     type: "",
+            // });
+            // setImageShow("");
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -229,8 +283,8 @@ const CreateEditSubject = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Mã môn học"
-                                name="subject_id"
-                                value={state.subject_id}
+                                name="subjectId"
+                                value={state.subjectId || ""}
                                 onChange={inputHandle}
                                 type="text"
                                 required
@@ -240,8 +294,8 @@ const CreateEditSubject = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Tên môn học"
-                                name="subject_name"
-                                value={state.subject_name}
+                                name="subjectName"
+                                value={state.subjectName || ""}
                                 onChange={inputHandle}
                                 type="text"
                                 required
@@ -250,8 +304,8 @@ const CreateEditSubject = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Số tín chỉ lý thuyết"
-                                name="it_credits"
-                                value={state.it_credits}
+                                name="ltCredits"
+                                value={String(state.ltCredits)}
                                 onChange={inputHandle}
                                 type="number"
                                 required
@@ -260,41 +314,49 @@ const CreateEditSubject = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Số tín chỉ thực hành"
-                                name="th_credits"
-                                value={state.th_credits}
+                                name="thCredits"
+                                value={String(state.thCredits)}
                                 onChange={inputHandle}
                                 type="number"
                                 required
                             />
                         </div>
-                        <div className={styles.gridItem}>
-                            <SelectWithLabel
-                                label="Loại môn học"
-                                name="subject_type"
-                                value={state.subject_type}
-                                onChange={
-                                    inputHandle as React.ChangeEventHandler<HTMLSelectElement>
-                                }
-                                options={subjectTypeOptions}
-                                required
-                            />
-                        </div>
+
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Hệ số môn học"
-                                name="subject_he_so"
-                                value={state.subject_he_so}
+                                name="subjectCoefficient"
+                                value={String(state.subjectCoefficient)}
                                 onChange={inputHandle}
                                 type="number"
                             />
                         </div>
                         <div className={styles.gridItemFull}>
-                            <InputWithLabel
+                            {/* <InputWithLabel
                                 label="Mô tả môn học"
-                                name="subject_description"
-                                value={state.subject_description}
+                                name="subjectDescription"
+                                value={state.subjectDescription || ""}
                                 onChange={inputHandle}
                                 type="textarea"
+                            /> */}
+
+                            <TypographyBody
+                                tag="span"
+                                theme="md"
+                                className={styles.label}
+                            >
+                                Mô tả
+                            </TypographyBody>
+                            <JoditEditor
+                                ref={editor}
+                                value={state.subjectDescription || ""}
+                                onChange={(newContent) =>
+                                    setState({
+                                        ...state,
+                                        subjectDescription: newContent,
+                                    })
+                                }
+                                className={styles.inputDesc}
                             />
                         </div>
                     </section>

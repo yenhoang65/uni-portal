@@ -7,33 +7,27 @@ import { Button } from "@/components/Button";
 import { IoIosArrowBack } from "react-icons/io";
 import { AiFillEdit } from "react-icons/ai";
 import AuthGuard from "@/components/AuthGuard";
-
-type Classroom = {
-    id: string;
-    ma: string;
-    number_of_seats: number;
-    classroom_type: string;
-    device: string[];
-};
-
-const mockClassroom: Classroom = {
-    id: "CLA001",
-    ma: "P.101",
-    number_of_seats: 30,
-    classroom_type: "Lý thuyết",
-    device: ["Máy chiếu", "Bảng trắng", "Điều hòa"],
-};
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getClassroomDetail } from "@/store/reducer/classroomReducer";
 
 const ClassroomDetail = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { classroom } = useSelector((state: RootState) => state.classroom);
+
     const router = useRouter();
     const { query } = router;
     const { id } = query;
 
-    useEffect(() => {}, [id]);
+    useEffect(() => {
+        if (id) {
+            dispatch(getClassroomDetail(id));
+        }
+    }, [id]);
 
     return (
         <AuthGuard allowedRoles={["admin", "employee"]}>
-            <BorderBox title={`Chi tiết phòng học: ${mockClassroom.ma}`}>
+            <BorderBox title={`Chi tiết phòng học: ${classroom.classroomId}`}>
                 <div className={styles.detailContainer}>
                     <div className={styles.detailItem}>
                         <TypographyBody
@@ -44,7 +38,7 @@ const ClassroomDetail = () => {
                             Mã phòng:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {mockClassroom.ma}
+                            {classroom.classroomId}
                         </TypographyBody>
                     </div>
 
@@ -57,7 +51,7 @@ const ClassroomDetail = () => {
                             Số chỗ ngồi:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {mockClassroom.number_of_seats}
+                            {classroom.numberOfSeats}
                         </TypographyBody>
                     </div>
 
@@ -70,7 +64,7 @@ const ClassroomDetail = () => {
                             Loại phòng:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {mockClassroom.classroom_type}
+                            {classroom.classroomName}
                         </TypographyBody>
                     </div>
 
@@ -83,18 +77,37 @@ const ClassroomDetail = () => {
                             Thiết bị:
                         </TypographyBody>
                         <div>
-                            {mockClassroom.device.map((device, index) => (
-                                <TypographyBody
-                                    key={index}
-                                    tag="span"
-                                    theme="md"
-                                >
-                                    {device}
-                                    {index < mockClassroom.device.length - 1 &&
-                                        ", "}
+                            {classroom.devices &&
+                            Array.isArray(classroom.devices) ? (
+                                classroom.devices.map((device, index) => (
+                                    <TypographyBody
+                                        key={index}
+                                        tag="span"
+                                        theme="md"
+                                    >
+                                        {device}
+                                        {index < classroom.devices.length - 1 &&
+                                            ", "}
+                                    </TypographyBody>
+                                ))
+                            ) : (
+                                <TypographyBody tag="span" theme="md">
+                                    No devices available
                                 </TypographyBody>
-                            ))}
+                            )}
                         </div>
+                    </div>
+                    <div className={styles.detailItem}>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailLabel}
+                        >
+                            Trạng thái:
+                        </TypographyBody>
+                        <TypographyBody tag="span" theme="md">
+                            {classroom.status}
+                        </TypographyBody>
                     </div>
 
                     <div className={styles.buttonGroup}>
@@ -109,7 +122,7 @@ const ClassroomDetail = () => {
                             className={styles.editButton}
                             onClick={() =>
                                 router.push(
-                                    `/major/create-edit?id=${1}&mode=edit`
+                                    `/classroom/create-edit?id=${classroom.classroomId}&mode=edit`
                                 )
                             }
                         >

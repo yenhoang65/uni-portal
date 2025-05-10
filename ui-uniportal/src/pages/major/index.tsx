@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { deleteMajor, getListMajor } from "@/store/reducer/majorReducer";
 import toast from "react-hot-toast";
-import { messageClear } from "@/store/reducer/authReducer";
+import { messageClear } from "@/store/reducer/majorReducer";
 
 const Major = () => {
     const dispatch = useDispatch<AppDispatch>();

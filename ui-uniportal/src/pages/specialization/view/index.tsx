@@ -105,7 +105,7 @@ const SpecializationDetail = () => {
                         </TypographyBody>
                     </div>
 
-                    {dummySpecialization.moTa && (
+                    {specialization.specializationDescription && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"

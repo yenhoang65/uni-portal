@@ -8,19 +8,26 @@ import SelectWithLabel from "@/components/SelectWithLabel";
 import clsx from "clsx";
 import { TypographyBody } from "@/components/TypographyBody";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import {
+    createClassroom,
+    getClassroomDetail,
+    messageClear,
+    updateClassroom,
+} from "@/store/reducer/classroomReducer";
+import toast from "react-hot-toast";
 
 type State = {
-    ma: string;
-    number_of_seats: string;
-    classroom_type: string;
-    device: string[];
+    classroomId: number | null;
+    classroomName: string | null;
+    numberOfSeats: number;
+    status: string | null;
 };
 
 const classroomTypeOptions = [
-    { value: "Lý thuyết", label: "Lý thuyết" },
-    { value: "Thực hành", label: "Thực hành" },
-    { value: "Hội trường", label: "Hội trường" },
-    { value: "Phòng Lab", label: "Phòng Lab" },
+    { value: "Phòng học lý thuyết", label: "Lý thuyết" },
+    { value: "Phòng học thực hành", label: "Thực hành" },
 ];
 
 const deviceOptions = [
@@ -32,18 +39,22 @@ const deviceOptions = [
     { value: "Âm thanh", label: "Âm thanh" },
     { value: "Bảng tương tác", label: "Bảng tương tác" },
     { value: "Thiết bị thí nghiệm", label: "Thiết bị thí nghiệm" },
-    // Thêm các thiết bị khác vào đây
 ];
 
 const CreateEditClassroom = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { classroom, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.classroom
+    );
+
     const router = useRouter();
     const { query } = router;
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [state, setState] = useState<State>({
-        ma: "",
-        number_of_seats: "",
-        classroom_type: classroomTypeOptions[0]?.value || "",
-        device: [],
+        classroomId: null,
+        classroomName: "",
+        numberOfSeats: 0,
+        status: "active",
     });
     const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
     const [isDeviceDropdownOpen, setIsDeviceDropdownOpen] = useState(false);
@@ -57,6 +68,12 @@ const CreateEditClassroom = () => {
             [e.target.name]: e.target.value,
         });
     };
+
+    useEffect(() => {
+        if (query.id) {
+            dispatch(getClassroomDetail(query.id));
+        }
+    }, [query.id]);
 
     const toggleDeviceDropdown = () => {
         setIsDeviceDropdownOpen(!isDeviceDropdownOpen);
@@ -73,32 +90,32 @@ const CreateEditClassroom = () => {
     };
 
     useEffect(() => {
-        setState({ ...state, device: selectedDevices });
+        setSelectedDevices(selectedDevices);
     }, [selectedDevices]);
 
     useEffect(() => {
-        if (query.mode === "edit" && query.id) {
+        if (classroom && query.id) {
             setMode("edit");
-            // Call API to get classroom data by ID
-            // Replace this with your actual API call
+
             setState({
-                ma: "P.101",
-                number_of_seats: "30",
-                classroom_type: "Lý thuyết",
-                device: ["Máy chiếu", "Bảng trắng"],
+                classroomId: classroom.classroomId,
+                classroomName: classroom.classroomName,
+                numberOfSeats: classroom.numberOfSeats,
+                status: classroom.status || "active",
             });
-            setSelectedDevices(["Máy chiếu", "Bảng trắng"]);
+
+            setSelectedDevices(classroom.devices || []);
         } else {
             setMode("create");
             setState({
-                ma: "",
-                number_of_seats: "",
-                classroom_type: classroomTypeOptions[0]?.value || "",
-                device: [],
+                classroomId: null,
+                classroomName: "",
+                numberOfSeats: 0,
+                status: "active",
             });
             setSelectedDevices([]);
         }
-    }, [query.mode, query.id]);
+    }, [classroom, query.id]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -116,19 +133,56 @@ const CreateEditClassroom = () => {
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [isDeviceDropdownOpen]); // Theo dõi trạng thái mở để thêm/xóa event listener
+    }, [isDeviceDropdownOpen]);
 
     const handleSubmit = () => {
         if (mode === "create") {
-            // Call API to create classroom with state
-            console.log("Creating classroom:", state);
+            const obj = {
+                classroomId: state.classroomId,
+                classroomName: state.classroomName,
+                numberOfSeats: state.numberOfSeats,
+                status: state.status || "active",
+                devices: selectedDevices,
+            };
+            dispatch(createClassroom({ dto: obj }));
         } else {
-            // Call API to update classroom with state
-            console.log("Updating classroom:", state);
+            const obj = {
+                classroomName: state.classroomName,
+                numberOfSeats: state.numberOfSeats,
+                status: state.status || "active",
+                devices: selectedDevices,
+            };
+            dispatch(updateClassroom({ id: classroom.classroomId, dto: obj }));
         }
-        // After successful submission, you might want to redirect
-        router.push("/classroom"); // Điều hướng đến trang quản lý lớp học
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+
+            router.push("/classroom");
+
+            // const obj = {
+            //     parPage: parseInt(parPage),
+            //     currentPage: parseInt(currentPage),
+            //     searchValue,
+            //     typeCate,
+            // };
+            // dispatch(get_category(obj));
+
+            // setState({
+            //     name: "",
+            //     image: "",
+            //     type: "",
+            // });
+            // setImageShow("");
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin", "employee"]}>
@@ -141,8 +195,8 @@ const CreateEditClassroom = () => {
                     <div className={styles.gridItem}>
                         <InputWithLabel
                             label="Mã phòng"
-                            name="ma"
-                            value={state.ma}
+                            name="classroomId"
+                            value={String(state.classroomId)}
                             onChange={inputHandle}
                             type="text"
                             required
@@ -152,8 +206,8 @@ const CreateEditClassroom = () => {
                     <div className={styles.gridItem}>
                         <InputWithLabel
                             label="Số chỗ ngồi"
-                            name="number_of_seats"
-                            value={state.number_of_seats}
+                            name="numberOfSeats"
+                            value={String(state.numberOfSeats)}
                             onChange={inputHandle}
                             type="number"
                             required
@@ -162,13 +216,25 @@ const CreateEditClassroom = () => {
                     <div className={styles.gridItem}>
                         <SelectWithLabel
                             label="Loại phòng"
-                            name="classroom_type"
-                            value={state.classroom_type}
+                            name="classroomName"
+                            value={state.classroomName || ""}
                             onChange={
                                 inputHandle as React.ChangeEventHandler<HTMLSelectElement>
                             }
                             options={classroomTypeOptions}
                             required
+                        />
+                    </div>
+                    <div className={styles.gridItem}>
+                        <SelectWithLabel
+                            label="Trạng thái"
+                            name="status"
+                            value={state.status || "active"}
+                            onChange={inputHandle}
+                            options={[
+                                { value: "active", label: "Active" },
+                                { value: "inactive", label: "Inactive" },
+                            ]}
                         />
                     </div>
                     <div className={styles.gridItemFull}>

@@ -3,7 +3,6 @@ import styles from "./styles.module.css";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { TypographyBody } from "@/components/TypographyBody";
-import { Button } from "@/components/Button";
 import { IoIosArrowBack } from "react-icons/io";
 import { AiFillEdit } from "react-icons/ai";
 import AuthGuard from "@/components/AuthGuard";
