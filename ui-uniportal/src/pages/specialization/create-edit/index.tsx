@@ -8,33 +8,47 @@ import { TypographyBody } from "@/components/TypographyBody";
 import { Button } from "@/components/Button";
 import dynamic from "next/dynamic";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import {
+    createSpec,
+    getSpecDetail,
+    updateSpec,
+} from "@/store/reducer/specializationReducer";
+import { getListMajor } from "@/store/reducer/majorReducer";
+import toast from "react-hot-toast";
+import { messageClear } from "@/store/reducer/specializationReducer";
 
 const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 
 type State = {
-    specializationId: string;
-    name: string;
-    description: string;
-    establishDate: string;
-    majorId: string;
+    specializationId: string | null;
+    specializationName: string | null;
+    specializationDateOfEstablishment: string | null;
+    specializationDescription: string | null;
+    specializationStatus: string | null;
+    majorName: string | null;
+    majorId: string | null;
 };
 
-const majorOptions = [
-    { value: "MAJ001", label: "Công nghệ phần mềm" },
-    { value: "MAJ002", label: "Kỹ thuật cơ khí" },
-    { value: "MAJ003", label: "Quản trị kinh doanh" },
-];
-
 const CreateEditSpecialization = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { specialization, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.specialization
+    );
+    const { majors } = useSelector((state: RootState) => state.major);
+
     const router = useRouter();
     const { query } = router;
     const [mode, setMode] = useState<"create" | "edit">("create");
     const editor = useRef(null);
     const [state, setState] = useState<State>({
         specializationId: "",
-        name: "",
-        description: "",
-        establishDate: "",
+        specializationName: "",
+        specializationDateOfEstablishment: "",
+        specializationDescription: "",
+        specializationStatus: "",
+        majorName: "",
         majorId: "",
     });
 
@@ -48,38 +62,83 @@ const CreateEditSpecialization = () => {
     };
 
     useEffect(() => {
-        if (query.mode === "edit" && query.id) {
+        if (query.id) {
+            dispatch(getSpecDetail(query.id));
+        }
+    }, [query.id]);
+
+    useEffect(() => {
+        dispatch(getListMajor());
+    }, []);
+
+    useEffect(() => {
+        if (specialization && query.id) {
             setMode("edit");
-            // Call API to get specialization data by ID
 
             setState({
-                specializationId: "SPE001",
-                name: "Phát triển ứng dụng Web",
-                description: "<p>Chuyên sâu về phát triển web</p>",
-                establishDate: "2015-05-10",
-                majorId: "MAJ001",
+                specializationId: specialization.specializationId,
+                specializationName: specialization.specializationName,
+                specializationDateOfEstablishment:
+                    specialization.specializationDateOfEstablishment,
+                specializationDescription:
+                    specialization.specializationDescription,
+                specializationStatus: specialization.specializationStatus,
+                majorName: specialization.majorName,
+                majorId: specialization.majorId,
             });
         } else {
             setMode("create");
             setState({
                 specializationId: "",
-                name: "",
-                description: "",
-                establishDate: "",
-                majorId: majorOptions[0]?.value || "",
+                specializationName: "",
+                specializationDateOfEstablishment: "",
+                specializationDescription: "",
+                specializationStatus: "",
+                majorName: "",
+                majorId: "",
             });
         }
-    }, [query.mode, query.id]);
+    }, [specialization]);
 
     const handleSubmit = () => {
         if (mode === "create") {
-            // Call API to create specialization with state including majorId
-            console.log("Creating specialization:", state);
+            const obj = {
+                specializationId: state.specializationId,
+                specializationName: state.specializationName,
+                specializationDateOfEstablishment:
+                    state.specializationDateOfEstablishment,
+                specializationDescription: state.specializationDescription,
+                specializationStatus: state.specializationStatus,
+                majorId: state.majorId,
+            };
+            dispatch(createSpec({ dto: obj }));
         } else {
-            // Call API to update specialization with state including majorId
-            console.log("Updating specialization:", state);
+            const obj = {
+                specializationName: state.specializationName,
+                specializationDateOfEstablishment:
+                    state.specializationDateOfEstablishment,
+                specializationDescription: state.specializationDescription,
+                specializationStatus: state.specializationStatus,
+                majorId: state.majorId,
+            };
+            dispatch(
+                updateSpec({ id: specialization.specializationId, dto: obj })
+            );
         }
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+
+            router.push("/specialization");
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -95,7 +154,7 @@ const CreateEditSpecialization = () => {
                         <InputWithLabel
                             label="Mã chuyên ngành"
                             name="specializationId"
-                            value={state.specializationId}
+                            value={state.specializationId || ""}
                             onChange={inputHandle}
                             type="text"
                             required
@@ -106,19 +165,22 @@ const CreateEditSpecialization = () => {
                         <SelectWithLabel
                             label="Chọn ngành"
                             name="majorId"
-                            value={state.majorId}
+                            value={state.majorId || ""}
                             onChange={
                                 inputHandle as React.ChangeEventHandler<HTMLSelectElement>
                             }
-                            options={majorOptions}
+                            options={majors.map((major) => ({
+                                value: major.majorId || "",
+                                label: major.majorName || "",
+                            }))}
                             required
                         />
                     </div>
                     <div className={styles.gridItem}>
                         <InputWithLabel
                             label="Tên chuyên ngành"
-                            name="name"
-                            value={state.name}
+                            name="specializationName"
+                            value={state.specializationName || ""}
                             onChange={inputHandle}
                             type="text"
                             required
@@ -127,8 +189,10 @@ const CreateEditSpecialization = () => {
                     <div className={styles.gridItem}>
                         <InputWithLabel
                             label="Ngày thành lập"
-                            name="establishDate"
-                            value={state.establishDate}
+                            name="specializationDateOfEstablishment"
+                            value={
+                                state.specializationDateOfEstablishment || ""
+                            }
                             onChange={inputHandle}
                             type="date"
                         />
@@ -145,9 +209,12 @@ const CreateEditSpecialization = () => {
                     </TypographyBody>
                     <JoditEditor
                         ref={editor}
-                        value={state.description}
+                        value={state.specializationDescription || ""}
                         onChange={(newContent) =>
-                            setState({ ...state, description: newContent })
+                            setState({
+                                ...state,
+                                specializationDescription: newContent,
+                            })
                         }
                         className={styles.inputDesc}
                     />

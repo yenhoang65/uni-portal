@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -11,8 +11,14 @@ import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getListMajor } from "@/store/reducer/majorReducer";
+import toast from "react-hot-toast";
+import { messageClear } from "@/store/reducer/specializationReducer";
+import { deleteSpec, getListSpec } from "@/store/reducer/specializationReducer";
 
-const specializations = [
+const specialization = [
     {
         id: "SPE001",
         majorId: "MAJ001", // Mã ngành
@@ -43,6 +49,12 @@ const specializations = [
 ];
 
 const Specialization = () => {
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { specializations, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.specialization
+    );
+
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
@@ -55,6 +67,7 @@ const Specialization = () => {
         if (deleteSpecializationId) {
             setIsModalOpen(false);
             setDeleteSpecializationId(null);
+            dispatch(deleteSpec(deleteSpecializationId));
         }
     };
 
@@ -62,6 +75,27 @@ const Specialization = () => {
         setIsModalOpen(false);
         setDeleteSpecializationId(null);
     };
+
+    useEffect(() => {
+        dispatch(getListSpec());
+    }, [dispatch]);
+
+    useEffect(() => {
+        dispatch(getListMajor());
+    }, []);
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+
+            dispatch(getListSpec());
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -86,20 +120,15 @@ const Specialization = () => {
                         <table className={styles.table}>
                             <thead className={styles.thead}>
                                 <tr>
-                                    <th style={{ minWidth: "60px" }}>STT</th>
+                                    <th style={{ width: "70px" }}>STT</th>
                                     <th style={{ minWidth: "150px" }}>
                                         Mã chuyên ngành
                                     </th>
                                     <th style={{ minWidth: "180px" }}>
-                                        Tên ngành
-                                    </th>
-                                    {/* Tên ngành (từ major) */}
-                                    <th style={{ minWidth: "180px" }}>
-                                        Tên khoa
-                                    </th>
-                                    {/* Tên khoa (từ major) */}
-                                    <th style={{ minWidth: "220px" }}>
                                         Tên chuyên ngành
+                                    </th>
+                                    <th style={{ minWidth: "180px" }}>
+                                        Tên ngành
                                     </th>
                                     <th style={{ minWidth: "320px" }}>Mô tả</th>
                                     <th style={{ minWidth: "160px" }}>
@@ -113,25 +142,37 @@ const Specialization = () => {
                             <tbody>
                                 {specializations.map(
                                     (specialization, index) => (
-                                        <tr key={specialization.id}>
+                                        <tr
+                                            key={
+                                                specialization.specializationId
+                                            }
+                                        >
                                             <td>{index + 1}</td>
-                                            <td>{specialization.id}</td>
+                                            <td>
+                                                {
+                                                    specialization.specializationId
+                                                }
+                                            </td>
+                                            <td>
+                                                {
+                                                    specialization.specializationName
+                                                }
+                                            </td>
+
                                             <td>{specialization.majorName}</td>
-                                            {/* Hiển thị Tên ngành */}
                                             <td>
-                                                {specialization.facultyName}
-                                            </td>
-                                            {/* Hiển thị Tên khoa */}
-                                            <td>{specialization.name}</td>
-                                            <td>
-                                                {specialization.description}
+                                                {
+                                                    specialization.specializationDescription
+                                                }
                                             </td>
                                             <td>
-                                                {specialization.establishDate}
+                                                {
+                                                    specialization.specializationDescription
+                                                }
                                             </td>
                                             <td className={styles.buttonAction}>
                                                 <Link
-                                                    href={`/specialization/view?id=${specialization.id}`}
+                                                    href={`/specialization/view?id=${specialization.specializationId}`}
                                                     className={clsx(
                                                         styles.viewButton
                                                     )}
@@ -139,7 +180,7 @@ const Specialization = () => {
                                                     <FaEye />
                                                 </Link>
                                                 <Link
-                                                    href={`/specialization/create-edit?id=${specialization.id}&mode=edit`}
+                                                    href={`/specialization/create-edit?id=${specialization.specializationId}&mode=edit`}
                                                     className={clsx(
                                                         styles.viewButton,
                                                         styles.viewButtonUpdate
@@ -153,7 +194,7 @@ const Specialization = () => {
                                                         e.preventDefault();
                                                         setIsModalOpen(true);
                                                         setDeleteSpecializationId(
-                                                            specialization.id
+                                                            specialization.specializationId
                                                         );
                                                     }}
                                                     className={clsx(
@@ -166,7 +207,7 @@ const Specialization = () => {
 
                                                 {isModalOpen &&
                                                     deleteSpecializationId ===
-                                                        specialization.id && (
+                                                        specialization.specializationId && (
                                                         <ModalConfirm
                                                             message="Are you sure you want to delete?"
                                                             onConfirm={

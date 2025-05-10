@@ -11,21 +11,28 @@ import dynamic from "next/dynamic";
 import AuthGuard from "@/components/AuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { getFacultyDetail } from "@/store/reducer/facultyReducer";
+import {
+    createFaculty,
+    getFacultyDetail,
+    updateFaculty,
+} from "@/store/reducer/facultyReducer";
+import SelectWithLabel from "@/components/SelectWithLabel";
+import toast from "react-hot-toast";
+import { messageClear } from "@/store/reducer/authReducer";
 
 const JoditEditor = dynamic(() => import("jodit-react"), {
     ssr: false,
 });
 
 type state = {
-    facultyId: number | null;
+    facultyId: string | null;
     facultyName: string | null;
     facultyDateOfEstablishment: string | null;
     facultyEmail: string | null;
     facultyPhoneNumber: string | null;
     facultyAddress: string | null;
     facultyDescription: string | null;
-    facultyLogo: string | null;
+    facultyLogo: string | null | File;
     facultyStatus: string | null;
 };
 
@@ -33,7 +40,9 @@ const CreateEditFaculty = () => {
     const { t } = useTranslation();
 
     const dispatch = useDispatch<AppDispatch>();
-    const { faculty } = useSelector((state: RootState) => state.faculty);
+    const { faculty, successMessage } = useSelector(
+        (state: RootState) => state.faculty
+    );
 
     const router = useRouter();
     const { query } = router;
@@ -53,7 +62,9 @@ const CreateEditFaculty = () => {
 
     const [imageShow, setImageShow] = useState<string>("");
 
-    const inputHandle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputHandle = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    ) => {
         setState({
             ...state,
             [e.target.name]: e.target.value,
@@ -68,7 +79,7 @@ const CreateEditFaculty = () => {
             setImageShow(URL.createObjectURL(file));
             setState((prev) => ({
                 ...prev,
-                image: file,
+                facultyLogo: file,
             }));
         }
     };
@@ -80,7 +91,7 @@ const CreateEditFaculty = () => {
     }, [query.id]);
 
     useEffect(() => {
-        if (faculty) {
+        if (faculty && query.id) {
             setMode("edit");
             setState({
                 facultyId: faculty.facultyId,
@@ -100,7 +111,7 @@ const CreateEditFaculty = () => {
         } else {
             setMode("create");
             setState({
-                facultyId: null,
+                facultyId: "",
                 facultyName: "",
                 facultyDateOfEstablishment: "",
                 facultyEmail: "",
@@ -113,13 +124,83 @@ const CreateEditFaculty = () => {
         }
     }, [faculty]);
 
-    const handleSubmit = async (formData: any) => {
+    const handleSubmit = () => {
         if (mode === "create") {
-            // API call to create a new faculty
-        } else if (mode === "edit") {
-            // API call to update the faculty with the ID from query
+            const formData = new FormData();
+            formData.append("facultyId", state.facultyId || "");
+            formData.append("facultyName", state.facultyName || "");
+            formData.append(
+                "facultyDateOfEstablishment",
+                state.facultyDateOfEstablishment || ""
+            );
+            formData.append("facultyEmail", state.facultyEmail || "");
+            formData.append(
+                "facultyPhoneNumber",
+                state.facultyPhoneNumber || ""
+            );
+            formData.append("facultyAddress", state.facultyAddress || "");
+            formData.append(
+                "facultyDescription",
+                state.facultyDescription || ""
+            );
+            formData.append("facultyStatus", state.facultyStatus || "");
+
+            if (state.facultyLogo && state.facultyLogo instanceof File) {
+                formData.append("facultyLogo", state.facultyLogo);
+            }
+
+            dispatch(createFaculty(formData));
+        } else if (mode === "edit" && query.id) {
+            const formData = new FormData();
+
+            formData.append("facultyName", state.facultyName || "");
+            formData.append(
+                "facultyDateOfEstablishment",
+                state.facultyDateOfEstablishment || ""
+            );
+            formData.append("facultyEmail", state.facultyEmail || "");
+            formData.append(
+                "facultyPhoneNumber",
+                state.facultyPhoneNumber || ""
+            );
+            formData.append("facultyAddress", state.facultyAddress || "");
+            formData.append(
+                "facultyDescription",
+                state.facultyDescription || ""
+            );
+            formData.append("facultyStatus", state.facultyStatus || "");
+
+            if (state.facultyLogo && state.facultyLogo instanceof File) {
+                formData.append("facultyLogo", state.facultyLogo);
+            }
+
+            dispatch(updateFaculty({ id: faculty.facultyId, formData }));
         }
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+
+            router.back();
+
+            // const obj = {
+            //     parPage: parseInt(parPage),
+            //     currentPage: parseInt(currentPage),
+            //     searchValue,
+            //     typeCate,
+            // };
+            // dispatch(get_category(obj));
+
+            // setState({
+            //     name: "",
+            //     image: "",
+            //     type: "",
+            // });
+            // setImageShow("");
+        }
+    }, [successMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -180,6 +261,18 @@ const CreateEditFaculty = () => {
                             onChange={inputHandle}
                         />
                     </div>
+                    <div className={styles.gridItem}>
+                        <SelectWithLabel
+                            label="Trạng thái"
+                            name="facultyStatus"
+                            value={state.facultyStatus || ""}
+                            onChange={inputHandle}
+                            options={[
+                                { value: "active", label: "Active" },
+                                { value: "inactive", label: "Inactive" },
+                            ]}
+                        />
+                    </div>
                 </section>
                 <div className={styles.address}>
                     <InputWithLabel
@@ -211,6 +304,7 @@ const CreateEditFaculty = () => {
                         className={styles.inputDesc}
                     />
                 </div>
+
                 <div className={styles.logo}>
                     <TypographyBody
                         tag="span"
@@ -219,7 +313,10 @@ const CreateEditFaculty = () => {
                     >
                         {t("common.logo")}
                     </TypographyBody>
-                    <label htmlFor="image" className={styles.imageWrapper}>
+                    <label
+                        htmlFor="facultyLogo"
+                        className={styles.imageWrapper}
+                    >
                         {imageShow ? (
                             <img
                                 src={imageShow}
@@ -238,8 +335,8 @@ const CreateEditFaculty = () => {
                     <input
                         onChange={imageHandle}
                         type="file"
-                        name="image"
-                        id="image"
+                        name="facultyLogo"
+                        id="facultyLogo"
                         className={styles.hiddenInput}
                     />
                 </div>

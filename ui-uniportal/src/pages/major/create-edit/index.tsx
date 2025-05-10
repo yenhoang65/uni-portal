@@ -8,36 +8,49 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import SelectWithLabel from "@/components/SelectWithLabel";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import {
+    createMajor,
+    getMajorDetail,
+    updateMajor,
+} from "@/store/reducer/majorReducer";
+import { getListFaculty } from "@/store/reducer/facultyReducer";
+import toast from "react-hot-toast";
+import { messageClear } from "@/store/reducer/majorReducer";
 
 const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 
 type State = {
-    majorId: string;
-    name: string;
-    description: string;
-    establishDate: string;
-    facultyId: string;
+    majorId: string | null;
+    majorName: string | null;
+    majorDateOfEstablishment: string | null;
+    majorDescription: string | null;
+    majorStatus: string | null;
+    facultyId: string | null;
+    facultyName: string | null;
 };
-
-const facultyOptions = [
-    { value: "FIT", label: "Khoa Công nghệ Thông tin" },
-    { value: "FME", label: "Khoa Cơ khí" },
-    { value: "FEB", label: "Khoa Kinh tế" },
-    { value: "FAA", label: "Khoa Kiến trúc & Mỹ thuật" },
-];
 
 const CreateEditMajor = () => {
     const router = useRouter();
     const { query } = router;
     const [mode, setMode] = useState<"create" | "edit">("create");
 
+    const dispatch = useDispatch<AppDispatch>();
+    const { major, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.major
+    );
+    const { faculties } = useSelector((state: RootState) => state.faculty);
+
     const editor = useRef(null);
     const [state, setState] = useState<State>({
         majorId: "",
-        name: "",
-        description: "",
-        establishDate: "",
-        facultyId: "", // Khởi tạo facultyId
+        majorName: "",
+        majorDateOfEstablishment: "",
+        majorDescription: "",
+        majorStatus: "",
+        facultyId: "",
+        facultyName: "",
     });
 
     const inputHandle = (
@@ -50,38 +63,91 @@ const CreateEditMajor = () => {
     };
 
     useEffect(() => {
-        if (query.mode === "edit" && query.id) {
+        if (query.id) {
+            dispatch(getMajorDetail(query.id));
+        }
+    }, [query.id]);
+
+    useEffect(() => {
+        dispatch(getListFaculty());
+    }, []);
+
+    useEffect(() => {
+        if (major && query.id) {
             setMode("edit");
-            // Call API to get major data by ID
-            // Replace this with your actual API call
             setState({
-                majorId: "CNTT01",
-                name: "Công nghệ thông tin",
-                description: "<p>Ngành học về máy tính và phần mềm</p>",
-                establishDate: "2010-08-20",
-                facultyId: "FIT", // Example default value for edit mode
+                majorId: major.majorId,
+                majorName: major.majorName,
+                majorDateOfEstablishment: major.majorDateOfEstablishment,
+                majorDescription: major.majorDescription,
+                majorStatus: major.majorStatus,
+                facultyId: major.facultyId,
+                facultyName: major.facultyName,
             });
         } else {
             setMode("create");
             setState({
                 majorId: "",
-                name: "",
-                description: "",
-                establishDate: "",
-                facultyId: facultyOptions[0]?.value || "", // Set default to the first option if available
+                majorName: "",
+                majorDateOfEstablishment: "",
+                majorDescription: "",
+                majorStatus: "",
+                facultyId: "",
+                facultyName: "",
             });
         }
-    }, [query.mode, query.id]);
+    }, [major]);
 
     const handleSubmit = () => {
         if (mode === "create") {
-            // Call API to create major with state including facultyId
-            console.log("Creating major:", state);
+            const obj = {
+                majorId: state.majorId,
+                majorName: state.majorName,
+                facultyId: state.facultyId,
+                majorDateOfEstablishment: state.majorDateOfEstablishment,
+                majorDescription: state.majorDescription,
+                majorStatus: state.majorStatus,
+            };
+            dispatch(createMajor({ dto: obj }));
         } else {
-            // Call API to update major with state including facultyId
-            console.log("Updating major:", state);
+            const obj = {
+                majorName: state.majorName,
+                facultyId: state.facultyId,
+                majorDateOfEstablishment: state.majorDateOfEstablishment,
+                majorDescription: state.majorDescription,
+                majorStatus: state.majorStatus,
+            };
+            dispatch(updateMajor({ id: major.majorId, dto: obj }));
         }
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+
+            router.back();
+
+            // const obj = {
+            //     parPage: parseInt(parPage),
+            //     currentPage: parseInt(currentPage),
+            //     searchValue,
+            //     typeCate,
+            // };
+            // dispatch(get_category(obj));
+
+            // setState({
+            //     name: "",
+            //     image: "",
+            //     type: "",
+            // });
+            // setImageShow("");
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -95,7 +161,7 @@ const CreateEditMajor = () => {
                         <InputWithLabel
                             label="Mã ngành"
                             name="majorId"
-                            value={state.majorId}
+                            value={state.majorId || ""}
                             onChange={inputHandle}
                             type="text"
                             required
@@ -106,19 +172,20 @@ const CreateEditMajor = () => {
                         <SelectWithLabel
                             label="Chọn khoa"
                             name="facultyId"
-                            value={state.facultyId}
-                            onChange={
-                                inputHandle as React.ChangeEventHandler<HTMLSelectElement>
-                            }
-                            options={facultyOptions}
+                            value={state.facultyId || ""}
+                            onChange={inputHandle}
+                            options={faculties.map((faculty) => ({
+                                value: faculty.facultyId || "",
+                                label: faculty.facultyName || "",
+                            }))}
                             required
                         />
                     </div>
                     <div className={styles.gridItem}>
                         <InputWithLabel
                             label="Tên ngành"
-                            name="name"
-                            value={state.name}
+                            name="majorName"
+                            value={state.majorName || ""}
                             onChange={inputHandle}
                             type="text"
                             required
@@ -127,8 +194,8 @@ const CreateEditMajor = () => {
                     <div className={styles.gridItem}>
                         <InputWithLabel
                             label="Ngày thành lập"
-                            name="establishDate"
-                            value={state.establishDate}
+                            name="majorDateOfEstablishment"
+                            value={state.majorDateOfEstablishment || ""}
                             onChange={inputHandle}
                             type="date"
                         />
@@ -145,9 +212,9 @@ const CreateEditMajor = () => {
                     </TypographyBody>
                     <JoditEditor
                         ref={editor}
-                        value={state.description}
+                        value={state.majorDescription || ""}
                         onChange={(newContent) =>
-                            setState({ ...state, description: newContent })
+                            setState({ ...state, majorDescription: newContent })
                         }
                         className={styles.inputDesc}
                     />

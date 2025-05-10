@@ -115,9 +115,12 @@ const FacultyDetailPage: React.FC = () => {
                         >
                             Mô tả
                         </TypographyHeading>
-                        <p className={styles.desc}>
-                            {faculty.facultyDescription}
-                        </p>
+                        <p
+                            className={styles.desc}
+                            dangerouslySetInnerHTML={{
+                                __html: faculty.facultyDescription,
+                            }}
+                        ></p>
                     </section>
                 )}
             </BorderBox>

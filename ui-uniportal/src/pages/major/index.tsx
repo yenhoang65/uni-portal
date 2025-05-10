@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -11,32 +11,19 @@ import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
 import AuthGuard from "@/components/AuthGuard";
-
-const majors = [
-    {
-        id: "MAJ001",
-        tenKhoa: "Khoa CNTT", // Thêm tên khoa
-        name: "Công nghệ phần mềm",
-        description: "Ngành chuyên đào tạo phát triển phần mềm.",
-        establishDate: "2008-01-15",
-    },
-    {
-        id: "MAJ002",
-        tenKhoa: "Khoa Cơ khí", // Thêm tên khoa
-        name: "Kỹ thuật cơ khí",
-        description: "Đào tạo kỹ sư thiết kế và chế tạo máy móc.",
-        establishDate: "2005-03-20",
-    },
-    {
-        id: "MAJ003",
-        tenKhoa: "Khoa Kinh tế", // Thêm tên khoa
-        name: "Quản trị kinh doanh",
-        description: "Quản lý doanh nghiệp, marketing, tài chính.",
-        establishDate: "2010-10-01",
-    },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { deleteMajor, getListMajor } from "@/store/reducer/majorReducer";
+import toast from "react-hot-toast";
+import { messageClear } from "@/store/reducer/authReducer";
 
 const Major = () => {
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { majors, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.major
+    );
+
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
@@ -47,6 +34,7 @@ const Major = () => {
         if (deleteMajorId) {
             setIsModalOpen(false);
             setDeleteMajorId(null);
+            dispatch(deleteMajor(deleteMajorId));
         }
     };
 
@@ -54,6 +42,37 @@ const Major = () => {
         setIsModalOpen(false);
         setDeleteMajorId(null);
     };
+
+    useEffect(() => {
+        dispatch(getListMajor());
+    }, []);
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+
+            dispatch(getListMajor());
+            // const obj = {
+            //     parPage: parseInt(parPage),
+            //     currentPage: parseInt(currentPage),
+            //     searchValue,
+            //     typeCate,
+            // };
+            // dispatch(get_category(obj));
+
+            // setState({
+            //     name: "",
+            //     image: "",
+            //     type: "",
+            // });
+            // setImageShow("");
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -78,39 +97,29 @@ const Major = () => {
                         <table className={styles.table}>
                             <thead className={styles.thead}>
                                 <tr>
-                                    <th style={{ minWidth: "60px" }}>STT</th>
-                                    <th style={{ minWidth: "180px" }}>
-                                        Tên khoa
-                                    </th>
-                                    {/* Thêm cột Tên khoa */}
-                                    <th style={{ minWidth: "180px" }}>
-                                        Mã ngành
-                                    </th>
-                                    <th style={{ minWidth: "220px" }}>
+                                    <th style={{ width: "80px" }}>STT</th>
+                                    <th style={{ width: "100px" }}>Mã ngành</th>
+                                    <th style={{ width: "200px" }}>
                                         Tên ngành
                                     </th>
-                                    <th style={{ minWidth: "320px" }}>Mô tả</th>
-                                    <th style={{ minWidth: "160px" }}>
+                                    <th style={{ width: "100px" }}>
                                         Ngày thành lập
                                     </th>
-                                    <th style={{ minWidth: "80px" }}>
-                                        Thao tác
-                                    </th>
+                                    <th style={{ width: "80px" }}>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {majors.map((major, index) => (
-                                    <tr key={major.id}>
+                                    <tr key={major.majorId}>
                                         <td>{index + 1}</td>
-                                        <td>{major.tenKhoa}</td>
-                                        {/* Hiển thị Tên khoa */}
-                                        <td>{major.id}</td>
-                                        <td>{major.name}</td>
-                                        <td>{major.description}</td>
-                                        <td>{major.establishDate}</td>
+                                        <td>{major.majorId}</td>
+                                        <td>{major.majorName}</td>
+                                        <td>
+                                            {major.majorDateOfEstablishment}
+                                        </td>
                                         <td className={styles.buttonAction}>
                                             <Link
-                                                href={`/major/view?id=${major.id}`}
+                                                href={`/major/view?id=${major.majorId}`}
                                                 className={clsx(
                                                     styles.viewButton
                                                 )}
@@ -118,7 +127,7 @@ const Major = () => {
                                                 <FaEye />
                                             </Link>
                                             <Link
-                                                href={`/major/create-edit?id=${major.id}&mode=edit`}
+                                                href={`/major/create-edit?id=${major.majorId}&mode=edit`}
                                                 className={clsx(
                                                     styles.viewButton,
                                                     styles.viewButtonUpdate
@@ -131,7 +140,9 @@ const Major = () => {
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     setIsModalOpen(true);
-                                                    setDeleteMajorId(major.id);
+                                                    setDeleteMajorId(
+                                                        major.majorId
+                                                    );
                                                 }}
                                                 className={clsx(
                                                     styles.viewButton,
@@ -142,7 +153,8 @@ const Major = () => {
                                             </Link>
 
                                             {isModalOpen &&
-                                                deleteMajorId === major.id && (
+                                                deleteMajorId ===
+                                                    major.majorId && (
                                                     <ModalConfirm
                                                         message="Are you sure you want to delete?"
                                                         onConfirm={handleDelete}
@@ -160,7 +172,7 @@ const Major = () => {
                         <Pagination
                             pageNumber={currentPage}
                             setPageNumber={setCurrentPage}
-                            totalItem={majors.length}
+                            totalItem={majors?.length || 0}
                             parPage={parPage}
                             showItem={3}
                         />

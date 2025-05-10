@@ -7,20 +7,21 @@ import { Button } from "@/components/Button";
 import { IoIosArrowBack } from "react-icons/io";
 import { AiFillEdit } from "react-icons/ai";
 import AuthGuard from "@/components/AuthGuard";
-
-type Major = {
-    id: string;
-    maNganh: string;
-    ten: string;
-    moTa?: string;
-    ngayThanhLap: string;
-};
+import { AppDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { getMajorDetail } from "@/store/reducer/majorReducer";
 
 const MajorDetail = () => {
     const router = useRouter();
     const { query } = router;
     const { id } = query;
-    const [major, setMajor] = useState<Major | null>(null);
+
+    const dispatch = useDispatch<AppDispatch>();
+    const { major } = useSelector((state: RootState) => state.major);
+
+    useEffect(() => {
+        dispatch(getMajorDetail(id));
+    }, [id]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -35,7 +36,7 @@ const MajorDetail = () => {
                             Major Code:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            Kỹ thuật phần mềm
+                            {major.majorId}
                         </TypographyBody>
                     </div>
 
@@ -48,7 +49,7 @@ const MajorDetail = () => {
                             Name:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            Kỹ thuật phần mềm
+                            {major.majorName}
                         </TypographyBody>
                     </div>
 
@@ -61,7 +62,7 @@ const MajorDetail = () => {
                             Khoa:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            Kỹ thuật phần mềm
+                            {major.facultyName}
                         </TypographyBody>
                     </div>
 
@@ -73,24 +74,13 @@ const MajorDetail = () => {
                         >
                             Description:
                         </TypographyBody>
-                        <TypographyBody tag="span" theme="md">
-                            Lorem ipsum dolor, sit amet consectetur adipisicing
-                            elit. Inventore impedit voluptates mollitia
-                            excepturi aliquid repellat voluptas esse quidem
-                            ipsam doloribus blanditiis corporis reiciendis non,
-                            laborum, quasi aliquam. Aliquid tempora aperiam
-                            architecto similique libero provident repudiandae
-                            laborum delectus harum autem voluptates
-                            exercitationem quasi eius facere magni, doloremque
-                            eveniet praesentium veritatis voluptatibus? Ex
-                            voluptates incidunt illo dolorum, amet magni quae
-                            nemo enim! Consequatur autem sit eaque! Laborum
-                            natus, quis ab sit quas alias! Laborum, enim eveniet
-                            cumque expedita nostrum similique dolores facilis
-                            mollitia blanditiis, reprehenderit dolor fuga
-                            delectus, ab velit ullam aliquam! Amet vero, aut
-                            repellendus ut rem atque voluptatibus natus vel?
-                        </TypographyBody>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            dangerouslySetInnerHTML={{
+                                __html: major.majorDescription || "",
+                            }}
+                        ></TypographyBody>
                     </div>
 
                     <div className={styles.detailItem}>
@@ -102,7 +92,7 @@ const MajorDetail = () => {
                             Established Date:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            1/1/2025
+                            {major.majorDateOfEstablishment}
                         </TypographyBody>
                     </div>
 
@@ -118,7 +108,7 @@ const MajorDetail = () => {
                             className={styles.editButton}
                             onClick={() =>
                                 router.push(
-                                    `/major/create-edit?id=${1}&mode=edit`
+                                    `/major/create-edit?id=${major.majorId}&mode=edit`
                                 )
                             }
                         >

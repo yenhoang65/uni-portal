@@ -7,6 +7,9 @@ import { Button } from "@/components/Button";
 import { IoIosArrowBack } from "react-icons/io";
 import { AiFillEdit } from "react-icons/ai";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getSpecDetail } from "@/store/reducer/specializationReducer";
 
 type Specialization = {
     id: string;
@@ -22,9 +25,6 @@ const SpecializationDetail = () => {
     const router = useRouter();
     const { query } = router;
     const { id } = query;
-    const [specialization, setSpecialization] = useState<Specialization | null>(
-        null
-    );
 
     const dummySpecialization: Specialization = {
         id: "SPE001",
@@ -35,6 +35,17 @@ const SpecializationDetail = () => {
         moTa: "Chuyên sâu về phát triển các ứng dụng web hiện đại.",
         ngayThanhLap: "2012-05-20",
     };
+
+    const dispatch = useDispatch<AppDispatch>();
+    const { specialization } = useSelector(
+        (state: RootState) => state.specialization
+    );
+
+    useEffect(() => {
+        if (id) {
+            dispatch(getSpecDetail(id));
+        }
+    }, [id]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -51,7 +62,7 @@ const SpecializationDetail = () => {
                             Mã chuyên ngành:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {dummySpecialization.maChuyenNganh}
+                            {specialization.specializationId}
                         </TypographyBody>
                     </div>
 
@@ -64,7 +75,7 @@ const SpecializationDetail = () => {
                             Tên ngành:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {dummySpecialization.tenNganh}
+                            {specialization.majorName}
                         </TypographyBody>
                     </div>
 
@@ -77,7 +88,7 @@ const SpecializationDetail = () => {
                             Khoa:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {dummySpecialization.tenKhoa}
+                            TODO: ....
                         </TypographyBody>
                     </div>
 
@@ -90,7 +101,7 @@ const SpecializationDetail = () => {
                             Tên chuyên ngành:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {dummySpecialization.ten}
+                            {specialization.specializationName}
                         </TypographyBody>
                     </div>
 
@@ -104,7 +115,7 @@ const SpecializationDetail = () => {
                                 Mô tả:
                             </TypographyBody>
                             <TypographyBody tag="span" theme="md">
-                                {dummySpecialization.moTa}
+                                {specialization.specializationDescription}
                             </TypographyBody>
                         </div>
                     )}
@@ -118,7 +129,7 @@ const SpecializationDetail = () => {
                             Ngày thành lập:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {dummySpecialization.ngayThanhLap}
+                            {specialization.specializationDateOfEstablishment}
                         </TypographyBody>
                     </div>
 
@@ -134,7 +145,7 @@ const SpecializationDetail = () => {
                             className={styles.editButton}
                             onClick={() =>
                                 router.push(
-                                    `/specialization/create-edit?id=${dummySpecialization.id}&mode=edit`
+                                    `/specialization/create-edit?id=${specialization.specializationId}&mode=edit`
                                 )
                             }
                         >

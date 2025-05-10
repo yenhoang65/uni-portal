@@ -14,7 +14,7 @@ import ModalConfirm from "@/components/ModalConfirm";
 import AuthGuard from "@/components/AuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { getListFaculty } from "@/store/reducer/facultyReducer";
+import { deleteFaculty, getListFaculty } from "@/store/reducer/facultyReducer";
 
 const faculty = [
     {
@@ -68,7 +68,7 @@ const Faculty = () => {
 
     const handleDelete = () => {
         if (deleteFacultyId) {
-            // dispatch(delete_product(deleteFacultyId));
+            dispatch(deleteFaculty(deleteFacultyId));
             setIsModalOpen(false);
             setDeleteFacultyId(null);
         }
@@ -121,7 +121,7 @@ const Faculty = () => {
                                     </th> */}
                                     <th
                                         style={{
-                                            width: "170px",
+                                            width: "200px",
                                             textAlign: "center",
                                         }}
                                     >
@@ -179,12 +179,7 @@ const Faculty = () => {
                                                     e.preventDefault();
                                                     setIsModalOpen(true);
                                                     setDeleteFacultyId(
-                                                        faculty.facultyId !==
-                                                            null
-                                                            ? String(
-                                                                  faculty.facultyId
-                                                              )
-                                                            : null
+                                                        faculty.facultyId
                                                     );
                                                 }}
                                                 href="#"
