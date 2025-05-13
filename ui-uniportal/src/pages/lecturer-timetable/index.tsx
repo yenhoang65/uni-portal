@@ -123,7 +123,6 @@ const formatTime = (date: moment.Moment, timeStr: string): moment.Moment => {
     );
 };
 
-// Tính số buổi học từ tín chỉ và tiết/buổi
 function getTotalWeeks(cls: ClassSubjectType): number {
     const [start, end] = getLessonRange(cls.lesson_time);
     const periodsPerSession = end - start + 1;

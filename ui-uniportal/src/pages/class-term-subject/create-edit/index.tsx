@@ -6,50 +6,70 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/Button";
 import { useRouter } from "next/router";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import {
+    createTermClass,
+    getClassTermDetail,
+    messageClear,
+    updateTermClass,
+} from "@/store/reducer/classReducer";
+import toast from "react-hot-toast";
 
 type ClassTermSubjectState = {
-    term_class_id: string;
-    class_name: string;
+    termclassId: number;
+    classname: string;
     progress: string;
     semester: string;
-    school_year: string;
+    schoolyears: string;
 };
 
 const CreateEditClassTermSubject = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { classTerm, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.class
+    );
+
     const { t } = useTranslation();
     const router = useRouter();
     const { query } = router;
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [state, setState] = useState<ClassTermSubjectState>({
-        term_class_id: "",
-        class_name: "",
+        termclassId: 0,
+        classname: "",
         progress: "",
         semester: "",
-        school_year: "",
+        schoolyears: "",
     });
 
     useEffect(() => {
-        if (query.mode === "edit" && query.id) {
+        if (query.id) {
+            dispatch(getClassTermDetail(query.id));
+        }
+    }, [query.id]);
+
+    useEffect(() => {
+        if (classTerm && query.id) {
             setMode("edit");
-            // Gọi API để lấy dữ liệu class_term_subject dựa trên query.id
+
             setState({
-                term_class_id: "", // Lấy từ API
-                class_name: "",
-                progress: "",
-                semester: "",
-                school_year: "",
+                termclassId: classTerm.termclassId,
+                classname: classTerm.classname,
+                progress: classTerm.progress,
+                semester: classTerm.semester,
+                schoolyears: classTerm.schoolyears,
             });
         } else {
             setMode("create");
             setState({
-                term_class_id: "",
-                class_name: "",
+                termclassId: 0,
+                classname: "",
                 progress: "",
                 semester: "",
-                school_year: "",
+                schoolyears: "",
             });
         }
-    }, [query.mode, query.id]);
+    }, [classTerm, query.id]);
 
     const inputHandle = (e: React.ChangeEvent<HTMLInputElement>) => {
         setState({
@@ -60,13 +80,36 @@ const CreateEditClassTermSubject = () => {
 
     const handleSubmit = async () => {
         if (mode === "create") {
-            // Gọi API để tạo mới class_term_subject
-            console.log("Create:", state);
+            const obj = {
+                classname: state.classname,
+                progress: state.progress,
+                semester: state.semester,
+                schoolyears: state.schoolyears,
+            };
+            dispatch(createTermClass({ dto: obj }));
         } else if (mode === "edit") {
-            // Gọi API để cập nhật class_term_subject với ID từ query
-            console.log("Update:", state);
+            const obj = {
+                classname: state.classname,
+                progress: state.progress,
+                semester: state.semester,
+                schoolyears: state.schoolyears,
+            };
+            dispatch(updateTermClass({ id: classTerm.termclassId, dto: obj }));
         }
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+
+            router.push("/class-term-subject");
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -82,8 +125,8 @@ const CreateEditClassTermSubject = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Mã học kỳ - lớp"
-                                name="term_class_id"
-                                value={state.term_class_id}
+                                name="termclassId"
+                                value={String(state.termclassId)}
                                 type="text"
                                 required
                                 onChange={inputHandle}
@@ -94,8 +137,8 @@ const CreateEditClassTermSubject = () => {
                     <div className={styles.gridItem}>
                         <InputWithLabel
                             label="Tên lớp"
-                            name="class_name"
-                            value={state.class_name}
+                            name="classname"
+                            value={state.classname}
                             type="text"
                             required
                             onChange={inputHandle}
@@ -124,8 +167,8 @@ const CreateEditClassTermSubject = () => {
                     <div className={styles.gridItem}>
                         <InputWithLabel
                             label="Năm học"
-                            name="school_year"
-                            value={state.school_year}
+                            name="schoolyears"
+                            value={state.schoolyears}
                             type="number"
                             required
                             onChange={inputHandle}

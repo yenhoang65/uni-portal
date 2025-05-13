@@ -1,8 +1,8 @@
 .detailGrid {
     padding: 20px;
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Chia thành 2 cột bằng nhau */
-    gap: 20px; /* Khoảng cách giữa các cột và hàng */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
 }
 
 .detailItem {
@@ -13,7 +13,7 @@
 }
 
 .detailItemFull {
-    grid-column: 1 / -1; /* Chiếm toàn bộ 2 cột cho các trường dài */
+    grid-column: 1 / -1;
     display: flex;
     gap: 10px;
     align-items: flex-start;
@@ -22,16 +22,16 @@
 
 .detailLabel {
     font-weight: bold;
-    min-width: 150px; /* Điều chỉnh độ rộng nhãn cho phù hợp */
+    min-width: 150px;
 }
 
 .buttonGroup {
     margin-top: 30px;
     display: flex;
     gap: 20px;
-    justify-content: flex-end; /* Đẩy các nút sang phải */
+    justify-content: flex-end;
     align-items: center;
-    grid-column: 1 / -1; /* Nút chiếm toàn bộ 2 cột */
+    grid-column: 1 / -1;
 }
 
 .backButton {
@@ -45,6 +45,10 @@
 
 .backButton:hover {
     text-decoration: underline;
+}
+
+.detailLabel {
+    font-weight: 600 !important;
 }
 
 .backIcon {

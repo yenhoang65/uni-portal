@@ -8,35 +8,44 @@ import { TypographyBody } from "@/components/TypographyBody";
 import { Button } from "@/components/Button";
 import Image from "next/image";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import {
+    createLecturer,
+    getLecturerDetail,
+    getListLecturer,
+    messageClear,
+    updateLecturer,
+} from "@/store/reducer/lecturerReducer";
+import { getListMajor } from "@/store/reducer/majorReducer";
+import toast from "react-hot-toast";
 
-type LecturerState = {
-    user_id: string;
-    user_name: string;
-    admission_date: string;
+type Lecturer = {
+    userId: number;
+    userName: string;
+    admissionDate: Date;
     gender: string;
-    phone_number: string;
+    phoneNumber: string;
     address: string;
-    ethnic_group: string;
-    date_of_birth: string;
+    ethnicGroup: string;
+    dateOfBirth: Date;
     religion: string;
-    id_number: string;
+    idNumber: string;
     email: string;
-    place_of_birth: string;
-    permanent_resident: string;
+    placeOfBirth: string;
+    permanentResident: string;
     bank: string;
-    bank_account_owner: string;
-    bank_account_number: string;
-    major_id: string;
-    academic_degree: string;
-    graduated_from: string;
-    position: string;
-};
+    bankAccountOwner: string;
+    bankAccountNumber: string;
+    status: string;
 
-const majorOptions = [
-    { value: "MAJ001", label: "Công nghệ phần mềm" },
-    { value: "MAJ002", label: "Kỹ thuật cơ khí" },
-    { value: "MAJ003", label: "Quản trị kinh doanh" },
-];
+    academicDegree: string;
+    graduatedFrom: string;
+    position: string;
+    majorId: number;
+
+    majorName: string;
+};
 
 const genderOptions = [
     { value: "Nam", label: "Nam" },
@@ -45,6 +54,12 @@ const genderOptions = [
 ];
 
 const CreateEditLecturer = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { lecturer, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.lecturer
+    );
+    const { majors } = useSelector((state: RootState) => state.major);
+
     const router = useRouter();
     const { query } = router;
     const [mode, setMode] = useState<"create" | "edit">("create");
@@ -52,27 +67,31 @@ const CreateEditLecturer = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [fileName, setFileName] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [state, setState] = useState<LecturerState>({
-        user_id: "",
-        user_name: "",
-        admission_date: "",
-        gender: genderOptions[0]?.value || "",
-        phone_number: "",
+    const [state, setState] = useState<Lecturer>({
+        userId: 0,
+        userName: "",
+        admissionDate: new Date(),
+        gender: "",
+        phoneNumber: "",
         address: "",
-        ethnic_group: "",
-        date_of_birth: "",
+        ethnicGroup: "",
+        dateOfBirth: new Date(),
         religion: "",
-        id_number: "",
+        idNumber: "",
         email: "",
-        place_of_birth: "",
-        permanent_resident: "",
+        placeOfBirth: "",
+        permanentResident: "",
         bank: "",
-        bank_account_owner: "",
-        bank_account_number: "",
-        major_id: majorOptions[0]?.value || "",
-        academic_degree: "",
-        graduated_from: "",
+        bankAccountOwner: "",
+        bankAccountNumber: "",
+        status: "",
+
+        academicDegree: "",
+        graduatedFrom: "",
         position: "",
+        majorId: 0,
+
+        majorName: "",
     });
 
     const inputHandle = (
@@ -85,70 +104,136 @@ const CreateEditLecturer = () => {
     };
 
     useEffect(() => {
-        if (query.mode === "edit" && query.id) {
+        dispatch(getListMajor());
+    }, []);
+
+    useEffect(() => {
+        if (query.id && typeof query.id === "string") {
+            dispatch(getLecturerDetail(query.id));
+        }
+    }, [query.id]);
+
+    useEffect(() => {
+        if (lecturer && query.id) {
             setMode("edit");
-            setShowImportFile(false); // Hide import section in edit mode
-            // Call API to get lecturer data by ID
-            // Replace this with your actual API call
+            setShowImportFile(false);
+
             setState({
-                user_id: "LEC001",
-                user_name: "Nguyễn Văn A",
-                admission_date: "2023-08-01",
-                gender: "Nam",
-                phone_number: "0901234567",
-                address: "123 Đường ABC, Hà Nội",
-                ethnic_group: "Kinh",
-                date_of_birth: "1990-05-15",
-                religion: "Không",
-                id_number: "0123456789",
-                email: "nguyenvana@example.com",
-                place_of_birth: "Hà Nội",
-                permanent_resident: "Hà Nội",
-                bank: "Vietcombank",
-                bank_account_owner: "Nguyễn Văn A",
-                bank_account_number: "1234567890",
-                major_id: "MAJ001",
-                academic_degree: "Thạc sĩ",
-                graduated_from: "Đại học Bách khoa Hà Nội",
-                position: "Giảng viên",
+                userId: lecturer.userId,
+                userName: lecturer.userName,
+                admissionDate: lecturer.admissionDate,
+                gender: lecturer.gender,
+                phoneNumber: lecturer.phoneNumber,
+                address: lecturer.address,
+                ethnicGroup: lecturer.ethnicGroup,
+                dateOfBirth: lecturer.dateOfBirth,
+                religion: lecturer.religion,
+                idNumber: lecturer.idNumber,
+                email: lecturer.email,
+                placeOfBirth: lecturer.placeOfBirth,
+                permanentResident: lecturer.permanentResident,
+                bank: lecturer.bank,
+                bankAccountOwner: lecturer.bankAccountOwner,
+                bankAccountNumber: lecturer.bankAccountNumber,
+                status: lecturer.status,
+
+                academicDegree: lecturer.academicDegree,
+                graduatedFrom: lecturer.graduatedFrom,
+                position: lecturer.position,
+                majorId: lecturer.majorId,
+
+                majorName: lecturer.majorName,
             });
         } else {
             setMode("create");
             setShowImportFile(false);
             setState({
-                user_id: "",
-                user_name: "",
-                admission_date: "",
-                gender: genderOptions[0]?.value || "",
-                phone_number: "",
+                userId: 0,
+                userName: "",
+                admissionDate: new Date(),
+                gender: "",
+                phoneNumber: "",
                 address: "",
-                ethnic_group: "",
-                date_of_birth: "",
+                ethnicGroup: "",
+                dateOfBirth: new Date(),
                 religion: "",
-                id_number: "",
+                idNumber: "",
                 email: "",
-                place_of_birth: "",
-                permanent_resident: "",
+                placeOfBirth: "",
+                permanentResident: "",
                 bank: "",
-                bank_account_owner: "",
-                bank_account_number: "",
-                major_id: majorOptions[0]?.value || "",
-                academic_degree: "",
-                graduated_from: "",
+                bankAccountOwner: "",
+                bankAccountNumber: "",
+                status: "",
+
+                academicDegree: "",
+                graduatedFrom: "",
                 position: "",
+                majorId: 0,
+
+                majorName: "",
             });
             setSelectedFile(null);
             setFileName(null);
         }
-    }, [query.mode, query.id]);
+    }, [lecturer, query.id]);
+
+    const formatDate = (date: Date) =>
+        date ? new Date(date).toISOString().slice(0, 10) : "";
 
     const handleSubmit = () => {
         if (mode === "create") {
-            // Call API to create lecturer with state
-            console.log("Creating lecturer:", state);
+            const obj = {
+                userName: state.userName,
+
+                gender: state.gender,
+                phoneNumber: state.phoneNumber,
+                address: state.address,
+                ethnicGroup: state.ethnicGroup,
+                dateOfBirth: formatDate(state.dateOfBirth),
+                admissionDate: formatDate(state.admissionDate),
+                religion: state.religion,
+                idNumber: state.idNumber,
+                email: state.email,
+                placeOfBirth: state.placeOfBirth,
+                permanentResident: state.permanentResident,
+                bank: state.bank,
+                bankAccountOwner: state.bankAccountOwner,
+                bankAccountNumber: state.bankAccountNumber,
+                status: state.status,
+
+                academicDegree: state.academicDegree,
+                graduatedFrom: state.graduatedFrom,
+                position: state.position,
+                majorId: state.majorId,
+            };
+            dispatch(createLecturer({ dto: obj }));
         } else {
-            // Call API to update lecturer with state
-            console.log("Updating lecturer:", state);
+            const obj = {
+                userName: state.userName,
+
+                gender: state.gender,
+                phoneNumber: state.phoneNumber,
+                address: state.address,
+                ethnicGroup: state.ethnicGroup,
+                dateOfBirth: state.dateOfBirth,
+                admissionDate: state.admissionDate,
+                religion: state.religion,
+                idNumber: state.idNumber,
+                email: state.email,
+                placeOfBirth: state.placeOfBirth,
+                permanentResident: state.permanentResident,
+                bank: state.bank,
+                bankAccountOwner: state.bankAccountOwner,
+                bankAccountNumber: state.bankAccountNumber,
+                status: state.status,
+
+                academicDegree: state.academicDegree,
+                graduatedFrom: state.graduatedFrom,
+                position: state.position,
+                majorId: state.majorId,
+            };
+            dispatch(updateLecturer({ id: lecturer.userId, dto: obj }));
         }
     };
 
@@ -196,6 +281,19 @@ const CreateEditLecturer = () => {
             alert("Vui lòng chọn một file để import.");
         }
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+            router.push("/lecturer_management");
+            dispatch(getListLecturer());
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -284,22 +382,22 @@ const CreateEditLecturer = () => {
                     (mode === "create" && !showImportFile)) && (
                     <section className={styles.container}>
                         {/* Các input form giữ nguyên */}
-                        <div className={styles.gridItem}>
+                        {/* <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Mã giảng viên"
-                                name="user_id"
-                                value={state.user_id}
+                                name="userId"
+                                value={String(state.userId)}
                                 onChange={inputHandle}
                                 type="text"
                                 required
                                 disabled={mode === "edit"}
                             />
-                        </div>
+                        </div> */}
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Tên giảng viên"
-                                name="user_name"
-                                value={state.user_name}
+                                name="userName"
+                                value={state.userName}
                                 onChange={inputHandle}
                                 type="text"
                                 required
@@ -320,8 +418,14 @@ const CreateEditLecturer = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Ngày sinh"
-                                name="date_of_birth"
-                                value={state.date_of_birth}
+                                name="dateOfBirth"
+                                value={
+                                    state.dateOfBirth
+                                        ? new Date(state.dateOfBirth)
+                                              .toISOString()
+                                              .slice(0, 10)
+                                        : ""
+                                }
                                 onChange={inputHandle}
                                 type="date"
                             />
@@ -329,10 +433,21 @@ const CreateEditLecturer = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Số điện thoại"
-                                name="phone_number"
-                                value={state.phone_number}
+                                name="phoneNumber"
+                                value={state.phoneNumber}
                                 onChange={inputHandle}
                                 type="text"
+                            />
+                        </div>
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Địa chỉ"
+                                name="address"
+                                value={state.address}
+                                onChange={inputHandle}
+                                type="text"
+                                required
+                                disabled={mode === "edit"}
                             />
                         </div>
                         <div className={styles.gridItem}>
@@ -347,8 +462,8 @@ const CreateEditLecturer = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Số CMND/CCCD"
-                                name="id_number"
-                                value={state.id_number}
+                                name="idNumber"
+                                value={state.idNumber}
                                 onChange={inputHandle}
                                 type="text"
                             />
@@ -356,8 +471,14 @@ const CreateEditLecturer = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Ngày vào trường"
-                                name="admission_date"
-                                value={state.admission_date}
+                                name="admissionDate"
+                                value={
+                                    state.admissionDate
+                                        ? new Date(state.admissionDate)
+                                              .toISOString()
+                                              .slice(0, 10)
+                                        : ""
+                                }
                                 onChange={inputHandle}
                                 type="date"
                             />
@@ -365,8 +486,8 @@ const CreateEditLecturer = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Dân tộc"
-                                name="ethnic_group"
-                                value={state.ethnic_group}
+                                name="ethnicGroup"
+                                value={state.ethnicGroup}
                                 onChange={inputHandle}
                                 type="text"
                             />
@@ -383,8 +504,8 @@ const CreateEditLecturer = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Nơi sinh"
-                                name="place_of_birth"
-                                value={state.place_of_birth}
+                                name="placeOfBirth"
+                                value={state.placeOfBirth}
                                 onChange={inputHandle}
                                 type="text"
                             />
@@ -392,8 +513,8 @@ const CreateEditLecturer = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Thường trú"
-                                name="permanent_resident"
-                                value={state.permanent_resident}
+                                name="permanentResident"
+                                value={state.permanentResident}
                                 onChange={inputHandle}
                                 type="text"
                             />
@@ -410,8 +531,8 @@ const CreateEditLecturer = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Chủ tài khoản"
-                                name="bank_account_owner"
-                                value={state.bank_account_owner}
+                                name="bankAccountOwner"
+                                value={state.bankAccountOwner}
                                 onChange={inputHandle}
                                 type="text"
                             />
@@ -419,8 +540,8 @@ const CreateEditLecturer = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Số tài khoản"
-                                name="bank_account_number"
-                                value={state.bank_account_number}
+                                name="bankAccountNumber"
+                                value={state.bankAccountNumber}
                                 onChange={inputHandle}
                                 type="text"
                             />
@@ -428,20 +549,23 @@ const CreateEditLecturer = () => {
                         <div className={styles.gridItem}>
                             <SelectWithLabel
                                 label="Ngành"
-                                name="major_id"
-                                value={state.major_id}
+                                name="majorId"
+                                value={state.majorId}
                                 onChange={
                                     inputHandle as React.ChangeEventHandler<HTMLSelectElement>
                                 }
-                                options={majorOptions}
+                                options={majors.map((major) => ({
+                                    value: major.majorId || "",
+                                    label: major.majorName || "",
+                                }))}
                                 required
                             />
                         </div>
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Học vị"
-                                name="academic_degree"
-                                value={state.academic_degree}
+                                name="academicDegree"
+                                value={state.academicDegree}
                                 onChange={inputHandle}
                                 type="text"
                             />
@@ -449,19 +573,42 @@ const CreateEditLecturer = () => {
                         <div className={styles.gridItem}>
                             <InputWithLabel
                                 label="Tốt nghiệp từ"
-                                name="graduated_from"
-                                value={state.graduated_from}
+                                name="graduatedFrom"
+                                value={state.graduatedFrom}
                                 onChange={inputHandle}
                                 type="text"
                             />
                         </div>
                         <div className={styles.gridItem}>
-                            <InputWithLabel
+                            <SelectWithLabel
                                 label="Vị trí"
                                 name="position"
-                                value={state.position}
+                                value={state.position || "active"}
                                 onChange={inputHandle}
-                                type="text"
+                                options={[
+                                    {
+                                        value: "Giảng viên",
+                                        label: "Giảng viên",
+                                    },
+                                    {
+                                        value: "Nhân viên phòng đào tạo",
+                                        label: "Nhân viên phòng đào tạo",
+                                    },
+                                    { value: "Admin", label: "Admin" },
+                                ]}
+                            />
+                        </div>
+
+                        <div className={styles.gridItem}>
+                            <SelectWithLabel
+                                label="Trạng thái"
+                                name="status"
+                                value={state.status || "active"}
+                                onChange={inputHandle}
+                                options={[
+                                    { value: "active", label: "Active" },
+                                    { value: "inactive", label: "Inactive" },
+                                ]}
                             />
                         </div>
                     </section>

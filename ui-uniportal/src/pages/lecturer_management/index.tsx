@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -11,64 +11,35 @@ import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
 import AuthGuard from "@/components/AuthGuard";
-
-// Dữ liệu giảng viên mẫu (thay thế bằng API call thực tế)
-const lecturersData = [
-    {
-        user_id: "LEC001",
-        user_name: "Nguyễn Văn A",
-        major_id: "MAJ001",
-        major_name: "Công nghệ phần mềm",
-        position: "Giảng viên",
-        phone_number: "0901234567",
-        // Các trường khác không hiển thị
-    },
-    {
-        user_id: "LEC002",
-        user_name: "Trần Thị B",
-        major_id: "MAJ002",
-        major_name: "Kỹ thuật cơ khí",
-        position: "Phó Giáo sư",
-        phone_number: "0987654321",
-        // Các trường khác không hiển thị
-    },
-    {
-        user_id: "LEC003",
-        user_name: "Lê Văn C",
-        major_id: "MAJ001",
-        major_name: "Công nghệ phần mềm",
-        position: "Trợ giảng",
-        phone_number: "0911223344",
-        // Các trường khác không hiển thị
-    },
-    // Thêm dữ liệu giảng viên khác
-];
-
-type Lecturer = {
-    user_id: string;
-    user_name: string;
-    major_id: string;
-    major_name: string;
-    position: string;
-    phone_number: string;
-};
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import {
+    deleteLecturer,
+    getListLecturer,
+    messageClear,
+} from "@/store/reducer/lecturerReducer";
+import toast from "react-hot-toast";
 
 const LecturerManagement = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { lecturers, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.lecturer
+    );
+
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [deleteLecturerId, setDeleteLecturerId] = useState<string | null>(
+    const [deleteLecturerId, setDeleteLecturerId] = useState<number | null>(
         null
     );
 
     const handleDelete = () => {
         if (deleteLecturerId) {
-            // Gọi API để xóa giảng viên dựa trên deleteLecturerId
-            console.log("Deleting lecturer with ID:", deleteLecturerId);
-            // Sau khi xóa thành công, cập nhật lại danh sách giảng viên (ví dụ: fetch lại data hoặc lọc state hiện tại)
             setIsModalOpen(false);
             setDeleteLecturerId(null);
+
+            dispatch(deleteLecturer(deleteLecturerId));
         }
     };
 
@@ -76,6 +47,22 @@ const LecturerManagement = () => {
         setIsModalOpen(false);
         setDeleteLecturerId(null);
     };
+
+    useEffect(() => {
+        dispatch(getListLecturer());
+    }, []);
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+            dispatch(getListLecturer());
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -89,7 +76,7 @@ const LecturerManagement = () => {
                         />
 
                         <Link
-                            href="/lecturer_management/create-edit" // Đường dẫn đến trang thêm mới giảng viên
+                            href="/lecturer_management/create-edit"
                             className={styles.buttonAdd}
                         >
                             <IoMdAddCircle /> Thêm mới
@@ -119,16 +106,16 @@ const LecturerManagement = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {lecturersData.map((lecturer) => (
-                                    <tr key={lecturer.user_id}>
-                                        <td>{lecturer.user_id}</td>
-                                        <td>{lecturer.user_name}</td>
-                                        <td>{lecturer.major_name}</td>
+                                {lecturers.map((lecturer) => (
+                                    <tr key={lecturer.userId}>
+                                        <td>{lecturer.userId}</td>
+                                        <td>{lecturer.userName}</td>
+                                        <td>{lecturer.majorName}</td>
                                         <td>{lecturer.position}</td>
-                                        <td>{lecturer.phone_number}</td>
+                                        <td>{lecturer.phoneNumber}</td>
                                         <td className={styles.buttonAction}>
                                             <Link
-                                                href={`/lecturer_management/view?id=${lecturer.user_id}`} // Đường dẫn xem chi tiết
+                                                href={`/lecturer_management/view?id=${lecturer.userId}`} // Đường dẫn xem chi tiết
                                                 className={clsx(
                                                     styles.viewButton
                                                 )}
@@ -136,7 +123,7 @@ const LecturerManagement = () => {
                                                 <FaEye />
                                             </Link>
                                             <Link
-                                                href={`/lecturer_management/create-edit?id=${lecturer.user_id}&mode=edit`} // Đường dẫn chỉnh sửa
+                                                href={`/lecturer_management/create-edit?id=${lecturer.userId}&mode=edit`} // Đường dẫn chỉnh sửa
                                                 className={clsx(
                                                     styles.viewButton,
                                                     styles.viewButtonUpdate
@@ -150,7 +137,7 @@ const LecturerManagement = () => {
                                                     e.preventDefault();
                                                     setIsModalOpen(true);
                                                     setDeleteLecturerId(
-                                                        lecturer.user_id
+                                                        lecturer.userId
                                                     );
                                                 }}
                                                 className={clsx(
@@ -163,7 +150,7 @@ const LecturerManagement = () => {
 
                                             {isModalOpen &&
                                                 deleteLecturerId ===
-                                                    lecturer.user_id && (
+                                                    lecturer.userId && (
                                                     <ModalConfirm
                                                         message="Bạn có chắc chắn muốn xóa giảng viên này?"
                                                         onConfirm={handleDelete}
@@ -181,7 +168,7 @@ const LecturerManagement = () => {
                         <Pagination
                             pageNumber={currentPage}
                             setPageNumber={setCurrentPage}
-                            totalItem={lecturersData.length}
+                            totalItem={lecturers.length}
                             parPage={parPage}
                             showItem={3}
                         />

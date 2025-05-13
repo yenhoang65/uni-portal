@@ -5,81 +5,99 @@ import { Button } from "@/components/Button";
 import styles from "./styles.module.css";
 import { TypographyBody } from "@/components/TypographyBody";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import {
+    createActiveTimeRegisStu,
+    deleteActiveTimeRegisStu,
+    getListActiveTimeStudent,
+} from "@/store/reducer/activateTimeReducer";
+import SelectWithLabel from "@/components/SelectWithLabel";
+import toast from "react-hot-toast";
+import { messageClear } from "@/store/reducer/activateTimeReducer";
+import clsx from "clsx";
+import Link from "next/link";
+import { MdDeleteForever } from "react-icons/md";
+import ModalConfirm from "@/components/ModalConfirm";
 
-interface RegistrationTime {
-    id: string;
-    startTime: string;
-    endTime: string;
-    createdAt: string;
-}
-
+type ActivateTime = {
+    schoolYear: number;
+    semester: number;
+    startDate: Date;
+    endDate: Date;
+    // status: string | null;
+};
 const RegistrationTimeActivation = () => {
-    const [startTime, setStartTime] = useState<string>("");
-    const [endTime, setEndTime] = useState<string>("");
-    const [activatedTimes, setActivatedTimes] = useState<RegistrationTime[]>(
-        []
+    const dispatch = useDispatch<AppDispatch>();
+
+    const {
+        activeTimeStudents,
+        activeTimeStudent,
+        successMessage,
+        errorMessage,
+    } = useSelector((state: RootState) => state.activateTime);
+
+    const [state, setState] = useState<ActivateTime>({
+        schoolYear: new Date(Date.now()).getFullYear(),
+        semester: 0,
+        startDate: new Date(new Date().setDate(new Date().getDate() + 3)),
+        endDate: new Date(new Date().setDate(new Date().getDate() + 7)),
+        // status: null,
+    });
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [deleteActiveTimeId, setDeleteActiveTimeId] = useState<number | null>(
+        null
     );
 
-    const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setStartTime(e.target.value);
+    const inputHandle = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    ) => {
+        setState({
+            ...state,
+            [e.target.name]: e.target.value,
+        });
     };
 
-    const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEndTime(e.target.value);
-    };
+    useEffect(() => {
+        dispatch(getListActiveTimeStudent());
+    }, []);
 
     const handleActivateTime = () => {
-        if (
-            !startTime ||
-            !endTime ||
-            new Date(startTime) >= new Date(endTime)
-        ) {
-            alert("Thời gian bắt đầu và kết thúc không hợp lệ.");
-            return;
-        }
-
-        const newActivation: Omit<RegistrationTime, "id" | "createdAt"> = {
-            startTime,
-            endTime,
+        const obj = {
+            schoolYear: state.schoolYear,
+            semester: state.semester,
+            startDate: state.startDate,
+            endDate: state.endDate,
         };
-
-        // Gọi API để gửi dữ liệu kích hoạt lên server
-        // Sau khi API thành công, cập nhật state activatedTimes
-        console.log("Kích hoạt thời gian:", newActivation);
-        // Ví dụ giả định API trả về một bản ghi đã có ID và createdAt
-        const mockResponse: RegistrationTime = {
-            id: Math.random().toString(36).substring(7),
-            startTime,
-            endTime,
-            createdAt: new Date().toISOString(),
-        };
-        setActivatedTimes([...activatedTimes, mockResponse]);
-
-        // Reset form
-        setStartTime("");
-        setEndTime("");
+        dispatch(createActiveTimeRegisStu({ dto: obj }));
     };
 
-    // useEffect để gọi API lấy danh sách thời gian đã kích hoạt khi component mount
+    const handleDelete = () => {
+        if (deleteActiveTimeId) {
+            dispatch(deleteActiveTimeRegisStu(deleteActiveTimeId));
+            setIsModalOpen(false);
+            setDeleteActiveTimeId(null);
+        }
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+        setDeleteActiveTimeId(null);
+    };
+
     useEffect(() => {
-        // Gọi API để lấy danh sách thời gian đã kích hoạt từ server
-        // Ví dụ giả định API trả về một mảng các đối tượng RegistrationTime
-        const mockData: RegistrationTime[] = [
-            {
-                id: "1",
-                startTime: "2025-04-20T08:00",
-                endTime: "2025-04-25T17:00",
-                createdAt: "2025-04-18T09:00",
-            },
-            {
-                id: "2",
-                startTime: "2025-05-01T10:00",
-                endTime: "2025-05-05T16:00",
-                createdAt: "2025-04-18T09:30",
-            },
-        ];
-        setActivatedTimes(mockData);
-    }, []);
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+
+            dispatch(getListActiveTimeStudent());
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -88,17 +106,36 @@ const RegistrationTimeActivation = () => {
                     <InputWithLabel
                         label="Ngày giờ Bắt đầu"
                         type="datetime-local"
-                        value={startTime}
-                        onChange={handleStartTimeChange}
+                        name="startDate"
+                        value={state.startDate.toISOString().slice(0, 16)}
+                        onChange={inputHandle}
                         required
                     />
                     <InputWithLabel
                         label="Ngày giờ Kết thúc"
                         type="datetime-local"
-                        value={endTime}
-                        onChange={handleEndTimeChange}
+                        name="endDate"
+                        value={state.endDate.toISOString().slice(0, 16)}
+                        onChange={inputHandle}
                         required
                     />
+                    <InputWithLabel
+                        label="Kỳ học"
+                        type="number"
+                        name="semester"
+                        value={String(state.semester)}
+                        onChange={inputHandle}
+                        required
+                    />
+                    <InputWithLabel
+                        label="Năm học"
+                        type="number"
+                        name="schoolYear"
+                        value={String(state.schoolYear)}
+                        onChange={inputHandle}
+                        required
+                    />
+
                     <Button
                         onClick={handleActivateTime}
                         className={styles.activateButton}
@@ -115,36 +152,72 @@ const RegistrationTimeActivation = () => {
                     >
                         Danh sách Thời gian đã kích hoạt
                     </TypographyBody>
-                    {activatedTimes.length > 0 ? (
+                    {activeTimeStudents.length > 0 ? (
                         <table className={styles.activatedTable}>
                             <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Thời gian Bắt đầu</th>
                                     <th>Thời gian Kết thúc</th>
-                                    <th>Ngày Kích hoạt</th>
+                                    <th>Kỳ học - Năm học</th>
+                                    <th>Trạng thái</th>
+                                    <th style={{ minWidth: "70px" }}>
+                                        Hành động
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {activatedTimes.map((time) => (
+                                {activeTimeStudents.map((time) => (
                                     <tr key={time.id}>
                                         <td>{time.id}</td>
                                         <td>
                                             {new Date(
-                                                time.startTime
+                                                time.startDate
                                             ).toLocaleString()}
                                         </td>
                                         <td>
                                             {new Date(
-                                                time.endTime
+                                                time.endDate
                                             ).toLocaleString()}
                                         </td>
+
                                         <td>
-                                            {new Date(
-                                                time.createdAt
-                                            ).toLocaleString()}
+                                            {`${time.semester} - ${time.schoolYear}`}
                                         </td>
-                                        {/* Thêm các cột khác nếu cần */}
+                                        <td>{time.status}</td>
+                                        <td
+                                            className={clsx(
+                                                styles.buttonAction,
+                                                styles.tableCell
+                                            )}
+                                        >
+                                            <Link
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setIsModalOpen(true);
+                                                    setDeleteActiveTimeId(
+                                                        time.id
+                                                    );
+                                                }}
+                                                href="#"
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.viewButtonDelete
+                                                )}
+                                            >
+                                                <MdDeleteForever />
+                                            </Link>
+
+                                            {isModalOpen &&
+                                                deleteActiveTimeId ===
+                                                    time.id && (
+                                                    <ModalConfirm
+                                                        message="Bạn có chắc chắn muốn xóa khoảng thời gian kích hoạt này?"
+                                                        onConfirm={handleDelete}
+                                                        onCancel={handleCancel}
+                                                    />
+                                                )}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

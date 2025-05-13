@@ -166,6 +166,13 @@ export const allNav = [
                 role: ["admin"],
                 path: "/class-term-subject",
             },
+            {
+                id: 21,
+                title: "Quản lý lớp học chủ nhiệm",
+                icon: <AiOutlineHome />,
+                role: ["admin", "employee"],
+                path: "/class_official",
+            },
         ],
     },
     {

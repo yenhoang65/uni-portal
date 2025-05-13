@@ -16,7 +16,7 @@ const Pagination: React.FC<PaginationProps> = ({
     parPage,
     showItem,
 }) => {
-    let totalPage = Math.ceil(totalItem / parPage);
+    const totalPage = Math.ceil(totalItem / parPage);
     let startPage = pageNumber;
     let dif = totalPage - pageNumber;
 
@@ -28,7 +28,7 @@ const Pagination: React.FC<PaginationProps> = ({
         startPage = 1;
     }
 
-    let endPage = showItem + startPage;
+    let endPage = startPage + showItem;
 
     const createButton = () => {
         const btns = [];
@@ -36,7 +36,7 @@ const Pagination: React.FC<PaginationProps> = ({
             btns.push(
                 <li
                     key={i}
-                    onClick={() => setPageNumber(i)}
+                    onClick={() => setPageNumber(i)} // Cập nhật trang khi nhấn
                     className={
                         pageNumber === i
                             ? `${styles.pageButton} ${styles.active}`

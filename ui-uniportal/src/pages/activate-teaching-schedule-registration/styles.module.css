@@ -1,7 +1,7 @@
 .activationForm {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Chia thành hai cột bằng nhau cho input */
-    gap: 20px; /* Khoảng cách giữa các ô grid */
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
     padding: 20px;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
@@ -10,7 +10,7 @@
 
 .inputGroup {
     display: flex;
-    flex-direction: column; /* Sắp xếp label và input theo chiều dọc */
+    flex-direction: column;
 }
 
 .inputGroup label {
@@ -27,6 +27,7 @@
 
 .activateButton {
     width: 150px;
+    cursor: pointer;
 }
 
 .activateButton:hover {

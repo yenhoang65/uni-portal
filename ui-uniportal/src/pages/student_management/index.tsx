@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -12,82 +12,109 @@ import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
 import SelectWithLabel from "@/components/SelectWithLabel";
 import AuthGuard from "@/components/AuthGuard";
-
-const studentsData = [
-    {
-        user_id: "STU001",
-        user_name: "Nguyễn Thị A",
-        class_id: "DHCNTT1A",
-        specialization_id: "SE",
-        specialization_name: "Kỹ thuật phần mềm",
-    },
-    {
-        user_id: "STU002",
-        user_name: "Lê Văn B",
-        class_id: "DHCB2B",
-        specialization_id: "ME",
-        specialization_name: "Cơ điện tử",
-    },
-    {
-        user_id: "STU003",
-        user_name: "Phạm Thu C",
-        class_id: "DHQTKD3C",
-        specialization_id: "BA",
-        specialization_name: "Quản trị kinh doanh",
-    },
-];
-
-const classOptionsData = [
-    { value: "", label: "Tất cả các lớp" },
-    { value: "DHCNTT1A", label: "DHCNTT1A" },
-    { value: "DHCB2B", label: "DHCB2B" },
-    { value: "DHQTKD3C", label: "DHQTKD3C" },
-];
-
-type Student = {
-    user_id: string;
-    user_name: string;
-    class_id: string;
-    specialization_id: string;
-    specialization_name: string;
-};
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getListClassOffical } from "@/store/reducer/classReducer";
+import {
+    deleteStudent,
+    filterStudent,
+    getListStudent,
+    messageClear,
+} from "@/store/reducer/studentReducer";
+import toast from "react-hot-toast";
 
 const StudentManagement = () => {
-    const [currentPage, setCurrentPage] = useState(1);
+    const dispatch = useDispatch<AppDispatch>();
+    const { classOfficals } = useSelector((state: RootState) => state.class);
+    const { students, totalStudent, successMessage, errorMessage } =
+        useSelector((state: RootState) => state.student);
+
+    const [currentPage, setCurrentPage] = useState(0);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [deleteStudentId, setDeleteStudentId] = useState<string | null>(null);
-    const [students, setStudents] = useState<Student[]>(studentsData); // State quản lý danh sách sinh viên
-    const [filterClass, setFilterClass] = useState("");
+    const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
+
+    const [selectedClass, setSelectedClass] = useState("");
+
+    useEffect(() => {
+        dispatch(getListClassOffical());
+    }, []);
+
+    useEffect(() => {
+        dispatch(
+            getListStudent({
+                perPage: parPage,
+                currentPage: currentPage,
+                searchValue: searchValue,
+            })
+        );
+    }, [parPage, currentPage, searchValue]);
 
     const handleDelete = () => {
         if (deleteStudentId) {
-            // Gọi API để xóa sinh viên dựa trên deleteStudentId
-            console.log("Deleting student with ID:", deleteStudentId);
-            // Sau khi xóa thành công, cập nhật lại danh sách sinh viên
+            dispatch(deleteStudent(deleteStudentId));
             setIsModalOpen(false);
             setDeleteStudentId(null);
-            // Cập nhật state students (ví dụ: lọc bỏ sinh viên đã xóa)
-            setStudents(
-                students.filter(
-                    (student) => student.user_id !== deleteStudentId
-                )
-            );
         }
-    };
-
-    const handleFilterClassChange = (
-        e: React.ChangeEvent<HTMLSelectElement>
-    ) => {
-        setFilterClass(e.target.value);
-        setCurrentPage(1); // Reset về trang đầu tiên khi thay đổi bộ lọc
     };
 
     const handleCancel = () => {
         setIsModalOpen(false);
         setDeleteStudentId(null);
     };
+
+    const handleClassFilterChange = (
+        e: React.ChangeEvent<HTMLSelectElement>
+    ) => {
+        const selectedValue = e.target.value;
+        setSelectedClass(selectedValue);
+
+        if (selectedValue === "") {
+            dispatch(
+                getListStudent({
+                    perPage: parPage,
+                    currentPage: currentPage,
+                    searchValue: searchValue,
+                })
+            );
+        } else {
+            dispatch(filterStudent(selectedValue));
+        }
+    };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+
+            dispatch(
+                getListStudent({
+                    perPage: parPage,
+                    currentPage: currentPage,
+                    searchValue: searchValue,
+                })
+            );
+            // const obj = {
+            //     parPage: parseInt(parPage),
+            //     currentPage: parseInt(currentPage),
+            //     searchValue,
+            //     typeCate,
+            // };
+            // dispatch(get_category(obj));
+
+            // setState({
+            //     name: "",
+            //     image: "",
+            //     type: "",
+            // });
+            // setImageShow("");
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -102,10 +129,19 @@ const StudentManagement = () => {
                             />
 
                             <SelectWithLabel
-                                name="gender"
-                                value={filterClass}
-                                onChange={handleFilterClassChange}
-                                options={classOptionsData}
+                                name="classId"
+                                value={selectedClass}
+                                onChange={handleClassFilterChange}
+                                options={[
+                                    { value: "", label: "Tất cả" },
+                                    ...classOfficals.map((classOffical) => ({
+                                        value: String(
+                                            classOffical.classId ?? ""
+                                        ),
+                                        label:
+                                            String(classOffical.classId) ?? "",
+                                    })),
+                                ]}
                             />
                         </div>
 
@@ -135,15 +171,15 @@ const StudentManagement = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {studentsData.map((student) => (
-                                    <tr key={student.user_id}>
-                                        <td>{student.user_id}</td>
-                                        <td>{student.user_name}</td>
-                                        <td>{student.class_id}</td>
-                                        <td>{student.specialization_name}</td>
+                                {students.map((student) => (
+                                    <tr key={student.userId}>
+                                        <td>{student.userId}</td>
+                                        <td>{student.userName}</td>
+                                        <td>{student.classId}</td>
+                                        <td>{student.specializationName}</td>
                                         <td className={styles.buttonAction}>
                                             <Link
-                                                href={`/student_management/view?id=${student.user_id}`} // Đường dẫn xem chi tiết
+                                                href={`/student_management/view?id=${student.userId}`} // Đường dẫn xem chi tiết
                                                 className={clsx(
                                                     styles.viewButton
                                                 )}
@@ -151,7 +187,7 @@ const StudentManagement = () => {
                                                 <FaEye />
                                             </Link>
                                             <Link
-                                                href={`/student_management/create-edit?id=${student.user_id}&mode=edit`} // Đường dẫn chỉnh sửa
+                                                href={`/student_management/create-edit?id=${student.userId}&mode=edit`} // Đường dẫn chỉnh sửa
                                                 className={clsx(
                                                     styles.viewButton,
                                                     styles.viewButtonUpdate
@@ -165,7 +201,7 @@ const StudentManagement = () => {
                                                     e.preventDefault();
                                                     setIsModalOpen(true);
                                                     setDeleteStudentId(
-                                                        student.user_id
+                                                        student.userId
                                                     );
                                                 }}
                                                 className={clsx(
@@ -178,7 +214,7 @@ const StudentManagement = () => {
 
                                             {isModalOpen &&
                                                 deleteStudentId ===
-                                                    student.user_id && (
+                                                    student.userId && (
                                                     <ModalConfirm
                                                         message="Bạn có chắc chắn muốn xóa sinh viên này?"
                                                         onConfirm={handleDelete}
@@ -193,13 +229,19 @@ const StudentManagement = () => {
                     </div>
 
                     <div className={styles.paginationWrapper}>
-                        <Pagination
-                            pageNumber={currentPage}
-                            setPageNumber={setCurrentPage}
-                            totalItem={studentsData.length}
-                            parPage={parPage}
-                            showItem={3}
-                        />
+                        {totalStudent <= parPage ? (
+                            ""
+                        ) : (
+                            <Pagination
+                                pageNumber={currentPage + 1}
+                                setPageNumber={(page) =>
+                                    setCurrentPage(page - 1)
+                                }
+                                totalItem={totalStudent}
+                                parPage={parPage}
+                                showItem={3}
+                            />
+                        )}
                     </div>
                 </div>
             </BorderBox>

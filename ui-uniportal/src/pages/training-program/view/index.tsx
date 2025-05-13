@@ -10,6 +10,8 @@ import Modal from "@/components/Modal";
 import SelectWithLabel from "@/components/SelectWithLabel";
 import { TypographyBody } from "@/components/TypographyBody";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
 
 type TrainingProgram = {
     training_program_id: string;
@@ -31,11 +33,12 @@ type Intermediary = {
 };
 
 const ViewTrainingProgram = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { role } = useSelector((state: RootState) => state.auth);
+
     const router = useRouter();
     const { id } = router.query;
-    // const [trainingProgram, setTrainingProgram] =
-    //     useState<TrainingProgram | null>(null);
-    // const [subjects, setSubjects] = useState<Subject[]>([]);
+
     const [intermediaryData, setIntermediaryData] = useState<Intermediary[]>(
         []
     );
@@ -45,11 +48,6 @@ const ViewTrainingProgram = () => {
     >([]);
 
     const [isOpenModal, setIsOpenModal] = useState(false);
-
-    const user = {
-        role: "adminq",
-    };
-    const isStudent = user?.role === "student";
 
     useEffect(() => {
         if (id) {
@@ -169,26 +167,36 @@ const ViewTrainingProgram = () => {
                         </div>
                     </div>
 
-                    {!isStudent && (
+                    {role !== "student" && (
                         <div
                             className={styles.buttonAdd}
                             onClick={() => {
                                 setIsOpenModal(true);
                             }}
                         >
-                            <IoMdAddCircle /> Thêm mới
+                            <IoMdAddCircle /> Chỉnh sửa
                         </div>
                     )}
                 </div>
 
-                <TypographyHeading
-                    tag="h5"
-                    theme="xl"
-                    color="var(--secondary-blue)"
-                    className={styles.headingSubject}
-                >
-                    Các môn học trong chương trình
-                </TypographyHeading>
+                <div className={styles.action}>
+                    <TypographyHeading
+                        tag="h5"
+                        theme="xl"
+                        color="var(--secondary-blue)"
+                        className={styles.headingSubject}
+                    >
+                        Các môn học trong chương trình
+                    </TypographyHeading>
+                    <div
+                        className={styles.buttonAddSubject}
+                        onClick={() => {
+                            setIsOpenModal(true);
+                        }}
+                    >
+                        Thêm môn học
+                    </div>
+                </div>
                 {subjects.length > 0 ? (
                     <div className={styles.tableWrapper}>
                         <table className={styles.table}>
@@ -198,7 +206,7 @@ const ViewTrainingProgram = () => {
                                     <th>Tên học phần</th>
                                     <th>Loại môn học</th>
                                     <th>Môn học phụ thuộc</th>
-                                    {!isStudent && <th>Hành động</th>}
+                                    {role !== "student" && <th>Hành động</th>}
                                 </tr>
                             </thead>
                             <tbody>
@@ -210,7 +218,7 @@ const ViewTrainingProgram = () => {
                                         <td>
                                             {subject.prerequisite_for || "-"}
                                         </td>
-                                        {!isStudent && (
+                                        {role !== "student" && (
                                             <td>
                                                 <Button
                                                     className={

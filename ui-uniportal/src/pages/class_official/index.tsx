@@ -13,18 +13,53 @@ import ModalConfirm from "@/components/ModalConfirm";
 import AuthGuard from "@/components/AuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import {
-    deleteTermClass,
-    getListTermClass,
-    messageClear,
-} from "@/store/reducer/classReducer";
-import toast from "react-hot-toast";
+import { getListClassOffical } from "@/store/reducer/classReducer";
 
-const ClassTermSubject = () => {
+const classTerms = [
+    {
+        id: "CT001",
+        class_name: 101,
+        progress: 75,
+        semester: 1,
+        school_year: 2024,
+    },
+    {
+        id: "CT002",
+        class_name: 102,
+        progress: 90,
+        semester: 2,
+        school_year: 2025,
+    },
+    {
+        id: "CT003",
+        class_name: 201,
+        progress: 60,
+        semester: 1,
+        school_year: 2023,
+    },
+    {
+        id: "CT004",
+        class_name: 202,
+        progress: 80,
+        semester: 2,
+        school_year: 2024,
+    },
+    {
+        id: "CT005",
+        class_name: 101,
+        progress: 85,
+        semester: 1,
+        school_year: 2022,
+    },
+];
+
+const ClassOffical = () => {
     const dispatch = useDispatch<AppDispatch>();
 
-    const { classTerms, successMessage, errorMessage } = useSelector(
-        (state: RootState) => state.class
+    const { classOfficals } = useSelector((state: RootState) => state.class);
+    const { lecturers } = useSelector((state: RootState) => state.lecturer);
+    const { trainingPrograms } = useSelector(
+        (state: RootState) => state.trainingProgram
     );
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -36,12 +71,11 @@ const ClassTermSubject = () => {
     );
 
     useEffect(() => {
-        dispatch(getListTermClass());
+        dispatch(getListClassOffical());
     }, []);
 
     const handleDelete = () => {
         if (deleteClassTermId) {
-            dispatch(deleteTermClass(deleteClassTermId));
             setIsModalOpen(false);
             setDeleteClassTermId(null);
         }
@@ -52,22 +86,9 @@ const ClassTermSubject = () => {
         setDeleteClassTermId(null);
     };
 
-    useEffect(() => {
-        if (successMessage) {
-            toast.success(successMessage);
-            dispatch(messageClear());
-
-            dispatch(getListTermClass());
-        }
-        if (errorMessage) {
-            toast.error(errorMessage);
-            dispatch(messageClear());
-        }
-    }, [successMessage, errorMessage]);
-
     return (
         <AuthGuard allowedRoles={["admin"]}>
-            <BorderBox title="Class Term Management">
+            <BorderBox title="Class Offical">
                 <div className={styles.box}>
                     <div className={styles.add}>
                         <Search
@@ -76,10 +97,7 @@ const ClassTermSubject = () => {
                             searchValue={searchValue}
                         />
 
-                        <Link
-                            href={"/class-term-subject/create-edit"} // Adjust the link as needed
-                            className={styles.buttonAdd}
-                        >
+                        <Link href={""} className={styles.buttonAdd}>
                             <IoMdAddCircle /> Add New
                         </Link>
                     </div>
@@ -88,33 +106,29 @@ const ClassTermSubject = () => {
                         <table className={styles.table}>
                             <thead className={styles.thead}>
                                 <tr>
-                                    <th style={{ minWidth: "80px" }}>No</th>
-                                    <th style={{ minWidth: "150px" }}>
-                                        Class Name
+                                    <th style={{ width: "80px" }}>No</th>
+                                    <th style={{ width: "150px" }}>Class ID</th>
+                                    <th style={{ minWidth: "120px" }}>GVCN</th>
+                                    <th style={{ width: "420px" }}>
+                                        Training Program
                                     </th>
-                                    <th style={{ minWidth: "120px" }}>
-                                        Progress
-                                    </th>
-                                    <th style={{ minWidth: "120px" }}>
-                                        Semester
-                                    </th>
-                                    <th style={{ minWidth: "150px" }}>
+                                    <th style={{ width: "150px" }}>
                                         School Year
                                     </th>
                                     <th style={{ minWidth: "70px" }}>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {classTerms.map((term, index) => (
-                                    <tr key={term.termclassId}>
-                                        <td>{term.termclassId}</td>
-                                        <td>{term.classname}</td>
-                                        <td>{term.progress}</td>
-                                        <td>{term.semester}</td>
-                                        <td>{term.schoolyears}</td>
+                                {classOfficals.map((term, index) => (
+                                    <tr key={term.classId}>
+                                        <td>{index + 1}</td>
+                                        <td>{term.classId}</td>
+                                        <td>{term.lecturerName}</td>
+                                        <td>{term.trainingProgramName}</td>
+                                        <td>{term.schoolYear}</td>
                                         <td className={styles.buttonAction}>
                                             <Link
-                                                href={`/class-term-subject/view?id=${term.termclassId}`}
+                                                href={`/class-term-subject/view?id=${term.classId}`}
                                                 className={clsx(
                                                     styles.viewButton
                                                 )}
@@ -122,7 +136,7 @@ const ClassTermSubject = () => {
                                                 <FaEye />
                                             </Link>
                                             <Link
-                                                href={`/class-term-subject/create-edit?id=${term.termclassId}&mode=edit`}
+                                                href={`/class-term-subject/create-edit?id=${term.classId}&mode=edit`}
                                                 className={clsx(
                                                     styles.viewButton,
                                                     styles.viewButtonUpdate
@@ -136,7 +150,7 @@ const ClassTermSubject = () => {
                                                     e.preventDefault();
                                                     setIsModalOpen(true);
                                                     setDeleteClassTermId(
-                                                        term.termclassId
+                                                        term.classId
                                                     );
                                                 }}
                                                 className={clsx(
@@ -149,7 +163,7 @@ const ClassTermSubject = () => {
 
                                             {isModalOpen &&
                                                 deleteClassTermId ===
-                                                    term.termclassId && (
+                                                    term.classId && (
                                                     <ModalConfirm
                                                         message="Are you sure you want to delete?"
                                                         onConfirm={handleDelete}
@@ -188,4 +202,4 @@ const ClassTermSubject = () => {
     );
 };
 
-export default ClassTermSubject;
+export default ClassOffical;

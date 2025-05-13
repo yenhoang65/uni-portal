@@ -3,23 +3,23 @@ import styles from "./styles.module.css";
 import BorderBox from "@/components/BorderBox";
 import { TypographyHeading } from "@/components/TypographyHeading";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { useRouter } from "next/router";
+import { getClassTermDetail } from "@/store/reducer/classReducer";
+import { useEffect } from "react";
 
 const ClassTermSubjectDetailPage: React.FC = () => {
-    const classTermSubject = {
-        term_class_id: 456,
-        class_name: 101,
-        progress: 80,
-        semester: 1,
-        school_year: 2024,
-    };
+    const dispatch = useDispatch<AppDispatch>();
+    const { classTerm } = useSelector((state: RootState) => state.class);
+    const router = useRouter();
+    const { id } = router.query;
 
-    const {
-        term_class_id: id,
-        class_name,
-        progress,
-        semester,
-        school_year,
-    } = classTermSubject;
+    useEffect(() => {
+        if (id) {
+            dispatch(getClassTermDetail(id));
+        }
+    }, [id]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -34,7 +34,9 @@ const ClassTermSubjectDetailPage: React.FC = () => {
                         >
                             Thông tin Học kỳ - Môn học
                         </TypographyHeading>
-                        <p className={styles.detailId}>ID: {id}</p>
+                        <p className={styles.detailId}>
+                            ID: {classTerm.termclassId}
+                        </p>
                     </div>
                 </header>
 
@@ -48,32 +50,24 @@ const ClassTermSubjectDetailPage: React.FC = () => {
                         Thông tin chung
                     </TypographyHeading>
                     <div className={styles.infoGrid}>
-                        {class_name && (
-                            <div className={styles.infoItem}>
-                                <strong>Mã lớp:</strong> {class_name}
-                            </div>
-                        )}
-                        {progress !== undefined && (
-                            <div className={styles.infoItem}>
-                                <strong>Tiến độ:</strong> {progress}%
-                            </div>
-                        )}
-                        {semester !== undefined && (
-                            <div className={styles.infoItem}>
-                                <strong>Học kỳ:</strong> {semester}
-                            </div>
-                        )}
-                        {school_year !== undefined && (
-                            <div className={styles.infoItem}>
-                                <strong>Năm học:</strong> {school_year}
-                            </div>
-                        )}
+                        <div className={styles.infoItem}>
+                            <strong>Mã lớp:</strong> {classTerm.classname}
+                        </div>
+                        <div className={styles.infoItem}>
+                            <strong>Tiến độ:</strong> {classTerm.progress}
+                        </div>
+                        <div className={styles.infoItem}>
+                            <strong>Học kỳ:</strong> {classTerm.semester}
+                        </div>
+                        <div className={styles.infoItem}>
+                            <strong>Năm học:</strong> {classTerm.schoolyears}
+                        </div>
                     </div>
                 </section>
 
                 <div className={styles.actionButtons}>
                     <Link
-                        href={`/class-term-subject/edit?id=${id}`}
+                        href={`/class-term-subject/create-edit?id=${classTerm.termclassId}&mode=edit`}
                         className={styles.editButton}
                     >
                         Chỉnh sửa

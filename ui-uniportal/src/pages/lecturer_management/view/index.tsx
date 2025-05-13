@@ -7,75 +7,27 @@ import { Button } from "@/components/Button";
 import { IoIosArrowBack } from "react-icons/io";
 import { AiFillEdit } from "react-icons/ai";
 import AuthGuard from "@/components/AuthGuard";
-
-type LecturerDetailType = {
-    user_id: string;
-    user_name: string;
-    password?: string;
-    admission_date?: string;
-    gender?: string;
-    phone_number?: string;
-    address?: string;
-    ethnic_group?: string;
-    date_of_birth?: string;
-    religion?: string;
-    id_number?: string;
-    email?: string;
-    place_of_birth?: string;
-    permanent_resident?: string;
-    bank?: string;
-    bank_account_owner?: string;
-    bank_account_number?: string;
-    role?: string;
-    major_id?: string;
-    major_name?: string; // Tên ngành (nếu có liên kết)
-    academic_degree?: string;
-    graduated_from?: string;
-    position?: string;
-};
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getLecturerDetail } from "@/store/reducer/lecturerReducer";
 
 const LecturerDetail = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { lecturer } = useSelector((state: RootState) => state.lecturer);
+
     const router = useRouter();
     const { query } = router;
     const { id } = query;
-    const [lecturer, setLecturer] = useState<LecturerDetailType | null>(null);
-
-    const dummyLecturer: LecturerDetailType = {
-        user_id: "LEC001",
-        user_name: "Nguyễn Văn A",
-        admission_date: "2023-08-01",
-        gender: "Nam",
-        phone_number: "0901234567",
-        address: "123 Đường ABC, Hà Nội",
-        ethnic_group: "Kinh",
-        date_of_birth: "1990-05-15",
-        religion: "Không",
-        id_number: "0123456789",
-        email: "nguyenvana@example.com",
-        place_of_birth: "Hà Nội",
-        permanent_resident: "Hà Nội",
-        bank: "Vietcombank",
-        bank_account_owner: "Nguyễn Văn A",
-        bank_account_number: "1234567890",
-        role: "Giảng viên",
-        major_id: "MAJ001",
-        major_name: "Công nghệ phần mềm",
-        academic_degree: "Thạc sĩ",
-        graduated_from: "Đại học Bách khoa Hà Nội",
-        position: "Giảng viên",
-    };
 
     useEffect(() => {
         if (id) {
-            setLecturer(dummyLecturer);
+            dispatch(getLecturerDetail(id));
         }
     }, [id]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
-            <BorderBox
-                title={`Chi tiết giảng viên: ${dummyLecturer.user_name}`}
-            >
+            <BorderBox title={`Chi tiết giảng viên: ${lecturer.userName}`}>
                 <div className={styles.detailGrid}>
                     <div className={styles.detailItem}>
                         <TypographyBody
@@ -85,7 +37,7 @@ const LecturerDetail = () => {
                             Mã giảng viên:
                         </TypographyBody>
                         <TypographyBody tag="span">
-                            {dummyLecturer.user_id}
+                            {lecturer.userId}
                         </TypographyBody>
                     </div>
 
@@ -97,11 +49,11 @@ const LecturerDetail = () => {
                             Tên giảng viên:
                         </TypographyBody>
                         <TypographyBody tag="span">
-                            {dummyLecturer.user_name}
+                            {lecturer.userName}
                         </TypographyBody>
                     </div>
 
-                    {dummyLecturer.major_name && (
+                    {lecturer.majorName && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -110,12 +62,12 @@ const LecturerDetail = () => {
                                 Tên ngành:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.major_name}
+                                {lecturer.majorName}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.position && (
+                    {lecturer.position && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -124,12 +76,12 @@ const LecturerDetail = () => {
                                 Vị trí:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.position}
+                                {lecturer.position}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.phone_number && (
+                    {lecturer.phoneNumber && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -138,12 +90,12 @@ const LecturerDetail = () => {
                                 Số điện thoại:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.phone_number}
+                                {lecturer.phoneNumber}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.email && (
+                    {lecturer.email && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -152,12 +104,12 @@ const LecturerDetail = () => {
                                 Email:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.email}
+                                {lecturer.email}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.gender && (
+                    {lecturer.gender && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -166,12 +118,12 @@ const LecturerDetail = () => {
                                 Giới tính:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.gender}
+                                {lecturer.gender}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.date_of_birth && (
+                    {lecturer.dateOfBirth && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -180,12 +132,12 @@ const LecturerDetail = () => {
                                 Ngày sinh:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.date_of_birth}
+                                {String(lecturer.dateOfBirth)}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.address && (
+                    {lecturer.address && (
                         <div className={styles.detailItemFull}>
                             <TypographyBody
                                 tag="span"
@@ -194,12 +146,12 @@ const LecturerDetail = () => {
                                 Địa chỉ:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.address}
+                                {lecturer.address}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.admission_date && (
+                    {lecturer.admissionDate && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -208,12 +160,12 @@ const LecturerDetail = () => {
                                 Ngày vào trường:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.admission_date}
+                                {lecturer.admissionDate}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.ethnic_group && (
+                    {lecturer.ethnicGroup && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -222,12 +174,12 @@ const LecturerDetail = () => {
                                 Dân tộc:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.ethnic_group}
+                                {lecturer.ethnicGroup}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.religion && (
+                    {lecturer.religion && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -236,12 +188,12 @@ const LecturerDetail = () => {
                                 Tôn giáo:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.religion}
+                                {lecturer.religion}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.id_number && (
+                    {lecturer.idNumber && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -250,12 +202,12 @@ const LecturerDetail = () => {
                                 Số CMND/CCCD:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.id_number}
+                                {lecturer.idNumber}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.place_of_birth && (
+                    {lecturer.placeOfBirth && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -264,12 +216,12 @@ const LecturerDetail = () => {
                                 Nơi sinh:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.place_of_birth}
+                                {lecturer.placeOfBirth}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.permanent_resident && (
+                    {lecturer.permanentResident && (
                         <div className={styles.detailItemFull}>
                             <TypographyBody
                                 tag="span"
@@ -278,12 +230,12 @@ const LecturerDetail = () => {
                                 Thường trú:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.permanent_resident}
+                                {lecturer.permanentResident}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.bank && (
+                    {lecturer.bank && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -292,12 +244,12 @@ const LecturerDetail = () => {
                                 Ngân hàng:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.bank}
+                                {lecturer.bank}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.bank_account_owner && (
+                    {lecturer.bankAccountOwner && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -306,12 +258,12 @@ const LecturerDetail = () => {
                                 Chủ tài khoản:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.bank_account_owner}
+                                {lecturer.bankAccountOwner}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.bank_account_number && (
+                    {lecturer.bankAccountNumber && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -320,12 +272,12 @@ const LecturerDetail = () => {
                                 Số tài khoản:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.bank_account_number}
+                                {lecturer.bankAccountNumber}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.academic_degree && (
+                    {lecturer.academicDegree && (
                         <div className={styles.detailItem}>
                             <TypographyBody
                                 tag="span"
@@ -334,12 +286,12 @@ const LecturerDetail = () => {
                                 Học vị:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.academic_degree}
+                                {lecturer.academicDegree}
                             </TypographyBody>
                         </div>
                     )}
 
-                    {dummyLecturer.graduated_from && (
+                    {lecturer.graduatedFrom && (
                         <div className={styles.detailItemFull}>
                             <TypographyBody
                                 tag="span"
@@ -348,7 +300,7 @@ const LecturerDetail = () => {
                                 Tốt nghiệp từ:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {dummyLecturer.graduated_from}
+                                {lecturer.graduatedFrom}
                             </TypographyBody>
                         </div>
                     )}
@@ -365,7 +317,7 @@ const LecturerDetail = () => {
                             className={styles.editButton}
                             onClick={() =>
                                 router.push(
-                                    `/lecturer/create-edit?id=${dummyLecturer.user_id}&mode=edit`
+                                    `/lecturer_management/create-edit?id=${lecturer.userId}&mode=edit`
                                 )
                             }
                         >
