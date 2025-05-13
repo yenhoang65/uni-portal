@@ -7,52 +7,31 @@ import { Button } from "@/components/Button";
 import { IoIosArrowBack } from "react-icons/io";
 import { AiFillEdit } from "react-icons/ai";
 import AuthGuard from "@/components/AuthGuard";
-
-type TeachingAssignment = {
-    assignment_id: string;
-    lecturer_id: string;
-    subject_id: string;
-    term_class_id: string;
-    lecturer_name?: string; // Tên giảng viên (lấy từ bảng lecturer)
-    subject_name?: string; // Tên môn học (lấy từ bảng subject)
-    class_name?: string; // Tên lớp (lấy từ bảng term_class)
-};
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getTeachingAssignmentDetail } from "@/store/reducer/teachingAssignment";
 
 const TeachingAssignmentDetail = () => {
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { teachingAssignment, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.teachingAssignment
+    );
+
     const router = useRouter();
     const { query } = router;
     const { id } = query;
-    const [teachingAssignment, setTeachingAssignment] =
-        useState<TeachingAssignment | null>(null);
-
-    // Dữ liệu giả (dummy data) để ánh xạ thông tin
-    const dummyTeachingAssignment: TeachingAssignment = {
-        assignment_id: "ASS001",
-        lecturer_id: "LEC001",
-        subject_id: "SUB001",
-        term_class_id: "TERM001",
-        lecturer_name: "Nguyễn Văn A", // Ánh xạ từ lecturer_id
-        subject_name: "Nhập môn Lập trình", // Ánh xạ từ subject_id
-        class_name: "Lớp 101", // Ánh xạ từ term_class_id
-    };
 
     useEffect(() => {
         if (id) {
-            // Trong thực tế, bạn sẽ gọi API để lấy dữ liệu dựa trên id
-            // Ví dụ: fetch(`/api/teaching-assignments/${id}`)
-            // Dữ liệu trả về cần bao gồm lecturer_name, subject_name, class_name
-            setTeachingAssignment(dummyTeachingAssignment);
+            dispatch(getTeachingAssignmentDetail(id));
         }
     }, [id]);
-
-    if (!teachingAssignment) {
-        return <div>Đang tải...</div>;
-    }
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
             <BorderBox
-                title={`Chi tiết Phân công Giảng dạy: ${teachingAssignment.assignment_id}`}
+                title={`Chi tiết Phân công Giảng dạy: ${teachingAssignment.assignmentId}`}
             >
                 <div className={styles.detailContainer}>
                     <div className={styles.detailItem}>
@@ -64,7 +43,7 @@ const TeachingAssignmentDetail = () => {
                             Mã phân công:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {teachingAssignment.assignment_id}
+                            {teachingAssignment.assignmentId}
                         </TypographyBody>
                     </div>
 
@@ -77,7 +56,7 @@ const TeachingAssignmentDetail = () => {
                             Mã giảng viên:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {teachingAssignment.lecturer_id}
+                            {teachingAssignment.lecturerId}
                         </TypographyBody>
                     </div>
 
@@ -90,7 +69,7 @@ const TeachingAssignmentDetail = () => {
                             Tên giảng viên:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {teachingAssignment.lecturer_name ||
+                            {teachingAssignment.lecturerName ||
                                 "Không có thông tin"}
                         </TypographyBody>
                     </div>
@@ -104,7 +83,7 @@ const TeachingAssignmentDetail = () => {
                             Mã môn học:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {teachingAssignment.subject_id}
+                            {teachingAssignment.subjectId}
                         </TypographyBody>
                     </div>
 
@@ -117,7 +96,7 @@ const TeachingAssignmentDetail = () => {
                             Tên môn học:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {teachingAssignment.subject_name ||
+                            {teachingAssignment.subjectName ||
                                 "Không có thông tin"}
                         </TypographyBody>
                     </div>
@@ -131,7 +110,7 @@ const TeachingAssignmentDetail = () => {
                             Mã học kỳ - lớp:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {teachingAssignment.term_class_id}
+                            {teachingAssignment.termClassId}
                         </TypographyBody>
                     </div>
 
@@ -144,7 +123,7 @@ const TeachingAssignmentDetail = () => {
                             Tên lớp:
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md">
-                            {teachingAssignment.class_name ||
+                            {teachingAssignment.className ||
                                 "Không có thông tin"}
                         </TypographyBody>
                     </div>
@@ -161,7 +140,7 @@ const TeachingAssignmentDetail = () => {
                             className={styles.editButton}
                             onClick={() =>
                                 router.push(
-                                    `/teaching-assignment/create-edit?id=${teachingAssignment.assignment_id}&mode=edit`
+                                    `/teaching-assignment/create-edit?id=${teachingAssignment.assignmentId}&mode=edit`
                                 )
                             }
                         >

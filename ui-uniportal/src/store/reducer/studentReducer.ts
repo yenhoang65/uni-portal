@@ -16,6 +16,18 @@ type Student = {
     specializationName: string;
     status: string;
     classId: number;
+
+    email: string;
+    address: string;
+    ethnicGroup: string;
+    religion: string;
+
+    idNumber: string;
+    placeOfBirth: string;
+    permanentResident: string;
+    bank: string;
+    bankAccountOwner: string;
+    bankAccountNumber: string;
 };
 
 type GetParam = {

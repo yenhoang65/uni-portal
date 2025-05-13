@@ -7,20 +7,21 @@ import { Button } from "@/components/Button";
 import { IoIosArrowBack } from "react-icons/io";
 import { AiFillEdit } from "react-icons/ai";
 import AuthGuard from "@/components/AuthGuard";
+import { FaCheck } from "react-icons/fa";
+import { IoWarning } from "react-icons/io5";
 
 type TeachingScheduleRequest = {
     schedule_id: string;
     classroom_id: string;
     lesson: number;
     date_time: string;
-    status: number;
+    status: 0 | 1 | 2; // 0: Pending, 1: Accepted, 2: Rejected
     created_at: string;
     assignment_id: string;
     class_type: number;
-    // Assuming you want to display related information:
-    classroom_name?: string; // Tên phòng học (lấy từ bảng classroom)
-    lecturer_name?: string; // Tên giảng viên (lấy từ bảng lecturer thông qua assignment)
-    subject_name?: string; // Tên môn học (lấy từ bảng subject thông qua assignment)
+    classroom_name?: string;
+    lecturer_name?: string;
+    subject_name?: string;
 };
 
 const TeachingScheduleRequestDetail = () => {
@@ -30,42 +31,52 @@ const TeachingScheduleRequestDetail = () => {
     const [teachingScheduleRequest, setTeachingScheduleRequest] =
         useState<TeachingScheduleRequest | null>(null);
 
-    // Dữ liệu giả (dummy data) để ánh xạ thông tin
+    const [status, setStatus] = useState<0 | 1 | 2>(0); // Default to "Pending" (0)
+    const [isStatusChanged, setIsStatusChanged] = useState(false);
+
     const dummyTeachingScheduleRequest: TeachingScheduleRequest = {
         schedule_id: "SCH001",
         classroom_id: "CRM001",
         lesson: 1,
         date_time: "2025-05-05T08:00:00Z",
-        status: 1,
+        status: 0, // Pending by default
         created_at: "2025-05-01T10:00:00Z",
         assignment_id: "ASS001",
         class_type: 0,
-        classroom_name: "Phòng A101", // Ánh xạ từ classroom_id
-        lecturer_name: "Nguyễn Văn A", // Ánh xạ từ assignment_id -> lecturer
-        subject_name: "Nhập môn Lập trình", // Ánh xạ từ assignment_id -> subject
+        classroom_name: "Phòng A101", // Mocked data
+        lecturer_name: "Nguyễn Văn A", // Mocked data
+        subject_name: "Nhập môn Lập trình", // Mocked data
     };
 
     useEffect(() => {
         if (id) {
-            // Trong thực tế, bạn sẽ gọi API để lấy dữ liệu dựa trên id
-            // Ví dụ: fetch(`/api/teaching-schedule-requests/${id}`)
-            // Dữ liệu trả về cần bao gồm các trường của TeachingScheduleRequest
-            // và có thể đã join sẵn thông tin về classroom, lecturer, subject
+            // Simulate fetching data from an API
             setTeachingScheduleRequest(dummyTeachingScheduleRequest);
+            setStatus(dummyTeachingScheduleRequest.status); // Set the status from the data
         }
     }, [id]);
+
+    const handleAccept = () => {
+        setStatus(1); // Set status to "Accepted"
+        setIsStatusChanged(true);
+    };
+
+    const handleReject = () => {
+        setStatus(2); // Set status to "Rejected"
+        setIsStatusChanged(true);
+    };
+
+    const statusLabel =
+        status === 0 ? "Chưa duyệt" : status === 1 ? "Đã duyệt" : "Bị từ chối";
+    const classTypeLabel =
+        teachingScheduleRequest?.class_type === 0 ? "Lý thuyết" : "Thực hành";
 
     if (!teachingScheduleRequest) {
         return <div>Đang tải...</div>;
     }
 
-    const statusLabel =
-        teachingScheduleRequest.status === 0 ? "Chưa duyệt" : "Đã duyệt";
-    const classTypeLabel =
-        teachingScheduleRequest.class_type === 0 ? "Lý thuyết" : "Thực hành";
-
     return (
-        <AuthGuard allowedRoles={["admin", "employee"]}>
+        <AuthGuard allowedRoles={["admin", "lecturer"]}>
             <BorderBox
                 title={`Chi tiết Yêu cầu Lịch giảng: ${teachingScheduleRequest.schedule_id}`}
             >
@@ -203,19 +214,6 @@ const TeachingScheduleRequestDetail = () => {
                         </TypographyBody>
                     </div>
 
-                    <div className={styles.detailItem}>
-                        <TypographyBody
-                            tag="span"
-                            theme="md"
-                            className={styles.detailLabel}
-                        >
-                            Loại lớp:
-                        </TypographyBody>
-                        <TypographyBody tag="span" theme="md">
-                            {classTypeLabel}
-                        </TypographyBody>
-                    </div>
-
                     <div className={styles.buttonGroup}>
                         <div
                             className={styles.backButton}
@@ -224,16 +222,41 @@ const TeachingScheduleRequestDetail = () => {
                             <IoIosArrowBack className={styles.backIcon} />
                             <span className={styles.backText}>Quay lại</span>
                         </div>
-                        <button
-                            className={styles.editButton}
-                            onClick={() =>
-                                router.push(
-                                    `/teaching-schedule-request/edit?id=${teachingScheduleRequest.schedule_id}&mode=edit`
-                                )
-                            }
-                        >
-                            <AiFillEdit /> Chỉnh sửa
-                        </button>
+
+                        {status !== 1 && (
+                            <>
+                                <Button
+                                    // onClick={handleAccept}
+                                    className={styles.acceptButton}
+                                    onClick={() =>
+                                        router.push(
+                                            `/teaching-schedule-request/edit?id=${teachingScheduleRequest.schedule_id}&mode=edit`
+                                        )
+                                    }
+                                >
+                                    <FaCheck /> Đăng ký lịch dạy
+                                </Button>
+                                <Button
+                                    onClick={handleReject}
+                                    className={styles.rejectButton}
+                                >
+                                    <IoWarning /> Từ chối
+                                </Button>
+                            </>
+                        )}
+
+                        {status === 1 && (
+                            <Button
+                                className={styles.editButton}
+                                onClick={() =>
+                                    router.push(
+                                        `/teaching-schedule-request/edit?id=${teachingScheduleRequest.schedule_id}&mode=edit`
+                                    )
+                                }
+                            >
+                                <AiFillEdit /> Chỉnh sửa
+                            </Button>
+                        )}
                     </div>
                 </div>
             </BorderBox>

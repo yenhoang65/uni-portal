@@ -104,7 +104,7 @@ export const allNav = [
                 id: 14,
                 title: "Đăng ký lịch giảng dạy",
                 icon: <AiOutlineCalendar />,
-                role: ["admin"],
+                role: ["admin", "lecturer"],
                 path: "/teaching-schedule-request",
             },
             {

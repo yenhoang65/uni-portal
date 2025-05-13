@@ -9,6 +9,7 @@ import activateTimeReducer from "./reducer/activateTimeReducer";
 import trainingProgramReducer from "./reducer/trainingProgramReducer";
 import classReducer from "./reducer/classReducer";
 import studentReducer from "./reducer/studentReducer";
+import teachingAssignmentReducer from "./reducer/teachingAssignment";
 
 const rootReducer = {
     auth: authReducer,
@@ -22,6 +23,7 @@ const rootReducer = {
     activateTime: activateTimeReducer,
     trainingProgram: trainingProgramReducer,
     class: classReducer,
+    teachingAssignment: teachingAssignmentReducer,
 };
 
 export default rootReducer;

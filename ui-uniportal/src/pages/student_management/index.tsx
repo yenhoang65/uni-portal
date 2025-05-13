@@ -95,20 +95,6 @@ const StudentManagement = () => {
                     searchValue: searchValue,
                 })
             );
-            // const obj = {
-            //     parPage: parseInt(parPage),
-            //     currentPage: parseInt(currentPage),
-            //     searchValue,
-            //     typeCate,
-            // };
-            // dispatch(get_category(obj));
-
-            // setState({
-            //     name: "",
-            //     image: "",
-            //     type: "",
-            // });
-            // setImageShow("");
         }
         if (errorMessage) {
             toast.error(errorMessage);

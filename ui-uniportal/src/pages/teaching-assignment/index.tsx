@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -11,59 +11,37 @@ import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
 import AuthGuard from "@/components/AuthGuard";
-
-type TeachingAssignmentType = {
-    assignment_id: string;
-    lecturer_id: string;
-    subject_id: string;
-    term_class_id: string;
-};
-
-const teachingAssignments: TeachingAssignmentType[] = [
-    {
-        assignment_id: "ASS001",
-        lecturer_id: "LEC001",
-        subject_id: "SUB001",
-        term_class_id: "TERM001",
-    },
-    {
-        assignment_id: "ASS002",
-        lecturer_id: "LEC002",
-        subject_id: "SUB002",
-        term_class_id: "TERM002",
-    },
-    {
-        assignment_id: "ASS003",
-        lecturer_id: "LEC003",
-        subject_id: "SUB003",
-        term_class_id: "TERM003",
-    },
-    {
-        assignment_id: "ASS004",
-        lecturer_id: "LEC004",
-        subject_id: "SUB004",
-        term_class_id: "TERM004",
-    },
-    {
-        assignment_id: "ASS005",
-        lecturer_id: "LEC005",
-        subject_id: "SUB005",
-        term_class_id: "TERM005",
-    },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import {
+    deleteTeachingAssignment,
+    getListTeachingAssignment,
+    messageClear,
+} from "@/store/reducer/teachingAssignment";
+import toast from "react-hot-toast";
 
 const TeachingAssignment = () => {
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { teachingAssignments, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.teachingAssignment
+    );
+
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [deleteAssignmentId, setDeleteAssignmentId] = useState<string | null>(
+    const [deleteAssignmentId, setDeleteAssignmentId] = useState<number | null>(
         null
     );
 
+    useEffect(() => {
+        dispatch(getListTeachingAssignment());
+    }, []);
+
     const handleDelete = () => {
         if (deleteAssignmentId) {
-            // dispatch(delete_teaching_assignment(deleteAssignmentId));
+            dispatch(deleteTeachingAssignment(deleteAssignmentId));
             setIsModalOpen(false);
             setDeleteAssignmentId(null);
         }
@@ -74,15 +52,18 @@ const TeachingAssignment = () => {
         setDeleteAssignmentId(null);
     };
 
-    const filteredAssignments = teachingAssignments.filter((assignment) =>
-        Object.values(assignment).some((value) =>
-            String(value).toLowerCase().includes(searchValue.toLowerCase())
-        )
-    );
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
 
-    const startIndex = (currentPage - 1) * parPage;
-    const endIndex = startIndex + parPage;
-    const currentAssignments = filteredAssignments.slice(startIndex, endIndex);
+            dispatch(getListTeachingAssignment());
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin", "employee"]}>
@@ -108,9 +89,7 @@ const TeachingAssignment = () => {
                             <thead className={styles.thead}>
                                 <tr>
                                     <th style={{ minWidth: "80px" }}>No</th>
-                                    <th style={{ minWidth: "150px" }}>
-                                        Mã phân công
-                                    </th>
+
                                     <th style={{ minWidth: "150px" }}>
                                         Mã giảng viên
                                     </th>
@@ -118,7 +97,7 @@ const TeachingAssignment = () => {
                                         Mã môn học
                                     </th>
                                     <th style={{ minWidth: "150px" }}>
-                                        Mã học kỳ - lớp
+                                        Mã lớp học phần
                                     </th>
                                     <th style={{ minWidth: "70px" }}>
                                         Hành động
@@ -126,77 +105,81 @@ const TeachingAssignment = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentAssignments.map((assignment, index) => (
-                                    <tr key={assignment.assignment_id}>
-                                        <td className={styles.tableCell}>
-                                            {(currentPage - 1) * parPage +
-                                                index +
-                                                1}
-                                        </td>
-                                        <td className={styles.tableCell}>
-                                            {assignment.assignment_id}
-                                        </td>
-                                        <td className={styles.tableCell}>
-                                            {assignment.lecturer_id}
-                                        </td>
-                                        <td className={styles.tableCell}>
-                                            {assignment.subject_id}
-                                        </td>
-                                        <td className={styles.tableCell}>
-                                            {assignment.term_class_id}
-                                        </td>
-                                        <td
-                                            className={clsx(
-                                                styles.buttonAction,
-                                                styles.tableCell
-                                            )}
-                                        >
-                                            <Link
-                                                href={`/teaching-assignment/view?id=${assignment.assignment_id}`}
-                                                className={clsx(
-                                                    styles.viewButton
-                                                )}
-                                            >
-                                                <FaEye />
-                                            </Link>
-                                            <Link
-                                                href={`/teaching-assignment/create-edit?id=${assignment.assignment_id}&mode=edit`}
-                                                className={clsx(
-                                                    styles.viewButton,
-                                                    styles.viewButtonUpdate
-                                                )}
-                                            >
-                                                <AiFillEdit />
-                                            </Link>
-                                            <Link
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setIsModalOpen(true);
-                                                    setDeleteAssignmentId(
-                                                        assignment.assignment_id
-                                                    );
-                                                }}
-                                                href="#"
-                                                className={clsx(
-                                                    styles.viewButton,
-                                                    styles.viewButtonDelete
-                                                )}
-                                            >
-                                                <MdDeleteForever />
-                                            </Link>
+                                {teachingAssignments.map(
+                                    (assignment, index) => (
+                                        <tr key={assignment.assignmentId}>
+                                            <td className={styles.tableCell}>
+                                                {assignment.assignmentId}
+                                            </td>
 
-                                            {isModalOpen &&
-                                                deleteAssignmentId ===
-                                                    assignment.assignment_id && (
-                                                    <ModalConfirm
-                                                        message="Bạn có chắc chắn muốn xóa phân công giảng dạy này?"
-                                                        onConfirm={handleDelete}
-                                                        onCancel={handleCancel}
-                                                    />
+                                            <td className={styles.tableCell}>
+                                                {assignment.lecturerId} -{" "}
+                                                {assignment.lecturerName}
+                                            </td>
+                                            <td className={styles.tableCell}>
+                                                {assignment.subjectId} -{" "}
+                                                {assignment.subjectName}
+                                            </td>
+                                            <td className={styles.tableCell}>
+                                                {assignment.className}
+                                            </td>
+                                            <td
+                                                className={clsx(
+                                                    styles.buttonAction,
+                                                    styles.tableCell
                                                 )}
-                                        </td>
-                                    </tr>
-                                ))}
+                                            >
+                                                <Link
+                                                    href={`/teaching-assignment/view?id=${assignment.assignmentId}`}
+                                                    className={clsx(
+                                                        styles.viewButton
+                                                    )}
+                                                >
+                                                    <FaEye />
+                                                </Link>
+                                                <Link
+                                                    href={`/teaching-assignment/create-edit?id=${assignment.assignmentId}&mode=edit`}
+                                                    className={clsx(
+                                                        styles.viewButton,
+                                                        styles.viewButtonUpdate
+                                                    )}
+                                                >
+                                                    <AiFillEdit />
+                                                </Link>
+                                                <Link
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setIsModalOpen(true);
+                                                        setDeleteAssignmentId(
+                                                            assignment.assignmentId
+                                                        );
+                                                    }}
+                                                    href="#"
+                                                    className={clsx(
+                                                        styles.viewButton,
+                                                        styles.viewButtonDelete
+                                                    )}
+                                                >
+                                                    <MdDeleteForever />
+                                                </Link>
+
+                                                {isModalOpen &&
+                                                    deleteAssignmentId ===
+                                                        assignment.assignmentId && (
+                                                        <ModalConfirm
+                                                            message="Bạn có chắc chắn muốn xóa phân công giảng dạy này?"
+                                                            onConfirm={
+                                                                handleDelete
+                                                            }
+                                                            onCancel={
+                                                                handleCancel
+                                                            }
+                                                        />
+                                                    )}
+                                            </td>
+                                        </tr>
+                                    )
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -205,7 +188,7 @@ const TeachingAssignment = () => {
                         <Pagination
                             pageNumber={currentPage}
                             setPageNumber={setCurrentPage}
-                            totalItem={filteredAssignments.length}
+                            totalItem={teachingAssignments.length}
                             parPage={parPage}
                             showItem={3}
                         />
