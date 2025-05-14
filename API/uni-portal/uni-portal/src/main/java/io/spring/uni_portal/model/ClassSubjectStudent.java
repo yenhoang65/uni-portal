@@ -7,13 +7,12 @@ import jakarta.persistence.*;
 public class ClassSubjectStudent {
 
     @Id
-    @Column(name = "termclass_id")
-    private Long termclassId;
+    @Column(name = "class_subject_student_id")
+    private Long classSubjectStudentId;
 
-    @ManyToOne
-    @MapsId
-    @JoinColumn(name = "termclass_id")
-    private TermClass termClass;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "termclass_id", nullable = false)
+    private ClassStudent classStudent;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
@@ -25,27 +24,27 @@ public class ClassSubjectStudent {
     // Constructors
     public ClassSubjectStudent() {}
 
-    public ClassSubjectStudent(TermClass termClass, Student student, Long status) {
-        this.termClass = termClass;
+    public ClassSubjectStudent(ClassStudent classStudent, Student student, Long status) {
+        this.classStudent = classStudent;
         this.student = student;
         this.status = status;
     }
 
     // Getters and Setters
-    public Long getTermclassId() {
-        return termclassId;
+    public Long getClassSubjectStudentId() {
+        return classSubjectStudentId;
     }
 
-    public void setTermclassId(Long termclassId) {
-        this.termclassId = termclassId;
+    public void setClassSubjectStudentId(Long classSubjectStudentId) {
+        this.classSubjectStudentId = classSubjectStudentId;
     }
 
-    public TermClass getTermClass() {
-        return termClass;
+    public ClassStudent getClassStudent() {
+        return classStudent;
     }
 
-    public void setTermClass(TermClass termClass) {
-        this.termClass = termClass;
+    public void setClassStudent(ClassStudent classStudent) {
+        this.classStudent = classStudent;
     }
 
     public Student getStudent() {
@@ -64,4 +63,3 @@ public class ClassSubjectStudent {
         this.status = status;
     }
 }
-

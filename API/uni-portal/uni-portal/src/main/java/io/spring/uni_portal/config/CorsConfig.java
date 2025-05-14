@@ -13,8 +13,9 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE")
-                        .allowedOrigins("*")
+                        .allowedOrigins("http://localhost:3000")  // Chỉ định cụ thể domain
+                        .allowCredentials(true)                   // Cho phép gửi cookies
+                        .allowedMethods("GET", "POST", "PUT", "DELETE") // Các phương thức được phép
                         .allowedHeaders("*");
             }
         };

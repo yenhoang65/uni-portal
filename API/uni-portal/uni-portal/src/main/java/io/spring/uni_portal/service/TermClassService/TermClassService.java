@@ -133,4 +133,8 @@ public class TermClassService implements ITermClassService {
         response.setSchoolyears(termClass.getSchoolyears());
         return response;
     }
+
+    public Optional<TermClass> findById(Long id) {
+        return termClassRepository.findById(id);
+    }
 }

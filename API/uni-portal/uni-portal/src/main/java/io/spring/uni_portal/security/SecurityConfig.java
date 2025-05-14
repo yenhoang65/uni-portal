@@ -1,6 +1,7 @@
 package io.spring.uni_portal.security;
 
 import org.springframework.context.annotation.*;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +23,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         // Cho phép Swagger UI và API docs mà không cần xác thực
                         .requestMatchers(

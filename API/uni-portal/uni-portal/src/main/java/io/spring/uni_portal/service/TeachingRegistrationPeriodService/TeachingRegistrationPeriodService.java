@@ -19,7 +19,6 @@ public class TeachingRegistrationPeriodService implements ITeachingRegistrationP
     public List<TeachingRegistrationPeriod> getAll() {
         List<TeachingRegistrationPeriod> list = repo.findAll();
 
-        // Tự động cập nhật trạng thái nếu đã quá hạn
         LocalDateTime now = LocalDateTime.now();
 
         List<TeachingRegistrationPeriod> expiredList = list.stream()
