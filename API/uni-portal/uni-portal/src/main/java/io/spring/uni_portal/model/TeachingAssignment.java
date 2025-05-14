@@ -34,6 +34,7 @@ public class TeachingAssignment {
     }
     // Getters & Setters
 
+
     public Long getAssignmentId() {
         return assignmentId;
     }

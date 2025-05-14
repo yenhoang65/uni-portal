@@ -9,7 +9,12 @@ import io.spring.uni_portal.response.Response;
 import io.spring.uni_portal.service.TeachingAssignmentService.ITeachingAssignmentService;
 import io.spring.uni_portal.service.TeachingAssignmentService.TeachingAssignmentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,11 +34,27 @@ public class TeachingAssignmentController {
     }
 
     // API lấy tất cả phân công giảng viên (GET)
-    @GetMapping
-    public ResponseEntity<Response<List<TeachingAssignmentResponse>>> getAllAssignments() {
-        Response<List<TeachingAssignmentResponse>> response = iteachingAssignmentService.getAllAssignments();
-        return ResponseEntity.ok(response);
+    @GetMapping("/paging")
+//    public ResponseEntity<Response<List<TeachingAssignmentResponse>>> getAllAssignments() {
+//        Response<List<TeachingAssignmentResponse>> response = iteachingAssignmentService.getAllAssignments();
+//        return ResponseEntity.ok(response);
+//    }
+    public Response<Page<TeachingAssignmentResponse>> getAssignmentsPaging(
+            @RequestParam int currentPage,      // Bắt buộc truyền
+            @RequestParam int perPage,          // Bắt buộc truyền
+            @RequestParam String searchValue    // FE vẫn gửi xuống, có thể là rỗng ""
+    ) {
+        // Tạo Pageable từ các tham số truyền vào
+        Pageable pageable = PageRequest.of(currentPage, perPage, Sort.by("termClass.classname").ascending());
+
+        Response<Page<TeachingAssignmentResponse>> response = iteachingAssignmentService.getAssignmentsWithSearch(searchValue, pageable);
+
+        Page<TeachingAssignmentResponse> result = response.getData();
+
+        return Response.success("Danh sách phân công giảng dạy phân trang", result);
     }
+
+
 
     // API lấy phân công giảng viên dạy theo ID assignment (GET)
     @GetMapping("/{id}")

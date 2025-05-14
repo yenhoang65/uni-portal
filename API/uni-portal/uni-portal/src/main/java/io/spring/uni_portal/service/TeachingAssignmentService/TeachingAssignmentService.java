@@ -4,10 +4,7 @@ import io.spring.uni_portal.dto.TeachingAssignment.TeachingAssignmentDTO;
 import io.spring.uni_portal.dto.TeachingAssignment.TeachingAssignmentResponse;
 import io.spring.uni_portal.dto.TermClass.TermClassResponse;
 import io.spring.uni_portal.dto.TermClass.TermClassResponseUnassignedClasses;
-import io.spring.uni_portal.model.Lecturer;
-import io.spring.uni_portal.model.Subject;
-import io.spring.uni_portal.model.TeachingAssignment;
-import io.spring.uni_portal.model.TermClass;
+import io.spring.uni_portal.model.*;
 import io.spring.uni_portal.repository.LecturerRepository;
 import io.spring.uni_portal.repository.SubjectRepository;
 import io.spring.uni_portal.repository.TeachingAssignmentRepository;
@@ -15,10 +12,15 @@ import io.spring.uni_portal.repository.TermClassRepository;
 import io.spring.uni_portal.response.Response;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -95,12 +97,16 @@ public class TeachingAssignmentService implements ITeachingAssignmentService {
         return Response.success("Phân công giảng dạy đã được tạo thành công", List.of(response));
     }
 
-
+    @Override
+    public Response<List<TeachingAssignmentResponse>> getAllAssignments() {
+        return null;
+    }
 
 
     @Override
-    public Response<List<TeachingAssignmentResponse>> getAllAssignments() {
-        List<TeachingAssignmentResponse> assignments = teachingAssignmentRepository.findAll().stream()
+    public Response<List<TeachingAssignmentResponse>> getAllAssignmentsForAdmin() {
+        List<TeachingAssignmentResponse> responseList = teachingAssignmentRepository.findAll()
+                .stream()
                 .map(assignment -> new TeachingAssignmentResponse(
                         assignment.getAssignmentId(),
                         assignment.getLecturer().getUserId(),
@@ -112,12 +118,110 @@ public class TeachingAssignmentService implements ITeachingAssignmentService {
                         assignment.getTermClass().getProgress(),
                         assignment.getTermClass().getSemester(),
                         assignment.getTermClass().getSchoolyears(),
-                        assignment.getAssignmentType() != null ? assignment.getAssignmentType().name() : "UNKNOWN"
+                        assignment.getAssignmentType() != null
+                                ? assignment.getAssignmentType().name()
+                                : "UNKNOWN"
                 ))
                 .collect(Collectors.toList());
 
-        return Response.success("Danh sách bài tập giảng dạy", assignments);
+        return Response.success("Danh sách phân công giảng dạy (ADMIN)", responseList);
     }
+
+//    @Override
+//    public Response<List<TeachingAssignmentResponse>> getAllAssignments() {
+//
+//        // Lấy user đang đăng nhập từ SecurityContextHolder
+//        UsernamePasswordAuthenticationToken authentication =
+//                (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+//        User currentUser = (User) authentication.getPrincipal();
+//
+//        // Kiểm tra nếu người dùng có role là admin
+//        boolean isAdmin = currentUser.getRole().contains("admin");
+//
+//        List<TeachingAssignmentResponse> assignments;
+//
+//        if (isAdmin) {
+//            // Nếu là admin, trả về tất cả bản ghi trong bảng TeachingAssignment
+//            assignments = teachingAssignmentRepository.findAll()
+//                    .stream()
+//                    .map(assignment -> new TeachingAssignmentResponse(
+//                            assignment.getAssignmentId(),
+//                            assignment.getLecturer().getUserId(),
+//                            assignment.getLecturer().getUser().getUserName(),
+//                            assignment.getSubject().getSubjectId(),
+//                            assignment.getSubject().getSubjectName(),
+//                            assignment.getTermClass().getTermclassId(),
+//                            assignment.getTermClass().getClassname(),
+//                            assignment.getTermClass().getProgress(),
+//                            assignment.getTermClass().getSemester(),
+//                            assignment.getTermClass().getSchoolyears(),
+//                            assignment.getAssignmentType() != null ? assignment.getAssignmentType().name() : "UNKNOWN"
+//                    ))
+//                    .collect(Collectors.toList());
+//        } else {
+//            // Nếu không phải admin, chỉ trả về bản ghi của giảng viên hiện tại
+//            Long userId = currentUser.getUserId();
+//            assignments = teachingAssignmentRepository
+//                    .findByLecturerUserUserId(userId) // chú ý dùng đúng hàm repo
+//                    .stream()
+//                    .map(assignment -> new TeachingAssignmentResponse(
+//                            assignment.getAssignmentId(),
+//                            assignment.getLecturer().getUserId(),
+//                            assignment.getLecturer().getUser().getUserName(),
+//                            assignment.getSubject().getSubjectId(),
+//                            assignment.getSubject().getSubjectName(),
+//                            assignment.getTermClass().getTermclassId(),
+//                            assignment.getTermClass().getClassname(),
+//                            assignment.getTermClass().getProgress(),
+//                            assignment.getTermClass().getSemester(),
+//                            assignment.getTermClass().getSchoolyears(),
+//                            assignment.getAssignmentType() != null ? assignment.getAssignmentType().name() : "UNKNOWN"
+//                    ))
+//                    .collect(Collectors.toList());
+//        }
+//
+//        return Response.success("Danh sách phân công giảng dạy", assignments);
+//    }
+@Override
+public Response<Page<TeachingAssignmentResponse>> getAssignmentsWithSearch(String searchValue, Pageable pageable) {
+    // Lấy user đang đăng nhập từ SecurityContextHolder
+    UsernamePasswordAuthenticationToken authentication =
+            (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+    User currentUser = (User) authentication.getPrincipal();
+
+    // Kiểm tra nếu người dùng có role là admin
+    boolean isAdmin = currentUser.getRole().contains("admin");
+
+    Page<TeachingAssignment> assignmentsPage;
+
+    if (isAdmin) {
+        // Nếu là admin, trả về tất cả bản ghi trong bảng TeachingAssignment với phân trang và tìm kiếm
+        assignmentsPage = teachingAssignmentRepository.findAllBySearchValue(searchValue, pageable);
+    } else {
+        // Nếu không phải admin, chỉ trả về bản ghi của giảng viên hiện tại với phân trang và tìm kiếm
+        Long userId = currentUser.getUserId();
+        assignmentsPage = teachingAssignmentRepository.findByLecturerUserUserIdAndSearchValue(userId, searchValue, pageable);
+    }
+
+    // Chuyển đổi từ Page<TeachingAssignment> thành Page<TeachingAssignmentResponse>
+    Page<TeachingAssignmentResponse> responsePage = assignmentsPage.map(assignment -> new TeachingAssignmentResponse(
+            assignment.getAssignmentId(),
+            assignment.getLecturer().getUserId(),
+            assignment.getLecturer().getUser().getUserName(),
+            assignment.getSubject().getSubjectId(),
+            assignment.getSubject().getSubjectName(),
+            assignment.getTermClass().getTermclassId(),
+            assignment.getTermClass().getClassname(),
+            assignment.getTermClass().getProgress(),
+            assignment.getTermClass().getSemester(),
+            assignment.getTermClass().getSchoolyears(),
+            assignment.getAssignmentType() != null ? assignment.getAssignmentType().name() : "UNKNOWN"
+    ));
+
+    return Response.success("Danh sách phân công giảng dạy với phân trang", responsePage);
+}
+
+
 
     @Override
     public Response<TeachingAssignmentResponse> getAssignmentById(Long assignmentId) {
@@ -251,6 +355,9 @@ public class TeachingAssignmentService implements ITeachingAssignmentService {
         return Response.success("Danh sách các lớp chưa phân công giảng viên", unassignedClasses);
     }
 
-
+    @Override
+    public Optional<TeachingAssignment> findById(Long id) {
+        return teachingAssignmentRepository.findById(id);
+    }
 
 }

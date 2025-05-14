@@ -8,40 +8,16 @@ import java.time.LocalDateTime;
 public class ClassStudent {
 
     @Id
-    @Column(name = "termclass_id")
-    private Long termclassId;
-
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "termclass_id")
-    private TermClass termClass;
-
-    @Column(name = "class_name")
-    private String className;
-
-    @Column(name = "class_type")
-    private Long classType;
-
-    @ManyToOne
-    @JoinColumn(name = "subject_id")
-    private Subject subject;
-
-    @Column(name = "lesson")
-    private String lesson;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private Lecturer lecturer;
-
-    @ManyToOne
-    @JoinColumn(name = "classroom_id")
-    private Classroom classroom;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "class_student_id")
+    private Long classStudentId;
 
     @Column(name = "status")
     private String status;
 
-    @Column(name = "minimum_quantity")
-    private Long minimumQuantity;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "schedule_id", nullable = false)
+    private TeachingScheduleRequest teachingScheduleRequest;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -49,86 +25,29 @@ public class ClassStudent {
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
+    @Column(name = "materials")
+    private String materials;
+
     // Constructors
     public ClassStudent() {
     }
 
-    public ClassStudent(Long classType, Subject subject, String lesson, Lecturer lecturer, Classroom classroom, String status, Long minimumQuantity, LocalDateTime createdAt, LocalDateTime endDate) {
-        this.classType = classType;
-        this.subject = subject;
-        this.lesson = lesson;
-        this.lecturer = lecturer;
-        this.classroom = classroom;
+    public ClassStudent(TermClass termClass, TeachingScheduleRequest teachingScheduleRequest, String status,
+                        LocalDateTime createdAt, LocalDateTime endDate, String materials) {
+        this.teachingScheduleRequest = teachingScheduleRequest;
         this.status = status;
-        this.minimumQuantity = minimumQuantity;
         this.createdAt = createdAt;
         this.endDate = endDate;
+        this.materials = materials;
     }
 
     // Getters and Setters
-
-    public Long getTermclassId() {
-        return termclassId;
+    public Long getClassStudentId() {
+        return classStudentId;
     }
 
-    public void setTermclassId(Long termclassId) {
-        this.termclassId = termclassId;
-    }
-
-    public TermClass getTermClass() {
-        return termClass;
-    }
-
-    public void setTermClass(TermClass termClass) {
-        this.termClass = termClass;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    public Long getClassType() {
-        return classType;
-    }
-
-    public void setClassType(Long classType) {
-        this.classType = classType;
-    }
-
-    public Subject getSubject() {
-        return subject;
-    }
-
-    public void setSubject(Subject subject) {
-        this.subject = subject;
-    }
-
-    public String getLesson() {
-        return lesson;
-    }
-
-    public void setLesson(String lesson) {
-        this.lesson = lesson;
-    }
-
-    public Lecturer getLecturer() {
-        return lecturer;
-    }
-
-    public void setLecturer(Lecturer lecturer) {
-        this.lecturer = lecturer;
-    }
-
-    public Classroom getClassroom() {
-        return classroom;
-    }
-
-    public void setClassroom(Classroom classroom) {
-        this.classroom = classroom;
+    public void setClassStudentId(Long classStudentId) {
+        this.classStudentId = classStudentId;
     }
 
     public String getStatus() {
@@ -139,12 +58,12 @@ public class ClassStudent {
         this.status = status;
     }
 
-    public Long getMinimumQuantity() {
-        return minimumQuantity;
+    public TeachingScheduleRequest getTeachingScheduleRequest() {
+        return teachingScheduleRequest;
     }
 
-    public void setMinimumQuantity(Long minimumQuantity) {
-        this.minimumQuantity = minimumQuantity;
+    public void setTeachingScheduleRequest(TeachingScheduleRequest teachingScheduleRequest) {
+        this.teachingScheduleRequest = teachingScheduleRequest;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -161,5 +80,13 @@ public class ClassStudent {
 
     public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
+    }
+
+    public String getMaterials() {
+        return materials;
+    }
+
+    public void setMaterials(String materials) {
+        this.materials = materials;
     }
 }

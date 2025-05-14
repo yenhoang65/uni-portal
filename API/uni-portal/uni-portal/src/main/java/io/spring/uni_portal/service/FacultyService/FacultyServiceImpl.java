@@ -60,16 +60,33 @@ public class FacultyServiceImpl implements IFacultyService {
     }
 
 
+//    @Override
+//    public FacultyDTO createFaculty(FacultyDTO facultyDTO) {
+//        facultyDTO.setFacultyId(generateNextFacultyId());
+//        Faculty faculty = convertToEntity(facultyDTO);
+//        faculty.setFacultyId(generateNextFacultyId());
+//        Faculty saved = facultyRepository.save(faculty);
+//        return convertToDTO(saved);
+//    }
+
     @Override
     public FacultyDTO createFaculty(FacultyDTO facultyDTO) {
+        // Kiểm tra nếu không nhập facultyId thì báo lỗi
+        if (facultyDTO.getFacultyId() == null) {
+            throw new OurException("Mã khoa không được để trống!");
+        }
+
+        // Kiểm tra xem mã đã tồn tại chưa
         if (facultyRepository.existsById(facultyDTO.getFacultyId())) {
             throw new OurException("Mã khoa đã tồn tại!");
         }
+
+        // Không cần gọi generateNextFacultyId nữa
         Faculty faculty = convertToEntity(facultyDTO);
-        faculty.setFacultyId(generateNextFacultyId());
         Faculty saved = facultyRepository.save(faculty);
         return convertToDTO(saved);
     }
+
 
     @Override
     public FacultyDTO getFacultyById(Long id) {

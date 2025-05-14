@@ -3,6 +3,7 @@ package io.spring.uni_portal.dto.TeachingScheduleRequest;
 import java.time.LocalDateTime;
 
 public class ScheduleDetailDTO {
+    private Long scheduleId;
     private Long classroomId;
     private Long lesson;
     private LocalDateTime createdAt;
@@ -16,6 +17,13 @@ public class ScheduleDetailDTO {
 
     public void setClassroomId(Long classroomId) {
         this.classroomId = classroomId;
+    }
+    public Long getScheduleId() {
+        return scheduleId;
+    }
+
+    public void setScheduleId(Long scheduleId) {
+        this.scheduleId = scheduleId;
     }
 
     public Long getLesson() {

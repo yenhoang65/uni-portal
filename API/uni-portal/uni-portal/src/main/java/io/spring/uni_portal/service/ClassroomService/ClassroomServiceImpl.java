@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,6 +71,11 @@ public class ClassroomServiceImpl implements IClassroomService {
         entity.setNumberOfSeats(dto.getNumberOfSeats());
         entity.setDevice(dto.getDevices() != null ? String.join(", ", dto.getDevices()) : "");
         return toResponse(classroomRepository.save(entity));
+    }
+
+    @Override
+    public Optional<Classroom> findById(Long id) {
+        return classroomRepository.findById(id);
     }
 
     @Override
