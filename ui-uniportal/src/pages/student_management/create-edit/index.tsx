@@ -2,7 +2,7 @@ import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
 import InputWithLabel from "@/components/InputWithLabel";
 import { useRouter } from "next/router";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import SelectWithLabel from "@/components/SelectWithLabel";
 import { TypographyBody } from "@/components/TypographyBody";
 import { Button } from "@/components/Button";
@@ -15,15 +15,36 @@ import {
     messageClear,
     updateStudent,
 } from "@/store/reducer/studentReducer";
-import { create } from "domain";
 import toast from "react-hot-toast";
-import ClassOffical from "./../../class_official/index";
+import { getListClassOffical } from "@/store/reducer/classReducer";
+import { getListSpec } from "@/store/reducer/specializationReducer";
 
-const specializationOptions = [
-    { value: "SE", label: "Kỹ thuật phần mềm" },
-    { value: "AI", label: "Trí tuệ nhân tạo" },
-    { value: "DS", label: "Khoa học dữ liệu" },
-];
+type Student = {
+    userId: number;
+    userName: string | "";
+    gender: string | "";
+    phoneNumber: string | "";
+    dateOfBirth: string | "";
+    educationLevel: string | "";
+    admissionDate: string | "";
+    typeOfTraining: string | "";
+    specializationId: number;
+    specializationName: string | "";
+    status: string | "";
+    classId: number;
+
+    email: string | "";
+    address: string | "";
+    ethnicGroup: string | "";
+    religion: string | "";
+
+    idNumber: string | "";
+    placeOfBirth: string | "";
+    permanentResident: string | "";
+    bank: string | "";
+    bankAccountOwner: string | "";
+    bankAccountNumber: string | "";
+};
 
 const genderOptions = [
     { value: "Nam", label: "Nam" },
@@ -57,14 +78,14 @@ const CreateEditStudent = () => {
     const router = useRouter();
     const { query } = router;
     const [mode, setMode] = useState<"create" | "edit">("create");
-    const [state, setState] = useState({
+    const [state, setState] = useState<Student>({
         userId: 0,
         userName: "",
         gender: "",
         phoneNumber: "",
-        dateOfBirth: new Date(),
+        dateOfBirth: "",
         educationLevel: "",
-        admissionDate: new Date(),
+        admissionDate: "",
         typeOfTraining: "",
         specializationId: 0,
         specializationName: "",
@@ -81,6 +102,11 @@ const CreateEditStudent = () => {
         bankAccountOwner: "",
         bankAccountNumber: "",
     });
+
+    useEffect(() => {
+        getListClassOffical();
+        getListSpec();
+    }, []);
 
     const inputHandle = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -126,6 +152,30 @@ const CreateEditStudent = () => {
             });
         } else {
             setMode("create");
+            setState({
+                userId: 0,
+                userName: "",
+                gender: "",
+                phoneNumber: "",
+                dateOfBirth: "",
+                educationLevel: "",
+                admissionDate: "",
+                typeOfTraining: "",
+                specializationId: 0,
+                specializationName: "",
+                status: "",
+                classId: 0,
+                email: "",
+                address: "",
+                ethnicGroup: "",
+                religion: "",
+                idNumber: "",
+                placeOfBirth: "",
+                permanentResident: "",
+                bank: "",
+                bankAccountOwner: "",
+                bankAccountNumber: "",
+            });
         }
     }, [student, query.id]);
 
@@ -135,9 +185,11 @@ const CreateEditStudent = () => {
             userName: state.userName,
             gender: state.gender,
             phoneNumber: state.phoneNumber,
-            dateOfBirth: state.dateOfBirth,
+            dateOfBirth: state.dateOfBirth ? new Date(state.dateOfBirth) : null,
             educationLevel: state.educationLevel,
-            admissionDate: state.admissionDate,
+            admissionDate: state.admissionDate
+                ? new Date(state.admissionDate)
+                : null,
             typeOfTraining: state.typeOfTraining,
             specializationId: state.specializationId,
             specializationName: state.specializationName,
@@ -154,6 +206,8 @@ const CreateEditStudent = () => {
             bankAccountOwner: state.bankAccountOwner,
             bankAccountNumber: state.bankAccountNumber,
         };
+
+        console.log(state.dateOfBirth);
 
         if (mode === "create") {
             dispatch(createStudent({ dto: obj }));
@@ -199,7 +253,7 @@ const CreateEditStudent = () => {
                         <InputWithLabel
                             label="Tên sinh viên"
                             name="userName"
-                            value={state.userName}
+                            value={state.userName || ""}
                             onChange={inputHandle}
                             type="text"
                             required
@@ -210,7 +264,7 @@ const CreateEditStudent = () => {
                         <SelectWithLabel
                             label="Giới tính"
                             name="gender"
-                            value={state.gender}
+                            value={state.gender || ""}
                             onChange={
                                 inputHandle as React.ChangeEventHandler<HTMLSelectElement>
                             }
@@ -223,13 +277,7 @@ const CreateEditStudent = () => {
                         <InputWithLabel
                             label="Ngày sinh"
                             name="dateOfBirth"
-                            value={
-                                state.dateOfBirth
-                                    ? state.dateOfBirth
-                                          .toISOString()
-                                          .slice(0, 10)
-                                    : ""
-                            }
+                            value={state.dateOfBirth || ""}
                             onChange={inputHandle}
                             type="date"
                         />
@@ -237,15 +285,9 @@ const CreateEditStudent = () => {
 
                     <div className={styles.gridItem}>
                         <InputWithLabel
-                            label="Ngày nhập học"
+                            label="Ngày vào trường"
                             name="admissionDate"
-                            value={
-                                state.admissionDate
-                                    ? state.admissionDate
-                                          .toISOString()
-                                          .slice(0, 10)
-                                    : ""
-                            }
+                            value={state.admissionDate || ""}
                             onChange={inputHandle}
                             type="date"
                         />
@@ -255,7 +297,7 @@ const CreateEditStudent = () => {
                         <InputWithLabel
                             label="Số điện thoại"
                             name="phoneNumber"
-                            value={state.phoneNumber}
+                            value={state.phoneNumber || ""}
                             onChange={inputHandle}
                             type="text"
                         />
@@ -275,7 +317,7 @@ const CreateEditStudent = () => {
                         <InputWithLabel
                             label="Số CMND/CCCD"
                             name="idNumber"
-                            value={state.idNumber}
+                            value={state.idNumber || ""}
                             onChange={inputHandle}
                             type="text"
                         />
@@ -285,7 +327,7 @@ const CreateEditStudent = () => {
                         <InputWithLabel
                             label="Dân tộc"
                             name="ethnicGroup"
-                            value={state.ethnicGroup}
+                            value={state.ethnicGroup || ""}
                             onChange={inputHandle}
                             type="text"
                         />
@@ -295,7 +337,7 @@ const CreateEditStudent = () => {
                         <InputWithLabel
                             label="Tôn giáo"
                             name="religion"
-                            value={state.religion}
+                            value={state.religion || ""}
                             onChange={inputHandle}
                             type="text"
                         />
@@ -305,7 +347,7 @@ const CreateEditStudent = () => {
                         <InputWithLabel
                             label="Nơi sinh"
                             name="placeOfBirth"
-                            value={state.placeOfBirth}
+                            value={state.placeOfBirth || ""}
                             onChange={inputHandle}
                             type="text"
                         />
@@ -315,7 +357,7 @@ const CreateEditStudent = () => {
                         <InputWithLabel
                             label="Thường trú"
                             name="permanentResident"
-                            value={state.permanentResident}
+                            value={state.permanentResident || ""}
                             onChange={inputHandle}
                             type="text"
                         />
@@ -325,7 +367,7 @@ const CreateEditStudent = () => {
                         <InputWithLabel
                             label="Ngân hàng"
                             name="bank"
-                            value={state.bank}
+                            value={state.bank || ""}
                             onChange={inputHandle}
                             type="text"
                         />
@@ -335,7 +377,7 @@ const CreateEditStudent = () => {
                         <InputWithLabel
                             label="Chủ tài khoản"
                             name="bankAccountOwner"
-                            value={state.bankAccountOwner}
+                            value={state.bankAccountOwner || ""}
                             onChange={inputHandle}
                             type="text"
                         />
@@ -345,7 +387,7 @@ const CreateEditStudent = () => {
                         <InputWithLabel
                             label="Số tài khoản"
                             name="bankAccountNumber"
-                            value={state.bankAccountNumber}
+                            value={state.bankAccountNumber || ""}
                             onChange={inputHandle}
                             type="text"
                         />
@@ -355,7 +397,7 @@ const CreateEditStudent = () => {
                         <SelectWithLabel
                             label="Trình độ học vấn"
                             name="educationLevel"
-                            value={state.educationLevel}
+                            value={state.educationLevel || ""}
                             onChange={
                                 inputHandle as React.ChangeEventHandler<HTMLSelectElement>
                             }
@@ -390,7 +432,7 @@ const CreateEditStudent = () => {
                         <SelectWithLabel
                             label="Hình thức đào tạo"
                             name="typeOfTraining"
-                            value={state.typeOfTraining}
+                            value={state.typeOfTraining || ""}
                             onChange={
                                 inputHandle as React.ChangeEventHandler<HTMLSelectElement>
                             }
@@ -406,7 +448,7 @@ const CreateEditStudent = () => {
                         <SelectWithLabel
                             label="Lớp"
                             name="classId"
-                            value={String(state.classId)}
+                            value={String(state.classId) || ""}
                             onChange={
                                 inputHandle as React.ChangeEventHandler<HTMLSelectElement>
                             }

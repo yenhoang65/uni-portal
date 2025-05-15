@@ -8,9 +8,37 @@ type TeachingAssignment = {
     lecturerId: number;
     lecturerName: string | null;
     subjectId: number;
-    subjectName: string | null;
+    subjectName: string;
+    subject: {
+        subjectId: number;
+        subjectName: string;
+        ltCredits: number;
+        thCredits: number;
+        subjectDescription: string;
+        subjectCoefficient: number;
+    };
     termClassId: number;
     className: string | null;
+    semester: string;
+    schoolYears: string;
+    progress: string;
+
+    status: string;
+    scheduleDetails: [
+        {
+            classroom_id: number;
+            lesson: string;
+            date_time: Date;
+            end_date: string;
+            class_type: string;
+        }
+    ];
+    materials: [
+        {
+            lt: string;
+            th: string;
+        }
+    ];
 };
 
 type ClassTerm = {
@@ -25,6 +53,7 @@ type GetParam = {
     currentPage: number;
     parPage: number;
     searchValue: string;
+    token: any;
 };
 
 export const getListTeachingAssignment = createAsyncThunk(
@@ -44,17 +73,26 @@ export const getListTeachingAssignment = createAsyncThunk(
 
 export const getListTeachingAssignmentByLecturerId = createAsyncThunk(
     "teachingAssignment/getListTeachingAssignmentByLecturerId",
-    async (token: any, { getState, rejectWithValue, fulfillWithValue }) => {
+    async (
+        { token, currentPage, parPage, searchValue }: GetParam,
+        { getState, rejectWithValue, fulfillWithValue }
+    ) => {
         try {
-            const { data } = await api.get(`/teaching-assignment`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const { data } = await api.get(
+                `/teaching-assignment/paging?currentPage=${currentPage}&perPage=${parPage}&searchValue=${searchValue}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log(data);
 
             return fulfillWithValue(data);
         } catch (error) {
-            // return rejectWithValue(error.message || error.response?.data);
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );
@@ -66,6 +104,8 @@ export const getTeachingAssignmentDetail = createAsyncThunk(
             const { data } = await api.get(`/teaching-assignment/${id}`, {
                 withCredentials: true,
             });
+
+            console.log(data);
 
             return fulfillWithValue(data);
         } catch (error) {
@@ -138,6 +178,26 @@ export const getClassTermUnAssign = createAsyncThunk(
     }
 );
 
+export const regisSchedule = createAsyncThunk(
+    "schedule/regisSchedule",
+    async ({ dto }: { dto: any }, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.post(
+                `/teaching-schedule/register`,
+                dto,
+                {
+                    withCredentials: true,
+                }
+            );
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
 export const teachingAssignmentReducer = createSlice({
     name: "teachingAssignment",
     initialState: {
@@ -145,6 +205,8 @@ export const teachingAssignmentReducer = createSlice({
         errorMessage: "",
         teachingAssignments: [] as TeachingAssignment[],
         teachingAssignment: {} as TeachingAssignment,
+
+        totalCounts: 0,
 
         classTermUnAssigns: [] as ClassTerm[],
     },
@@ -169,9 +231,16 @@ export const teachingAssignmentReducer = createSlice({
                 }
             )
             .addCase(
+                getListTeachingAssignmentByLecturerId.rejected,
+                (state, { payload }) => {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            )
+            .addCase(
                 getListTeachingAssignmentByLecturerId.fulfilled,
                 (state, { payload }) => {
-                    state.teachingAssignments = payload.data;
+                    state.teachingAssignments = payload.data.content;
+                    state.totalCounts = payload.data.totalElements;
                 }
             )
             .addCase(getClassTermUnAssign.fulfilled, (state, { payload }) => {
@@ -219,7 +288,14 @@ export const teachingAssignmentReducer = createSlice({
                 (state, { payload }) => {
                     state.successMessage = "Xóa teachingAssignment thành công";
                 }
-            );
+            )
+
+            .addCase(regisSchedule.rejected, (state, { payload }) => {
+                state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+            })
+            .addCase(regisSchedule.fulfilled, (state, { payload }) => {
+                state.successMessage = "Thêm teachingAssignment thành công";
+            });
     },
 });
 

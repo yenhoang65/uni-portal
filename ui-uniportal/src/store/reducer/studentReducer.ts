@@ -5,35 +5,35 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 type Student = {
     userId: number;
-    userName: string;
-    gender: string;
-    phoneNumber: string;
-    dateOfBirth: Date;
-    educationLevel: string;
-    admissionDate: Date;
-    typeOfTraining: string;
+    userName: string | "";
+    gender: string | "";
+    phoneNumber: string | "";
+    dateOfBirth: string | "";
+    educationLevel: string | "";
+    admissionDate: string | "";
+    typeOfTraining: string | "";
     specializationId: number;
-    specializationName: string;
-    status: string;
+    specializationName: string | "";
+    status: string | "";
     classId: number;
 
-    email: string;
-    address: string;
-    ethnicGroup: string;
-    religion: string;
+    email: string | "";
+    address: string | "";
+    ethnicGroup: string | "";
+    religion: string | "";
 
-    idNumber: string;
-    placeOfBirth: string;
-    permanentResident: string;
-    bank: string;
-    bankAccountOwner: string;
-    bankAccountNumber: string;
+    idNumber: string | "";
+    placeOfBirth: string | "";
+    permanentResident: string | "";
+    bank: string | "";
+    bankAccountOwner: string | "";
+    bankAccountNumber: string | "";
 };
 
 type GetParam = {
     currentPage: number;
     parPage: number;
-    searchValue: string;
+    searchValue: string | "";
 };
 
 export const getListStudent = createAsyncThunk(

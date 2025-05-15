@@ -13,6 +13,7 @@ import { getListLecturer } from "@/store/reducer/lecturerReducer";
 import {
     createTeachingAssignment,
     getClassTermUnAssign,
+    getTeachingAssignmentDetail,
     messageClear,
 } from "@/store/reducer/teachingAssignment";
 import toast from "react-hot-toast";
@@ -67,6 +68,14 @@ const CreateEditTeachingAssignment = () => {
         dispatch(getListSubject());
         dispatch(getListLecturer());
     }, []);
+
+    useEffect(() => {
+        if (query.id) {
+            getTeachingAssignmentDetail(query.id);
+        }
+    }, [query.id]);
+
+    console.log("teachingAssignment:", teachingAssignment);
 
     useEffect(() => {
         if (teachingAssignment && query.id) {
@@ -128,7 +137,7 @@ const CreateEditTeachingAssignment = () => {
     }, [successMessage, errorMessage]);
 
     return (
-        <AuthGuard allowedRoles={["admin", "employee"]}>
+        <AuthGuard allowedRoles={["admin"]}>
             <BorderBox
                 title={
                     mode === "create"

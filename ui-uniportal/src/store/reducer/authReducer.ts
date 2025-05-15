@@ -47,13 +47,13 @@ export const login = createAsyncThunk(
             });
 
             if (typeof window !== "undefined") {
-                console.log("data.token: ", data.token);
                 window.localStorage.setItem("accessToken", data.token);
             }
 
             return fulfillWithValue(data);
         } catch (error) {
-            // return rejectWithValue(error.response.data);
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );
@@ -74,7 +74,8 @@ export const getUserInfo = createAsyncThunk(
 
             return fulfillWithValue(data);
         } catch (error) {
-            // return rejectWithValue(error.message || error.response?.data);
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );
@@ -96,7 +97,8 @@ export const updateUserInfo = createAsyncThunk(
 
             return fulfillWithValue(data);
         } catch (error) {
-            // return rejectWithValue(error.message || error.response?.data);
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );
@@ -151,11 +153,12 @@ export const authReducer = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(login.pending, (state) => {
-                state.loader = true;
-            })
+            // .addCase(login.pending, (state) => {
+            //     state.loader = true;
+            // })
             .addCase(login.rejected, (state, { payload }) => {
                 state.loader = false;
+                state.errorMessage = "Đăng nhập không thành công. Hãy thử lại";
             })
             .addCase(login.fulfilled, (state, { payload }) => {
                 state.loader = false;

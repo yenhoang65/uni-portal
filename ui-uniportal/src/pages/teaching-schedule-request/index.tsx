@@ -5,7 +5,7 @@ import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
 import { FaCheck, FaEye } from "react-icons/fa";
-import { AiFillEdit } from "react-icons/ai";
+import { AiFillEdit, AiOutlineClose } from "react-icons/ai";
 import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import AuthGuard from "@/components/AuthGuard";
@@ -29,19 +29,25 @@ const TeachingAssignmentWithDetails = () => {
     const { teachingAssignments } = useSelector(
         (state: RootState) => state.teachingAssignment
     );
-    const { token, role } = useSelector((state: RootState) => state.auth);
 
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(0);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
 
     useEffect(() => {
-        dispatch(getListTeachingAssignmentByLecturerId(token));
-    }, []);
+        dispatch(
+            getListTeachingAssignmentByLecturerId({
+                currentPage: currentPage,
+                parPage: parPage,
+                searchValue: searchValue,
+                token: window.localStorage.getItem("accessToken"),
+            })
+        );
+    }, [currentPage, parPage, searchValue]);
 
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
-            <BorderBox title="Quản lý Phân công Giảng dạy">
+            <BorderBox title="Quản lý phân công giảng dạy">
                 <div className={styles.box}>
                     <div className={styles.add}>
                         <Search
@@ -64,7 +70,7 @@ const TeachingAssignmentWithDetails = () => {
                                     <th>No</th>
                                     <th>Mã giảng viên</th>
                                     <th>Môn học</th>
-                                    <th>Mã học kỳ - lớp</th>
+                                    <th>Mã lớp</th>
                                     <th>Tiến độ</th>
                                     <th>Kỳ</th>
                                     <th>Trạng thái</th>
@@ -76,24 +82,24 @@ const TeachingAssignmentWithDetails = () => {
                                     (assignment, index) => (
                                         <tr key={assignment.assignmentId}>
                                             <td className={styles.tableCell}>
-                                                {(currentPage - 1) * parPage +
-                                                    index +
-                                                    1}
+                                                {index + 1}
                                             </td>
                                             <td className={styles.tableCell}>
                                                 {assignment.lecturerId}
                                             </td>
                                             <td className={styles.tableCell}>
-                                                {assignment.subjectId}
+                                                {assignment.subjectId} -{" "}
+                                                {assignment.subjectName}
                                             </td>
                                             <td className={styles.tableCell}>
                                                 {assignment.termClassId}
                                             </td>
                                             <td className={styles.tableCell}>
-                                                {assignment.termClassId}
+                                                {assignment.progress}
                                             </td>
                                             <td className={styles.tableCell}>
-                                                {assignment.termClassId}
+                                                {assignment.semester} -{" "}
+                                                {assignment.schoolYears}
                                             </td>
                                             <td className={styles.tableCell}>
                                                 <span
@@ -126,7 +132,7 @@ const TeachingAssignmentWithDetails = () => {
                                                         styles.viewButton
                                                     }
                                                 >
-                                                    <FaEye />
+                                                    <AiOutlineClose color="red" />
                                                 </Link>
                                                 <Link
                                                     href={`/teaching-schedule-request/create-edit?id=${assignment.assignmentId}&mode=edit`}

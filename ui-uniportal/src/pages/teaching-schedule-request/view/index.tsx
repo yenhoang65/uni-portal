@@ -9,6 +9,9 @@ import { AiFillEdit } from "react-icons/ai";
 import AuthGuard from "@/components/AuthGuard";
 import { FaCheck } from "react-icons/fa";
 import { IoWarning } from "react-icons/io5";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getTeachingAssignmentDetail } from "@/store/reducer/teachingAssignment";
 
 type TeachingScheduleRequest = {
     schedule_id: string;
@@ -25,13 +28,19 @@ type TeachingScheduleRequest = {
 };
 
 const TeachingScheduleRequestDetail = () => {
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { teachingAssignment } = useSelector(
+        (state: RootState) => state.teachingAssignment
+    );
+
     const router = useRouter();
     const { query } = router;
     const { id } = query;
     const [teachingScheduleRequest, setTeachingScheduleRequest] =
         useState<TeachingScheduleRequest | null>(null);
 
-    const [status, setStatus] = useState<0 | 1 | 2>(0); // Default to "Pending" (0)
+    const [status, setStatus] = useState<0 | 1 | 2>(0);
     const [isStatusChanged, setIsStatusChanged] = useState(false);
 
     const dummyTeachingScheduleRequest: TeachingScheduleRequest = {
@@ -50,9 +59,7 @@ const TeachingScheduleRequestDetail = () => {
 
     useEffect(() => {
         if (id) {
-            // Simulate fetching data from an API
-            setTeachingScheduleRequest(dummyTeachingScheduleRequest);
-            setStatus(dummyTeachingScheduleRequest.status); // Set the status from the data
+            dispatch(getTeachingAssignmentDetail(id));
         }
     }, [id]);
 
@@ -223,40 +230,25 @@ const TeachingScheduleRequestDetail = () => {
                             <span className={styles.backText}>Quay lại</span>
                         </div>
 
-                        {status !== 1 && (
-                            <>
-                                <Button
-                                    // onClick={handleAccept}
-                                    className={styles.acceptButton}
-                                    onClick={() =>
-                                        router.push(
-                                            `/teaching-schedule-request/edit?id=${teachingScheduleRequest.schedule_id}&mode=edit`
-                                        )
-                                    }
-                                >
-                                    <FaCheck /> Đăng ký lịch dạy
-                                </Button>
-                                <Button
-                                    onClick={handleReject}
-                                    className={styles.rejectButton}
-                                >
-                                    <IoWarning /> Từ chối
-                                </Button>
-                            </>
-                        )}
-
-                        {status === 1 && (
+                        <>
                             <Button
-                                className={styles.editButton}
+                                // onClick={handleAccept}
+                                className={styles.acceptButton}
                                 onClick={() =>
                                     router.push(
                                         `/teaching-schedule-request/edit?id=${teachingScheduleRequest.schedule_id}&mode=edit`
                                     )
                                 }
                             >
-                                <AiFillEdit /> Chỉnh sửa
+                                <FaCheck /> Chấp nhận
                             </Button>
-                        )}
+                            <Button
+                                onClick={handleReject}
+                                className={styles.rejectButton}
+                            >
+                                <IoWarning /> Từ chối
+                            </Button>
+                        </>
                     </div>
                 </div>
             </BorderBox>
