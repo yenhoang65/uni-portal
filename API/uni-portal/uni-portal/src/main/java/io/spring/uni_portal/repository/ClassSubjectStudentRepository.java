@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,13 +33,8 @@ public interface ClassSubjectStudentRepository extends JpaRepository<ClassSubjec
     """)
     List<ClassSubjectStudent> findRegisteredClassesByUserId(@Param("userId") Long userId);
 
-    // Lấy danh sách sinh viên theo classStudentId và status
-    List<ClassSubjectStudent> findByClassStudent_ClassStudentIdAndStatus(Long classStudentId, String status);
-
-    // Đếm số lượng sinh viên theo classStudentId và status
-    long countByClassStudent_ClassStudentIdAndStatus(Long classStudentId, String status);
-
-    Optional<ClassSubjectStudent> findByClassStudent_ClassStudentIdAndStudent_UserId(Long classStudentId, Long userId);
+    boolean existsByStudent_UserIdAndClassStudent_TeachingScheduleRequest_Assignment_Subject_SubjectIdAndRegistrationTimeBetween(
+            Long studentId, Long subjectId, LocalDateTime startDate, LocalDateTime endDate);
 
 
 }

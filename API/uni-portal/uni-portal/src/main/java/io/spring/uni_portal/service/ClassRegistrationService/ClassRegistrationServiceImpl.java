@@ -6,6 +6,7 @@ import io.spring.uni_portal.dto.ClassSubjectStudent.RegisteredClassDTO;
 import io.spring.uni_portal.dto.ClassSubjectStudent.UnregisterClassRequestDTO;
 import io.spring.uni_portal.model.*;
 import io.spring.uni_portal.repository.*;
+import io.spring.uni_portal.response.Response;
 import io.spring.uni_portal.security.JwtService;
 import io.spring.uni_portal.service.ClassStudentService.IClassStudentService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,13 +41,9 @@ public class ClassRegistrationServiceImpl implements IClassRegistrationService  
     @Autowired
     private StudentRegistrationPeriodRepository studentRegistrationPeriodRepository;
 
-
-
-
     @Override
     @Transactional
     public ClassSubjectStudentDTO registerStudentToClass(RegisterClassRequestDTO dto) {
-
         // 🔐 Check thời gian đăng ký sinh viên hợp lệ
         LocalDateTime now = LocalDateTime.now();
         StudentRegistrationPeriod currentPeriod = studentRegistrationPeriodRepository.findActivePeriod(now)
@@ -59,6 +56,7 @@ public class ClassRegistrationServiceImpl implements IClassRegistrationService  
             ));
         }
 
+        // Xác thực người dùng
         UsernamePasswordAuthenticationToken authentication =
                 (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 
@@ -74,11 +72,22 @@ public class ClassRegistrationServiceImpl implements IClassRegistrationService  
         ClassStudent classStudent = classStudentRepo.findById(dto.getClassStudentId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp học."));
 
-        // Kiểm tra trùng
+        // Kiểm tra trùng lớp học cụ thể
         boolean exists = classSubjectRepo.existsByClassStudent_ClassStudentIdAndStudent_UserId(
                 dto.getClassStudentId(), student.getUserId());
         if (exists) {
             throw new IllegalStateException("Sinh viên đã đăng ký lớp học này rồi.");
+        }
+
+        // Kiểm tra xem sinh viên đã đăng ký lớp nào khác cho cùng subject_id trong khoảng thời gian đăng ký
+        Long subjectId = classStudent.getTeachingScheduleRequest().getAssignment().getSubject().getSubjectId();
+        boolean subjectExistsInPeriod = classSubjectRepo.existsByStudent_UserIdAndClassStudent_TeachingScheduleRequest_Assignment_Subject_SubjectIdAndRegistrationTimeBetween(
+                student.getUserId(), subjectId, currentPeriod.getStartDate(), currentPeriod.getEndDate());
+        if (subjectExistsInPeriod) {
+            throw new IllegalStateException(String.format(
+                    "Sinh viên đã đăng ký một lớp học khác cho môn học (subject_id: %d) trong khoảng thời gian này (%s đến %s).",
+                    subjectId, currentPeriod.getStartDate(), currentPeriod.getEndDate()
+            ));
         }
 
         // Ghi danh
@@ -86,6 +95,7 @@ public class ClassRegistrationServiceImpl implements IClassRegistrationService  
         css.setClassStudent(classStudent);
         css.setStudent(student);
         css.setStatus(dto.getStatus());
+        css.setRegistrationTime(now); // Lưu thời gian đăng ký
         classSubjectRepo.save(css);
 
         // Kiểm tra số lượng sinh viên đã đăng ký
