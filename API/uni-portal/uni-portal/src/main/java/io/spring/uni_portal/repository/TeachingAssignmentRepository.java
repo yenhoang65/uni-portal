@@ -16,7 +16,9 @@ public interface TeachingAssignmentRepository extends JpaRepository<TeachingAssi
     TeachingAssignment findByTermClass(TermClass termClass);
     // Lấy ra những lớp đã có giảng viên
     List<TeachingAssignment> findByLecturerIsNotNull();
-    List<TeachingAssignment> findByLecturerUserUserId(Long userId);
+
+    List<TeachingAssignment> findByLecturer_UserId(Long userId);
+
     TeachingAssignment findByTermClassAndAssignmentType(TermClass termClass, TeachingAssignment.AssignmentType assignmentType);
 
 //    Page<TeachingAssignment> findAllBySearchValue(String searchValue, Pageable pageable);

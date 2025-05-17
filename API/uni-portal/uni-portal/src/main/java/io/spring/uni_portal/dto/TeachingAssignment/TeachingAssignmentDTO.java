@@ -1,11 +1,14 @@
 package io.spring.uni_portal.dto.TeachingAssignment;
 
+import io.spring.uni_portal.model.TeachingAssignment;
+
 public class TeachingAssignmentDTO {
 
     private Long lecturerId;
     private Long subjectId;
     private Long termClassId;  // Chỉ cần trường này
     private String assignmentType;
+
 
     // Getters and setters
     public Long getLecturerId() {
