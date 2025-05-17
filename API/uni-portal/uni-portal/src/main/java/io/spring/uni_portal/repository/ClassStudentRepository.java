@@ -1,12 +1,61 @@
 package io.spring.uni_portal.repository;
 
+import io.spring.uni_portal.dto.ClassStudent.OpenedClassFullDTO;
 import io.spring.uni_portal.model.ClassStudent;
-import io.spring.uni_portal.model.TeachingScheduleRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface ClassStudentRepository extends JpaRepository<ClassStudent, Long> {
+    // Lấy tất cả bản ghi với phân trang và tìm kiếm
+    @Query(value = "SELECT cs.* " +
+            "FROM class_student cs " +
+            "JOIN teaching_schedule_request tsr ON cs.schedule_id = tsr.schedule_id " +
+            "WHERE :searchValue IS NULL OR cs.status LIKE CONCAT('%', :searchValue, '%') " +
+            "OR cs.materials LIKE CONCAT('%', :searchValue, '%')", nativeQuery = true)
+    Page<ClassStudent> findAllBySearchValue(@Param("searchValue") String searchValue, Pageable pageable);
 
-    Optional<ClassStudent> findByTeachingScheduleRequest(TeachingScheduleRequest teachingScheduleRequest);
+    // Lấy bản ghi cho student với phân trang và tìm kiếm
+    @Query(value = "SELECT cs.* " +
+            "FROM class_student cs " +
+            "JOIN teaching_schedule_request tsr ON cs.schedule_id = tsr.schedule_id " +
+            "JOIN teaching_assignment ta ON tsr.assignment_id = ta.assignment_id " +
+            "JOIN subject s ON ta.subject_id = s.subject_id " +
+            "JOIN intermediary i ON s.subject_id = i.subject_id " +
+            "JOIN class c ON i.training_program_id = c.training_program_id " +
+            "WHERE cs.student_id = (SELECT user_id FROM student WHERE user_id = :userId) " +
+            "AND cs.class_id = c.class_id " +
+            "AND (:searchValue IS NULL OR cs.status LIKE CONCAT('%', :searchValue, '%') " +
+            "OR cs.materials LIKE CONCAT('%', :searchValue, '%'))", nativeQuery = true)
+    Page<ClassStudent> findClassStudentsForStudent(@Param("userId") Long userId,
+                                                   @Param("searchValue") String searchValue,
+                                                   Pageable pageable);
+
+    @Query("""
+    SELECT cs FROM ClassStudent cs
+    JOIN FETCH cs.teachingScheduleRequest tsr
+    JOIN FETCH tsr.assignment a
+    JOIN FETCH a.termClass
+    JOIN FETCH a.subject
+    JOIN FETCH a.lecturer l
+    JOIN FETCH l.user
+    WHERE a.subject.subjectId = :subjectId
+""")
+    List<ClassStudent> findFullOpenedClassesBySubjectId(@Param("subjectId") Long subjectId);
+
+//    @Query("SELECT cs FROM ClassStudent cs " +
+//            "WHERE cs.student.userId = :userId " +
+//            "AND (:status IS NULL OR cs.status = :status) " +
+//            "AND (:search IS NULL OR LOWER(cs.teachingScheduleRequest.subject.subjectName) LIKE LOWER(CONCAT('%', :search, '%')))")
+//    Page<ClassStudent> findByFilters(
+//            @Param("userId") Long userId,
+//            @Param("status") String status,
+//            @Param("search") String search,
+//            Pageable pageable
+//    );
+
 }

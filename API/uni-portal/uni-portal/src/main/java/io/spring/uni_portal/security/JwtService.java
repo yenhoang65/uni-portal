@@ -22,6 +22,7 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(String.valueOf(user.getUserId()))
                 .claim("role", user.getRole())
+                .claim("user_id", user.getUserId())
                 .claim("userName", user.getUserName()) // Ví dụ thêm thông tin khác
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))

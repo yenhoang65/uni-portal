@@ -8,10 +8,11 @@ public class ClassSubjectStudent {
 
     @Id
     @Column(name = "class_subject_student_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long classSubjectStudentId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "termclass_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_student_id", nullable = false)
     private ClassStudent classStudent;
 
     @ManyToOne
@@ -19,12 +20,12 @@ public class ClassSubjectStudent {
     private Student student;
 
     @Column(name = "status")
-    private Long status;
+    private String status;
 
     // Constructors
     public ClassSubjectStudent() {}
 
-    public ClassSubjectStudent(ClassStudent classStudent, Student student, Long status) {
+    public ClassSubjectStudent(ClassStudent classStudent, Student student, String status) {
         this.classStudent = classStudent;
         this.student = student;
         this.status = status;
@@ -55,11 +56,11 @@ public class ClassSubjectStudent {
         this.student = student;
     }
 
-    public Long getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(Long status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 }
