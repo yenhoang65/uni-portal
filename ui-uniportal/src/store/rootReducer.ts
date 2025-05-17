@@ -10,6 +10,7 @@ import trainingProgramReducer from "./reducer/trainingProgramReducer";
 import classReducer from "./reducer/classReducer";
 import studentReducer from "./reducer/studentReducer";
 import teachingAssignmentReducer from "./reducer/teachingAssignment";
+import creditRegistrationReducer from "./reducer/creditRegistration";
 
 const rootReducer = {
     auth: authReducer,
@@ -24,6 +25,7 @@ const rootReducer = {
     trainingProgram: trainingProgramReducer,
     class: classReducer,
     teachingAssignment: teachingAssignmentReducer,
+    creditRegistration: creditRegistrationReducer,
 };
 
 export default rootReducer;

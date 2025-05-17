@@ -28,3 +28,7 @@
 .backButton:hover {
     text-decoration: underline;
 }
+
+.rbc-event-content {
+    white-space: pre-wrap;
+}

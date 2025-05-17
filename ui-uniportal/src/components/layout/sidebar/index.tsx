@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import { IoMdLogOut } from "react-icons/io";
 
 const Sidebar: React.FC = () => {
     const router = useRouter();
@@ -77,6 +78,18 @@ const Sidebar: React.FC = () => {
                         </ul>
                     </div>
                 ))}
+                <button
+                    className={`${styles.navItem}`}
+                    onClick={() => {
+                        window.localStorage.removeItem("accessToken");
+                        window.location.href = "/login";
+                    }}
+                >
+                    <span className={styles.navIcon}>
+                        <IoMdLogOut />
+                    </span>
+                    <span className={styles.titleName}>Đăng xuất</span>
+                </button>
             </div>
         </div>
     );

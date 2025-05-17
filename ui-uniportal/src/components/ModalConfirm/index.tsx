@@ -3,7 +3,7 @@ import styles from "./styles.module.css";
 import { FaTrash } from "react-icons/fa";
 
 type ModalConfirmProps = {
-    message?: string;
+    message?: React.ReactNode;
     confirmText?: string;
     buttonText?: string;
     onConfirm: () => void;
@@ -18,8 +18,11 @@ const ModalConfirm: React.FC<ModalConfirmProps> = ({
     buttonText = "Delete",
 }) => {
     return (
-        <div className={styles.overlay} onClick={onCancel}>
-            <div className={styles.modal}>
+        <div className={styles.overlay}>
+            <div
+                className={styles.modal}
+                onClick={(e) => e.stopPropagation()} // Ngăn sự kiện click overlay lọt vào modal
+            >
                 <div className={styles.iconWrapper}>
                     <FaTrash className={styles.icon} />
                 </div>

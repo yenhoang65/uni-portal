@@ -122,7 +122,14 @@ export const allNav = [
                 path: "/student-timetable",
             },
             {
-                id: 21,
+                id: 22,
+                title: "Danh sách lớp đã đăng ký lịch giảng dạy",
+                icon: <AiOutlineCalendar />,
+                role: ["lecturer", "admin"],
+                path: "/teaching-schedule-request/view",
+            },
+            {
+                id: 30,
                 title: "Thời khóa biểu giảng viên",
                 icon: <AiOutlineCalendar />,
                 role: ["lecturer", "admin"],

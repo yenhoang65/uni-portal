@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -11,16 +11,43 @@ import { IoMdAddCircle } from "react-icons/io";
 import AuthGuard from "@/components/AuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { getListTeachingAssignmentByLecturerId } from "@/store/reducer/teachingAssignment";
+import {
+    getListTeachingAssignmentByLecturerId,
+    getTeachingScheduleWithAssignID,
+} from "@/store/reducer/teachingAssignment";
+type TeachingScheduleDetail = {
+    classroomId: number;
+    lesson: string;
+    dateTime: string;
+    endDate: string;
+    classType: "LT" | "TH";
+};
 
-type TeachingAssignmentWithDetailsType = {
-    assignment_id: string;
-    lecturer_id: string;
-    subject_id: string;
-    term_class_id: string;
-    progress?: string;
-    term?: string;
-    status?: "pending" | "đã đăng ký" | "cancel";
+type TeachingSchedule = {
+    scheduleId: number;
+    classroomId: number;
+    lesson: string;
+    dateTime: string;
+    endDate: string;
+    status: string;
+    classType: "LT" | "TH";
+    createdAt: string;
+    scheduleDetails: TeachingScheduleDetail[];
+    materials: { lt: string; th: string }[];
+};
+
+type TeachingScheduleFollowAssignId = {
+    assignment: {
+        assignmentId: number;
+        assignmentType: any;
+        lecturerId: number;
+        lecturerName: string;
+        subjectId: number;
+        subjectName: string;
+        termClassId: number;
+        termClassName: string;
+    };
+    schedules: TeachingSchedule[];
 };
 
 const TeachingAssignmentWithDetails = () => {
@@ -30,9 +57,16 @@ const TeachingAssignmentWithDetails = () => {
         (state: RootState) => state.teachingAssignment
     );
 
+    const teachingScheduleFollowAssignId = useSelector(
+        (state: RootState) =>
+            state.teachingAssignment.teachingScheduleFollowAssignId
+    ) as TeachingScheduleFollowAssignId;
+
+    const fetchedAssignmentIds = useRef<Set<number>>(new Set());
+
     const [currentPage, setCurrentPage] = useState(0);
     const [searchValue, setSearchValue] = useState("");
-    const [parPage, setParPage] = useState(5);
+    const [parPage, setParPage] = useState(10);
 
     useEffect(() => {
         dispatch(
@@ -44,6 +78,17 @@ const TeachingAssignmentWithDetails = () => {
             })
         );
     }, [currentPage, parPage, searchValue]);
+
+    useEffect(() => {
+        teachingAssignments.forEach((assignment) => {
+            if (!fetchedAssignmentIds.current.has(assignment.assignmentId)) {
+                fetchedAssignmentIds.current.add(assignment.assignmentId);
+                dispatch(
+                    getTeachingScheduleWithAssignID(assignment.assignmentId)
+                );
+            }
+        });
+    }, [teachingAssignments]);
 
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
@@ -92,7 +137,7 @@ const TeachingAssignmentWithDetails = () => {
                                                 {assignment.subjectName}
                                             </td>
                                             <td className={styles.tableCell}>
-                                                {assignment.termClassId}
+                                                {assignment.className}
                                             </td>
                                             <td className={styles.tableCell}>
                                                 {assignment.progress}
@@ -103,20 +148,30 @@ const TeachingAssignmentWithDetails = () => {
                                             </td>
                                             <td className={styles.tableCell}>
                                                 <span
-                                                // className={clsx(
-                                                //     styles.status,
-                                                //     assignment.status ===
-                                                //         "pending" &&
-                                                //         styles.pending,
-                                                //     assignment.status ===
-                                                //         "đã đăng ký" &&
-                                                //         styles.registered,
-                                                //     assignment.status ===
-                                                //         "cancel" &&
-                                                //         styles.cancel
-                                                // )}
+                                                    className={clsx(
+                                                        styles.status,
+                                                        teachingScheduleFollowAssignId
+                                                            .schedules?.[0]
+                                                            ?.status ===
+                                                            "pending" &&
+                                                            styles.pending,
+                                                        teachingScheduleFollowAssignId
+                                                            .schedules?.[0]
+                                                            ?.status ===
+                                                            "success" &&
+                                                            styles.registered,
+                                                        teachingScheduleFollowAssignId
+                                                            .schedules?.[0]
+                                                            ?.status ===
+                                                            "cancel" &&
+                                                            styles.cancel
+                                                    )}
                                                 >
-                                                    {assignment.termClassId}
+                                                    {
+                                                        teachingScheduleFollowAssignId
+                                                            .schedules?.[0]
+                                                            ?.status
+                                                    }
                                                 </span>
                                             </td>
 
@@ -151,15 +206,17 @@ const TeachingAssignmentWithDetails = () => {
                         </table>
                     </div>
 
-                    <div className={styles.paginationWrapper}>
-                        <Pagination
-                            pageNumber={currentPage}
-                            setPageNumber={setCurrentPage}
-                            totalItem={teachingAssignments.length}
-                            parPage={parPage}
-                            showItem={3}
-                        />
-                    </div>
+                    {teachingAssignments.length > parPage && (
+                        <div className={styles.paginationWrapper}>
+                            <Pagination
+                                pageNumber={currentPage}
+                                setPageNumber={setCurrentPage}
+                                totalItem={teachingAssignments.length}
+                                parPage={parPage}
+                                showItem={3}
+                            />
+                        </div>
+                    )}
                 </div>
             </BorderBox>
         </AuthGuard>

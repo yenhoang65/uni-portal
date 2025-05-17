@@ -1,88 +1,113 @@
-.detailContainerHorizontal {
-    padding: 20px;
+.filterAndAdd {
+    margin-top: 25px;
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    justify-content: space-between;
+    align-items: center; /* Thêm dòng này để căn chỉnh các phần tử theo chiều dọc */
 }
 
-.detailItem {
+.searchAndFilter {
     display: flex;
-    gap: 15px;
-    align-items: flex-start;
-    margin-bottom: 10px;
-    flex-basis: calc(33.33% - 20px);
+    gap: 20px; /* Khoảng cách giữa search và filter */
+    align-items: center; /* Thêm dòng này để căn chỉnh search và filter theo chiều dọc */
 }
 
-.detailLabel {
-    font-weight: 600;
-    min-width: 150px;
+.filter {
+    /* Có thể thêm các style riêng cho phần filter nếu cần */
 }
 
-.buttonGroup {
-    margin-top: 30px;
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    width: 100%;
-    justify-content: flex-start;
+.add {
+    /* Các style hiện tại cho phần buttonAdd vẫn giữ nguyên */
 }
 
-.backButton {
+.buttonAdd {
+    text-decoration: none;
+    background-color: var(--secondary-blue);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 8px;
     display: inline-flex;
     align-items: center;
-    cursor: pointer;
-    text-decoration: none;
-    color: inherit;
-    transition: text-decoration 0.3s ease, color 0.3s ease;
-    font-size: 1rem;
-    padding: 10px 15px;
-    border-radius: 5px;
-    background-color: #fff;
-    font-weight: 600;
+    gap: 7px;
 }
 
-.backButton:hover {
-    text-decoration: underline;
-    color: #0056b3;
+/* Các style khác giữ nguyên */
+.tableWrapper {
+    overflow-x: auto;
+    margin-top: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.backIcon {
-    margin-right: 8px;
-    font-size: 1.3em;
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 15px;
+    background-color: white;
+    table-layout: fixed;
 }
 
-.editButton,
-.acceptButton,
-.rejectButton {
-    display: flex !important ;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 8px !important;
-    padding: 12px 18px !important;
-    border-radius: 8px !important;
-    cursor: pointer !important;
-    border: none !important;
-    color: #fff !important;
-    transition: background-color 0.3s ease, transform 0.2s ease-in-out !important;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+.thead {
+    background-color: #e5e5e5;
 }
 
-.editButton:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
+.table th,
+.table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.editButton:active {
-    transform: translateY(0);
+.table th {
+    padding: 14px 20px;
+    font-weight: 700;
+    color: #222;
+    background-color: #e5e5e5;
+    white-space: nowrap;
 }
 
-.editButton svg {
-    font-size: 1.2em;
+.table td {
+    padding: 14px 20px;
+    color: #333;
+    vertical-align: middle;
+    border-bottom: 1px solid #ddd;
+    white-space: nowrap;
 }
 
-.acceptButton {
-    background-color: var(--primary-green) !important;
+.table tr:last-child td {
+    border-bottom: none;
 }
-.rejectButton {
-    background-color: var(--primary-red) !important;
+
+.viewButton {
+    padding: 6px;
+    background-color: #22c55e;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.viewButtonDelete {
+    background-color: var(--primary-red);
+}
+
+.viewButtonUpdate {
+    background-color: var(--primary-yellow);
+}
+.viewButton:hover {
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    transform: scale(1.05);
+}
+
+.buttonAction {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.paginationWrapper {
+    display: flex;
+    justify-content: flex-end;
 }

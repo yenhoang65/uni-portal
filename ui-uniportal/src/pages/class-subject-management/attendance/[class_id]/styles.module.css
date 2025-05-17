@@ -1,113 +1,79 @@
 .attendanceContainer {
-    width: 1200px;
-    max-width: 100%;
+    width: 100%;
     overflow-x: auto;
-    position: relative;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    overflow-y: auto;
-    max-height: 500px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-top: 16px;
 }
 
+/* Table layout */
 .attendanceTable {
+    width: 100%;
     border-collapse: collapse;
+    font-family: "Roboto", sans-serif;
+    font-size: 14px;
     background-color: #fff;
-    width: auto;
-    flex-grow: 1;
+}
+
+.attendanceTable thead {
+    background-color: #f5f7fa;
+    color: #333;
 }
 
 .attendanceTable th,
 .attendanceTable td {
-    padding: 8px;
-    text-align: center;
-    border: 1px solid #ddd;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    vertical-align: middle;
     white-space: nowrap;
 }
 
-.stickyColumn {
-    position: sticky;
-    left: 0;
-    background-color: #f0f0f0;
-    z-index: 1;
-    min-width: 40px;
+/* Zebra row styling */
+.attendanceTable tbody tr:nth-child(even) {
+    background-color: #fafafa;
 }
 
-.stickySecondColumn {
-    position: sticky;
-    left: 40px;
-    background-color: #f0f0f0;
-    z-index: 1;
-    min-width: 80px;
-}
-
-.stickyThirdColumn {
-    position: sticky;
-    left: 120px;
-    background-color: #f0f0f0;
-    z-index: 1;
-    min-width: 150px;
-}
-
-.attendanceTable th.stickyColumn,
-.attendanceTable th.stickySecondColumn,
-.attendanceTable th.stickyThirdColumn {
-    z-index: 3;
-}
-
-.attendanceCell {
-    min-width: 100px;
-}
-
-.attendanceSelect {
-    padding: 4px;
-    border-radius: 4px;
+/* Compact select + input style */
+.attendanceSelect select,
+.noteInput {
+    height: 32px;
+    padding: 4px 10px;
+    font-size: 14px;
+    line-height: 1.4;
     border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
     background-color: #fff;
-    cursor: pointer;
-    width: 90px;
 }
 
-.attendanceActions button {
-    padding: 0 20px !important;
-    margin-top: 16px;
-    text-align: right;
-    cursor: pointer;
+/* Header with session selector */
+.attendanceHeader {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 16px;
 }
 
-.attendanceTable th {
-    font-weight: 600;
-    position: sticky;
-    top: -2px;
-    background-color: #f0f0f0;
-    z-index: 2;
+/* Button wrapper */
+.attendanceActions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
 }
 
-/* Tùy chỉnh thanh cuộn dọc giống thanh cuộn ngang */
-.attendanceContainer::-webkit-scrollbar {
-    width: 6px; /* Điều chỉnh cho phù hợp với 'height' của thanh cuộn ngang */
-    background-color: transparent; /* Giữ trong suốt như thanh cuộn ngang */
+.selectPresent {
+    color: #389e0d;
+    border-color: #b7eb8f;
 }
 
-.attendanceContainer::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.3); /* Màu xám nhạt */
-    border-radius: 3px; /* Bo tròn góc */
+.selectAbsent {
+    color: #cf1322;
+    border-color: #ffa39e;
 }
 
-.attendanceContainer::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0, 0, 0, 0.5); /* Màu đậm hơn khi hover */
-}
-
-.attendanceContainer::-webkit-scrollbar-track {
-    background-color: transparent; /* Giữ trong suốt */
-}
-
-.attendanceContainer::-webkit-scrollbar-corner {
-    background-color: transparent;
-}
-
-/* Tùy chỉnh cho Firefox để tương đồng (nếu có thể) */
-.attendanceContainer {
-    scrollbar-width: thin; /* Làm cho thanh cuộn mỏng hơn */
-    scrollbar-color: rgba(0, 0, 0, 0.3) transparent; /* Màu nút kéo và rãnh */
+.selectExcused {
+    color: #d48806;
+    border-color: #ffe58f;
 }

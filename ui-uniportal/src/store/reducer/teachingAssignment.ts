@@ -3,6 +3,14 @@
 import api from "@/service/api";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
+type scheduleDetail = {
+    classroom_id: number;
+    lesson: string;
+    date_time: Date;
+    end_date: string;
+    class_type: string;
+};
+
 type TeachingAssignment = {
     assignmentId: number;
     lecturerId: number;
@@ -24,21 +32,8 @@ type TeachingAssignment = {
     progress: string;
 
     status: string;
-    scheduleDetails: [
-        {
-            classroom_id: number;
-            lesson: string;
-            date_time: Date;
-            end_date: string;
-            class_type: string;
-        }
-    ];
-    materials: [
-        {
-            lt: string;
-            th: string;
-        }
-    ];
+    scheduleDetails: scheduleDetail[];
+    materials: { lt: string; th: string }[];
 };
 
 type ClassTerm = {
@@ -53,7 +48,8 @@ type GetParam = {
     currentPage: number;
     parPage: number;
     searchValue: string;
-    token: any;
+    token?: any;
+    statuses?: string;
 };
 
 export const getListTeachingAssignment = createAsyncThunk(
@@ -86,8 +82,6 @@ export const getListTeachingAssignmentByLecturerId = createAsyncThunk(
                     },
                 }
             );
-
-            console.log(data);
 
             return fulfillWithValue(data);
         } catch (error) {
@@ -191,6 +185,57 @@ export const regisSchedule = createAsyncThunk(
             );
 
             return fulfillWithValue(data);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
+export const getTeachingScheduleWithAssignID = createAsyncThunk(
+    "regis/getTeachingScheduleWithAssignID",
+    async (scheduleId: any, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get(
+                `/teaching-assignment/with-schedules/${scheduleId}`
+            );
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            // return rejectWithValue(error.response.data);
+        }
+    }
+);
+
+export const getListScheduleRequestFollowStatus = createAsyncThunk(
+    "teachingAssignment/getListScheduleRequestFollowStatus",
+    async (
+        { statuses, currentPage, parPage, searchValue }: GetParam,
+        { getState, rejectWithValue, fulfillWithValue }
+    ) => {
+        try {
+            const token = window.localStorage.getItem("accessToken");
+            const { data } = await api.get(`/teaching-schedule/by-status`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                params: {
+                    perPage: parPage,
+                    currentPage: currentPage,
+                    searchValue: searchValue,
+                    statuses: statuses,
+                },
+            });
+
+            console.log(data);
+
+            return fulfillWithValue(data);
         } catch (error) {
             const e = error as Error;
             return rejectWithValue(e.message || "An unknown error occurred");
@@ -209,6 +254,9 @@ export const teachingAssignmentReducer = createSlice({
         totalCounts: 0,
 
         classTermUnAssigns: [] as ClassTerm[],
+
+        teachingScheduleFollowAssignId: {},
+        scheduleRequests: [],
     },
     reducers: {
         messageClear: (state) => {
@@ -291,11 +339,30 @@ export const teachingAssignmentReducer = createSlice({
             )
 
             .addCase(regisSchedule.rejected, (state, { payload }) => {
-                state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
             })
+
             .addCase(regisSchedule.fulfilled, (state, { payload }) => {
                 state.successMessage = "Thêm teachingAssignment thành công";
-            });
+            })
+            .addCase(
+                getTeachingScheduleWithAssignID.fulfilled,
+                (state, { payload }) => {
+                    state.teachingScheduleFollowAssignId = payload.data;
+                }
+            );
     },
 });
 

@@ -13,6 +13,8 @@ type InputWithLabelProps = {
     className?: string;
     readOnly?: boolean;
     disabled?: boolean;
+    pattern?: string;
+    title?: string;
 };
 
 const InputWithLabel: React.FC<InputWithLabelProps> = ({
@@ -26,6 +28,8 @@ const InputWithLabel: React.FC<InputWithLabelProps> = ({
     className,
     readOnly,
     disabled,
+    pattern,
+    title,
 }) => {
     return (
         <div className={clsx(styles.inputGroup, className)}>
@@ -43,6 +47,8 @@ const InputWithLabel: React.FC<InputWithLabelProps> = ({
                 className={styles.input}
                 readOnly={readOnly}
                 disabled={disabled}
+                pattern={pattern}
+                title={title}
             />
         </div>
     );

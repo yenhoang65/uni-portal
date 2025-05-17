@@ -36,7 +36,7 @@ const SelectWithLabel: React.FC<SelectWithLabelProps> = ({
                 value={value}
                 onChange={onChange}
                 required={required}
-                className={styles.select}
+                className={clsx(styles.select, className)}
                 disabled={disabled}
                 multiple={multiple}
             >

@@ -6,8 +6,17 @@ import { lessonTimeMap } from "@/constants/lession";
 import styles from "./styles.module.css";
 import { IoIosArrowBack } from "react-icons/io";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ModalConfirm from "@/components/ModalConfirm";
+import { AppDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/router";
+import {
+    getClassFollowSubject,
+    messageClear,
+    registerTC,
+} from "@/store/reducer/creditRegistration";
+import toast from "react-hot-toast";
 
 moment.updateLocale("en", {
     week: {
@@ -17,124 +26,58 @@ moment.updateLocale("en", {
 // Khởi tạo localizer cho react-big-calendar
 const localizer = momentLocalizer(moment);
 
-// Kiểu dữ liệu môn học
-type ClassSubjectType = {
-    class_name: string;
-    subject_name: string;
-    lecturer_name: string;
-    lesson_time: string;
-    start_date: string;
-    week_time: string;
-    classroom_name: string;
-    tc: number;
-    class_type: string;
+type ScheduleDetail = {
+    classroom_id: number;
+    lesson: string;
+    date_time: string;
+    end_date: string;
+    class_type: "LT" | "TH";
 };
 
-// Dữ liệu mẫu
-const classSubjects: ClassSubjectType[] = [
-    {
-        class_name: "MKT1002",
-        subject_name: "Công nghệ phần mềm",
-        lecturer_name: "Nguyễn Văn An",
-        lesson_time: "Tiết 1-3",
-        start_date: "28/4/2025",
-        week_time: "Tuần 1-10",
-        classroom_name: "Phòng B101",
-        tc: 2,
-        class_type: "LT",
-    },
-    {
-        class_name: "CNTT103",
-        subject_name: "Công nghệ phần mềm",
-        lecturer_name: "Đào Anh Hiển",
-        lesson_time: "Tiết 4-6",
-        start_date: "30/4/2025",
-        week_time: "Tuần 5-15",
-        classroom_name: "Phòng C202",
-        tc: 3,
-        class_type: "LT",
-    },
-    {
-        class_name: "MKT1005",
-        subject_name: "Công nghệ phần mềm",
-        lecturer_name: "Nguyễn Văn An",
-        lesson_time: "Tiết 1-5",
-        start_date: "3/5/2025",
-        week_time: "Tuần 1-10",
-        classroom_name: "Phòng B101",
-        tc: 1,
-        class_type: "TH",
-    },
-    {
-        class_name: "CNTT109",
-        subject_name: "Công nghệ phần mềm",
-        lecturer_name: "Đào Anh Hiển",
-        lesson_time: "Tiết 4-6",
-        start_date: "28/4/2025",
-        week_time: "Tuần 5-15",
-        classroom_name: "Phòng C202",
-        tc: 2,
-        class_type: "LT",
-    },
-    {
-        class_name: "ENG101",
-        subject_name: "Công nghệ phần mềm",
-        lecturer_name: "Trần Thị Bình",
-        lesson_time: "Tiết 7-9",
-        start_date: "29/4/2025",
-        week_time: "Tuần 1-10",
-        classroom_name: "Phòng A303",
-        tc: 3,
-        class_type: "LT",
-    },
-    {
-        class_name: "MATH202",
-        subject_name: "Công nghệ phần mềm",
-        lecturer_name: "Lê Văn Cường",
-        lesson_time: "Tiết 1-3",
-        start_date: "30/4/2025",
-        week_time: "Tuần 1-10",
-        classroom_name: "Phòng D404",
-        tc: 5,
-        class_type: "LT",
-    },
-    {
-        class_name: "MATH202",
-        subject_name: "Công nghệ phần mềm",
-        lecturer_name: "Lê Văn Cường",
-        lesson_time: "Tiết 9-11",
-        start_date: "1/5/2025",
-        week_time: "Tuần 1-10",
-        classroom_name: "Phòng D404",
-        tc: 4,
-        class_type: "LT",
-    },
-];
+type ClassFollowSubject = {
+    classStudentId: number;
+    teachingScheduleRequest: {
+        assignmentId: number;
+        status: string;
+        materials: [
+            {
+                lt: string;
+                th: string;
+            }
+        ];
+        scheduleDetails: ScheduleDetail[];
+    };
+    teachingAssignment: {
+        lecturerId: number;
+        lecturerName: string;
+        subjectId: number;
+        subjectName: string;
+        termClassId: number;
+        assignmentType: null;
+    };
+    termClass: {
+        classname: string;
+        progress: string;
+        semester: string;
+        schoolyears: string;
+    };
+    subject: {
+        subjectId: number;
+        subjectName: string;
+        ltCredits: number;
+        thCredits: number;
+        subjectDescription: string;
+        subjectCoefficient: number;
+    };
+};
 
-// Parse "Tiết x-y"
 function getLessonRange(lessonTime: string): [number, number] {
     const match = lessonTime.match(/Tiết (\d+)-(\d+)/);
     return match ? [parseInt(match[1]), parseInt(match[2])] : [1, 1];
 }
 
-const formatTime = (date: moment.Moment, timeStr: string): moment.Moment => {
-    return moment(
-        `${date.format("YYYY-MM-DD")} ${timeStr}`,
-        "YYYY-MM-DD h:mm a"
-    );
-};
-
-// Tính số buổi học từ tín chỉ và tiết/buổi
-function getTotalWeeks(cls: ClassSubjectType): number {
-    const [start, end] = getLessonRange(cls.lesson_time);
-    const periodsPerSession = end - start + 1;
-    const periodsPerCredit = cls.class_type === "TH" ? 30 : 15;
-    const totalPeriods = cls.tc * periodsPerCredit;
-    return Math.ceil(totalPeriods / periodsPerSession);
-}
-
 function getRandomColor(): string {
-    const letters = "0123456789ABCDEF";
+    const letters = "0123456789";
     let color = "#";
     for (let i = 0; i < 6; i++) {
         color += letters[Math.floor(Math.random() * 16)];
@@ -142,48 +85,161 @@ function getRandomColor(): string {
     return color;
 }
 
-function generateEvents(): any[] {
+const CustomEventComponent = ({ event }: { event: any }) => {
+    const {
+        subjectName,
+        lecturerId,
+        lesson,
+        classroom_id,
+        thLesson,
+        thClassroom,
+        startDate,
+    } = event;
+
+    const lecturerName = "//TO DO";
+    return (
+        <div style={{ whiteSpace: "normal" }}>
+            <div>{subjectName}</div>
+            <div>
+                GV: {lecturerId} - {lecturerName}
+            </div>
+            <div>
+                - Lý thuyết: Tiết {lesson}, Phòng {classroom_id}
+            </div>
+            {thLesson && thClassroom && (
+                <div>
+                    - Thực hành: Tiết {thLesson} - Phòng {thClassroom}
+                </div>
+            )}
+            <div>Ngày bắt đầu: {startDate}</div>
+        </div>
+    );
+};
+
+function generateEventsFromAPI(data: any[]): any[] {
     const events: any[] = [];
 
-    classSubjects.forEach((cls) => {
-        const startDate = moment(cls.start_date, "DD/MM/YYYY");
-        const [startLesson, endLesson] = getLessonRange(cls.lesson_time);
-        const totalWeeks = getTotalWeeks(cls);
-        const color = getRandomColor();
+    data.forEach((item) => {
+        const subjectName = item.subject?.subjectName;
+        const lecturerId = item.teachingAssignment?.lecturerId;
+        const scheduleDetails =
+            item.teachingScheduleRequest?.scheduleDetails || [];
 
-        for (let week = 0; week < totalWeeks; week++) {
-            const eventDate = startDate.clone().add(week * 7, "days");
+        scheduleDetails
+            .filter((detail: any) => detail.class_type?.toUpperCase() === "LT")
+            .forEach((ltDetail: any) => {
+                const { lesson, date_time, end_date, classroom_id } = ltDetail;
+                const [startLesson, endLesson] = lesson.split("-").map(Number);
 
-            const startTime = formatTime(
-                eventDate,
-                lessonTimeMap[startLesson].start
-            );
-            const endTime = formatTime(eventDate, lessonTimeMap[endLesson].end);
+                // Lấy phần ngày yyyy-mm-dd (bỏ qua giờ)
+                const dateStr = date_time.slice(0, 10);
 
-            events.push({
-                title: `${cls.lesson_time} - 
-${cls.subject_name} (${cls.class_name})
-- ${cls.lecturer_name}
-- ${cls.classroom_name}`,
-                start: startTime.toDate(),
-                end: endTime.toDate(),
-                allDay: false,
-                color,
-                originalClass: cls,
+                const startTime = moment(
+                    `${dateStr} ${lessonTimeMap[startLesson].start}`,
+                    "YYYY-MM-DD HH:mm"
+                );
+                const endTime = moment(
+                    `${dateStr} ${lessonTimeMap[endLesson].end}`,
+                    "YYYY-MM-DD HH:mm"
+                );
+
+                const color = getRandomColor();
+
+                const title = `${subjectName}
+GV: ${lecturerId}
+- Lý thuyết: Tiết ${lesson}, Phòng ${classroom_id}
+Ngày bắt đầu: ${dateStr.split("-").reverse().join("/")}`;
+
+                events.push({
+                    title: title,
+                    start: startTime.toDate(),
+                    end: endTime.toDate(),
+                    allDay: false,
+                    color,
+                    subjectName,
+                    lecturerId,
+                    lesson,
+                    classroom_id,
+                    startDate: dateStr.split("-").reverse().join("/"),
+                    originalClass: item,
+                });
             });
-        }
     });
 
     return events;
 }
 
-// Component chính
 const ListClassSubject = () => {
-    const events = generateEvents();
-    const [selectedClass, setSelectedClass] = useState<ClassSubjectType | null>(
-        null
-    );
+    const dispatch = useDispatch<AppDispatch>();
+    const { classOpenFollowSubject, successMessage, errorMessage } =
+        useSelector((state: RootState) => state.creditRegistration);
+
+    const router = useRouter();
+    const { subject_id } = router.query;
+
+    const [selectedClass, setSelectedClass] =
+        useState<ClassFollowSubject | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (subject_id) {
+            dispatch(getClassFollowSubject(subject_id));
+        }
+    }, [subject_id]);
+    const events = generateEventsFromAPI(classOpenFollowSubject || []);
+
+    const message = selectedClass ? (
+        <div style={{ whiteSpace: "pre-wrap", textAlign: "left" }}>
+            <div>{selectedClass.subject?.subjectName}</div>
+            <div>
+                GV: {selectedClass.teachingAssignment?.lecturerId} - //TO DO
+            </div>
+            <div>
+                - Lý thuyết:&nbsp;
+                {selectedClass.teachingScheduleRequest?.scheduleDetails
+                    .filter((d) => d.class_type === "LT")
+                    .map(
+                        (d) =>
+                            `Tiết ${d.lesson}, Phòng ${
+                                d.classroom_id
+                            }, Ngày bắt đầu: ${moment(d.date_time).format(
+                                "DD/MM/YYYY"
+                            )}`
+                    )
+                    .join("; ")}
+            </div>
+            <div>
+                - Thực hành:&nbsp;
+                {selectedClass.teachingScheduleRequest?.scheduleDetails
+                    .filter((d) => d.class_type === "TH")
+                    .map(
+                        (d) =>
+                            `Tiết ${d.lesson}, Phòng ${
+                                d.classroom_id
+                            }, Ngày bắt đầu: ${moment(d.date_time).format(
+                                "DD/MM/YYYY"
+                            )}`
+                    )
+                    .join("; ")}
+            </div>
+        </div>
+    ) : (
+        "Bạn muốn đăng ký lớp này?"
+    );
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+
+            router.back();
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
+
     return (
         <BorderBox title="Các lớp đang mở môn Công nghệ phần mềm">
             <Calendar
@@ -200,8 +256,9 @@ const ListClassSubject = () => {
                 views={["week"]}
                 timeslots={1}
                 step={60}
+                defaultDate={events.length ? events[0].start : new Date()}
                 min={new Date(2024, 0, 1, 6, 0)}
-                max={new Date(2024, 0, 1, 23, 59)}
+                max={new Date(2024, 0, 1, 23, 0)}
                 style={{ height: "75vh" }}
                 eventPropGetter={(event) => ({
                     style: {
@@ -215,21 +272,24 @@ const ListClassSubject = () => {
                 onSelectEvent={(event) => {
                     setSelectedClass(event.originalClass);
                     setIsModalOpen(true);
-
-                    // const cls = event.originalClass;
-                    // alert(
-                    //     `Lớp: ${cls.subject_name}\nMã lớp: ${cls.class_name}\nGiảng viên: ${cls.lecturer_name}`
-                    // );
                 }}
+                components={{
+                    event: CustomEventComponent,
+                }}
+                dayLayoutAlgorithm="no-overlap"
             />
             {isModalOpen && selectedClass && (
                 <ModalConfirm
                     confirmText="đăng ký học"
                     buttonText="Đăng ký"
-                    message={`Bạn muốn đăng ký lớp "${selectedClass.subject_name}" (${selectedClass.class_name}) của giảng viên ${selectedClass.lecturer_name}?`}
+                    message={message}
                     onConfirm={() => {
-                        // TODO: Gọi API hoặc xử lý đăng ký ở đây
-                        console.log("Đã xác nhận đăng ký:", selectedClass);
+                        dispatch(
+                            registerTC({
+                                classStudentId: selectedClass.classStudentId,
+                                status: "success",
+                            })
+                        );
                         setIsModalOpen(false);
                     }}
                     onCancel={() => {
