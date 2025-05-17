@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +27,7 @@ public interface TeachingScheduleRequestRepository extends JpaRepository<Teachin
     Page<TeachingScheduleRequest> findBySearchValue(Pageable pageable, @Param("searchValue") String searchValue);
 
 
-
+    List<TeachingScheduleRequest> findAllByAssignment_AssignmentId(Long assignmentId);
 
 
     @Query(value = "SELECT * FROM teaching_schedule_request tsr " +
@@ -46,6 +47,42 @@ public interface TeachingScheduleRequestRepository extends JpaRepository<Teachin
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,
             @Param("scheduleId") Long scheduleId);
+
+
+
+    @Query("SELECT tsr FROM TeachingScheduleRequest tsr " +
+            "WHERE tsr.assignment.lecturer.user.userId = :userId " +
+            "AND tsr.status IN :statuses")
+    Page<TeachingScheduleRequest> findByLecturerAndStatus(
+            @Param("userId") Long userId,
+            @Param("statuses") List<String> statuses,
+            Pageable pageable);
+
+    @Query("SELECT tsr FROM TeachingScheduleRequest tsr " +
+            "WHERE tsr.assignment.lecturer.user.userId = :userId " +
+            "AND tsr.status IN :statuses " +
+            "AND (LOWER(tsr.assignment.subject.subjectName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(tsr.assignment.termClass.classname) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<TeachingScheduleRequest> findByLecturerAndStatusAndSearchValue(
+            @Param("userId") Long userId,
+            @Param("statuses") List<String> statuses,
+            @Param("search") String search,
+            Pageable pageable);
+
+
+    @Query("SELECT t FROM TeachingScheduleRequest t WHERE t.assignment.lecturer.userId = :userId AND t.status = 'success'")
+    List<TeachingScheduleRequest> findByLecturerAndSuccessStatus(@Param("userId") Long userId);
+
+
+
+    @Query("SELECT r FROM TeachingScheduleRequest r " +
+            "WHERE r.assignment.lecturer.userId = :lecturerId " +
+            "AND r.dateTime BETWEEN :startOfDay AND :endOfDay")
+    List<TeachingScheduleRequest> findByLecturerIdAndDate(
+            @Param("lecturerId") Long lecturerId,
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay") LocalDateTime endOfDay
+    );
 
 
 }

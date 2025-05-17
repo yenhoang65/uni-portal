@@ -47,7 +47,10 @@ public class SecurityConfig {
                                 "/api/teaching-assignment/**",
                                 "/api/term-classes/**",
                                 "/api/teaching-schedule/**",
-                                "/api/user/**"
+                                "/api/user/**",
+                                "/api/class-student/**",
+                                "/api/class-registration",
+                                "/api/class-subject-student"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

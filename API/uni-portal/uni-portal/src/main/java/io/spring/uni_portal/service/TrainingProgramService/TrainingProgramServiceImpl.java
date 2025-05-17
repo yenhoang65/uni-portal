@@ -1,12 +1,24 @@
 package io.spring.uni_portal.service.TrainingProgramService;
 
+import io.spring.uni_portal.dto.Subject.SubjectResponseDTO;
+import io.spring.uni_portal.dto.TrainingProgram.SubjectInTrainingProgramResponse;
 import io.spring.uni_portal.dto.TrainingProgram.TrainingProgramDTO;
 import io.spring.uni_portal.dto.TrainingProgram.TrainingProgramResponse;
 import io.spring.uni_portal.model.Specialization;
+import io.spring.uni_portal.model.Student;
+import io.spring.uni_portal.model.Class;
 import io.spring.uni_portal.model.TrainingProgram;
+import io.spring.uni_portal.model.User;
+import io.spring.uni_portal.repository.IntermediaryRepository;
 import io.spring.uni_portal.repository.SpecializationRepository;
+import io.spring.uni_portal.repository.StudentRepository;
 import io.spring.uni_portal.repository.TrainingProgramRepository;
+import io.spring.uni_portal.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,6 +33,13 @@ public class TrainingProgramServiceImpl implements ITrainingProgramService {
 
     @Autowired
     private SpecializationRepository specializationRepository;
+
+    @Autowired
+    private IntermediaryRepository intermediaryRepository;
+
+    @Autowired
+    private StudentRepository studentRepository;
+
 
     private TrainingProgramResponse toResponse(TrainingProgram entity) {
         return new TrainingProgramResponse(
@@ -89,5 +108,36 @@ public class TrainingProgramServiceImpl implements ITrainingProgramService {
     public List<TrainingProgramResponse> searchByCode(String code) {
         return repository.findByTrainingCodeContainingIgnoreCase(code)
                 .stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
+
+    @Override
+    public Response<List<SubjectInTrainingProgramResponse>> getSubjectsForCurrentStudent() {
+        UsernamePasswordAuthenticationToken authentication =
+                (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        Student student = studentRepository.findById(currentUser.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sinh viên"));
+
+        Class studentClass = student.getClassEntity();
+        if (studentClass == null || studentClass.getTrainingProgram() == null) {
+            return Response.failure("Sinh viên chưa được gán lớp hoặc chương trình đào tạo.");
+        }
+
+        TrainingProgram trainingProgram = studentClass.getTrainingProgram();
+
+        List<SubjectInTrainingProgramResponse> subjects = intermediaryRepository
+                .findByTrainingProgram(trainingProgram)
+                .stream()
+                .map(intermediary -> new SubjectInTrainingProgramResponse(
+                        intermediary.getSubject(),
+                        intermediary.getSubjectType(),
+                        intermediary.getSchoolYear()
+                ))
+                .collect(Collectors.toList());
+
+
+        return Response.success("Danh sách môn học trong chương trình đào tạo", subjects);
     }
 }

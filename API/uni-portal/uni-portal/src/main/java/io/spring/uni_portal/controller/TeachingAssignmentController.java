@@ -1,10 +1,15 @@
 package io.spring.uni_portal.controller;
 
 import io.spring.uni_portal.dto.TeachingAssignment.TeachingAssignmentDTO;
+import io.spring.uni_portal.dto.TeachingAssignment.TeachingAssignmentDetailDTO;
 import io.spring.uni_portal.dto.TeachingAssignment.TeachingAssignmentResponse;
+import io.spring.uni_portal.dto.TeachingAssignment.TeachingAssignmentWithSchedulesDTO;
 import io.spring.uni_portal.dto.TermClass.TermClassResponse;
 import io.spring.uni_portal.dto.TermClass.TermClassResponseUnassignedClasses;
 import io.spring.uni_portal.model.TeachingAssignment;
+import io.spring.uni_portal.model.User;
+import io.spring.uni_portal.repository.TeachingAssignmentRepository;
+import io.spring.uni_portal.repository.TeachingScheduleRequestRepository;
 import io.spring.uni_portal.response.Response;
 import io.spring.uni_portal.service.TeachingAssignmentService.ITeachingAssignmentService;
 import io.spring.uni_portal.service.TeachingAssignmentService.TeachingAssignmentService;
@@ -15,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +33,13 @@ public class TeachingAssignmentController {
     @Autowired
     private ITeachingAssignmentService iteachingAssignmentService;
 
+    @Autowired
+    private TeachingScheduleRequestRepository scheduleRepository;
+
+    @Autowired
+    private TeachingAssignmentRepository teachingAssignmentRepository;
+
+
     // API phân chia lớp học cho giảng viên (POST)
     @PostMapping
     public ResponseEntity<Response<List<TeachingAssignmentResponse>>> assignClassToLecturer(@RequestBody TeachingAssignmentDTO dto) {
@@ -35,14 +49,10 @@ public class TeachingAssignmentController {
 
     // API lấy tất cả phân công giảng viên (GET)
     @GetMapping("/paging")
-//    public ResponseEntity<Response<List<TeachingAssignmentResponse>>> getAllAssignments() {
-//        Response<List<TeachingAssignmentResponse>> response = iteachingAssignmentService.getAllAssignments();
-//        return ResponseEntity.ok(response);
-//    }
     public Response<Page<TeachingAssignmentResponse>> getAssignmentsPaging(
-            @RequestParam int currentPage,      // Bắt buộc truyền
-            @RequestParam int perPage,          // Bắt buộc truyền
-            @RequestParam String searchValue    // FE vẫn gửi xuống, có thể là rỗng ""
+            @RequestParam int currentPage,
+            @RequestParam int perPage,
+            @RequestParam String searchValue
     ) {
         // Tạo Pageable từ các tham số truyền vào
         Pageable pageable = PageRequest.of(currentPage, perPage, Sort.by("termClass.classname").ascending());
@@ -56,10 +66,9 @@ public class TeachingAssignmentController {
 
 
 
-    // API lấy phân công giảng viên dạy theo ID assignment (GET)
     @GetMapping("/{id}")
-    public ResponseEntity<Response<TeachingAssignmentResponse>> getAssignmentById(@PathVariable Long id) {
-        Response<TeachingAssignmentResponse> response = iteachingAssignmentService.getAssignmentById(id);
+    public ResponseEntity<Response<TeachingAssignmentDetailDTO>> getTeachingAssignmentDetail(@PathVariable("id") Long id) {
+        Response<TeachingAssignmentDetailDTO> response = iteachingAssignmentService.getAssignmentById(id);
         return ResponseEntity.ok(response);
     }
 
@@ -89,4 +98,14 @@ public class TeachingAssignmentController {
         Response<List<TermClassResponseUnassignedClasses>> response = iteachingAssignmentService.getUnassignedClasses();
         return ResponseEntity.ok(response);
     }
+
+
+    @GetMapping("/with-schedules/{assignmentId}")
+    public ResponseEntity<Response<TeachingAssignmentWithSchedulesDTO>> getAssignmentWithSchedules(
+            @PathVariable Long assignmentId) {
+        TeachingAssignmentWithSchedulesDTO dto = iteachingAssignmentService.getAssignmentWithSchedules(assignmentId);
+        return ResponseEntity.ok(Response.success("Lấy thông tin assignment và lịch giảng dạy thành công", dto));
+    }
+
+
 }

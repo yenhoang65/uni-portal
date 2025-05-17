@@ -1,10 +1,15 @@
 package io.spring.uni_portal.controller;
 
+import io.spring.uni_portal.dto.Subject.SubjectResponseDTO;
+import io.spring.uni_portal.dto.TrainingProgram.SubjectInTrainingProgramResponse;
 import io.spring.uni_portal.dto.TrainingProgram.TrainingProgramDTO;
 import io.spring.uni_portal.dto.TrainingProgram.TrainingProgramResponse;
 import io.spring.uni_portal.response.Response;
 import io.spring.uni_portal.service.TrainingProgramService.ITrainingProgramService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,4 +52,11 @@ public class TrainingProgramController {
     public Response<List<TrainingProgramResponse>> searchByCode(@RequestParam String code) {
         return Response.success("Tìm kiếm theo mã chương trình đào tạo thành công", trainingProgramService.searchByCode(code));
     }
+
+    @GetMapping("/subjects")
+    public ResponseEntity<Response<List<SubjectInTrainingProgramResponse>>> getSubjectsForCurrentStudent() {
+        Response<List<SubjectInTrainingProgramResponse>> response = trainingProgramService.getSubjectsForCurrentStudent();
+        return ResponseEntity.ok(response);
+    }
+
 }
