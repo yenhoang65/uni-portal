@@ -16,11 +16,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -192,54 +194,65 @@ public class TeachingScheduleRequestService implements ITeachingScheduleRequestS
 //            throw new IllegalArgumentException("TeachingScheduleRequestDTO không hợp lệ: Thiếu các trường bắt buộc");
 //        }
 //
-//        // Lấy thời gian hiện tại
 //        LocalDateTime now = LocalDateTime.now();
-//
-//        // Lấy đợt đăng ký giảng dạy hiện tại từ bảng TeachingRegistrationPeriod
 //        TeachingRegistrationPeriod currentPeriod = teachingRegistrationPeriodRepository.findActivePeriod(now)
 //                .orElseThrow(() -> new RuntimeException("Hiện tại không có đợt đăng ký giảng dạy nào đang mở"));
 //
-//        // Kiểm tra nếu thời gian hiện tại nằm trong khoảng startDate và endDate của đợt đăng ký
 //        if (now.isBefore(currentPeriod.getStartDate()) || now.isAfter(currentPeriod.getEndDate())) {
 //            throw new IllegalStateException(String.format("Yêu cầu đăng ký giảng dạy chỉ được thực hiện trong khoảng thời gian từ %s đến %s", currentPeriod.getStartDate(), currentPeriod.getEndDate()));
 //        }
 //
-//
-//        // Kiểm tra trùng assignmentId
 //        if (teachingScheduleRequestRepository.existsByAssignment_AssignmentId(dto.getAssignmentId())) {
 //            throw new IllegalStateException("Phân công với ID " + dto.getAssignmentId() + " đã được đăng ký.");
 //        }
 //
-//        // Lấy assignment để tính endDate và kiểm tra phòng học
 //        TeachingAssignment assignment = teachingAssignmentService.findById(dto.getAssignmentId())
 //                .orElseThrow(() -> new RuntimeException("Không tìm thấy phân công có ID: " + dto.getAssignmentId()));
 //
-//        // Kiểm tra phòng học
 //        checkClassroomAvailability(dto, assignment);
 //
-//        TeachingScheduleRequest request = new TeachingScheduleRequest();
+//        // Kiểm tra trùng lịch trong cùng 1 ngày
+//        Long lecturerId = assignment.getLecturer().getUserId();
+//        LocalDateTime newDateTime = LocalDateTime.parse(dto.getScheduleDetails().get(0).getDateTime(), DateTimeFormatter.ISO_DATE_TIME);
+//        String newLesson = dto.getScheduleDetails().get(0).getLesson();
 //
-//        // Lấy classroom từ scheduleDetails
+//// Tính thời gian bắt đầu và kết thúc của ngày đó
+//        LocalDateTime startOfDay = newDateTime.toLocalDate().atStartOfDay();
+//        LocalDateTime endOfDay = newDateTime.toLocalDate().atTime(LocalTime.MAX);
+//
+//// Truy vấn tất cả lịch đã đăng ký trong ngày
+//        List<TeachingScheduleRequest> sameDayRequests =
+//                teachingScheduleRequestRepository.findByLecturerIdAndDate(lecturerId, startOfDay, endOfDay);
+//
+//// So sánh trùng tiết
+//        for (TeachingScheduleRequest existing : sameDayRequests) {
+//            if (isLessonOverlap(newLesson, existing.getLesson())) {
+//                throw new IllegalStateException(String.format(
+//                        "Trùng lịch giảng dạy: Giảng viên đã đăng ký lớp vào %s với tiết %s",
+//                        newDateTime.toLocalDate(), existing.getLesson()
+//                ));
+//            }
+//        }
+//
+//
+//        TeachingScheduleRequest request = new TeachingScheduleRequest();
 //        Long classroomId = dto.getScheduleDetails().get(0).getClassroomId();
 //        Classroom classroom = classroomService.findById(classroomId)
 //                .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng học có ID: " + classroomId));
 //
-//        // Ánh xạ DTO sang Entity
 //        request.setAssignment(assignment);
 //        request.setClassroom(classroom);
 //
-//        // Gán lesson và các trường khác từ scheduleDetails đầu tiên
 //        String lessonStr = dto.getScheduleDetails().get(0).getLesson();
 //        if (lessonStr == null || lessonStr.isEmpty()) {
 //            throw new IllegalArgumentException("Lesson không được để trống");
 //        }
 //        request.setLesson(lessonStr);
-//        request.setDateTime(LocalDateTime.parse(dto.getScheduleDetails().get(0).getDateTime(), DateTimeFormatter.ISO_DATE_TIME));
+//        request.setDateTime(newDateTime);
 //        request.setStatus(dto.getStatus());
 //        request.setCreatedAt(LocalDateTime.now());
 //        request.setClassType(dto.getScheduleDetails().get(0).getClassType());
 //
-//        // Ánh xạ scheduleDetails và tính endDate
 //        List<TeachingScheduleRequest.ScheduleDetail> scheduleDetails = dto.getScheduleDetails().stream()
 //                .map(dtoDetail -> {
 //                    TeachingScheduleRequest.ScheduleDetail detail = new TeachingScheduleRequest.ScheduleDetail();
@@ -255,14 +268,12 @@ public class TeachingScheduleRequestService implements ITeachingScheduleRequestS
 //                .collect(Collectors.toList());
 //        request.setScheduleDetails(scheduleDetails);
 //
-//        // Gán endDate cho request (lấy ngày muộn nhất từ scheduleDetails)
 //        LocalDateTime latestEndDate = scheduleDetails.stream()
 //                .map(detail -> LocalDateTime.parse(detail.getEndDate(), DateTimeFormatter.ISO_DATE_TIME))
 //                .max(LocalDateTime::compareTo)
 //                .orElse(null);
 //        request.setEndDate(latestEndDate);
 //
-//        // Ánh xạ materials
 //        List<TeachingScheduleRequest.Material> materials = null;
 //        if (dto.getMaterials() != null) {
 //            materials = dto.getMaterials().stream()
@@ -276,10 +287,8 @@ public class TeachingScheduleRequestService implements ITeachingScheduleRequestS
 //        }
 //        request.setMaterials(materials);
 //
-//        // Lưu teaching schedule request
 //        TeachingScheduleRequest savedRequest = teachingScheduleRequestRepository.save(request);
 //
-//        // Nếu status là "success", tạo bản ghi ClassStudent
 //        if ("success".equalsIgnoreCase(dto.getStatus())) {
 //            ClassStudent classStudent = new ClassStudent();
 //            classStudent.setTeachingScheduleRequest(savedRequest);
@@ -290,29 +299,23 @@ public class TeachingScheduleRequestService implements ITeachingScheduleRequestS
 //            classStudentRepository.save(classStudent);
 //        }
 //
-//        // Ánh xạ entity sang DTO để trả về
 //        TeachingScheduleRequestResponseDTO responseDTO = new TeachingScheduleRequestResponseDTO();
 //        responseDTO.setScheduleId(savedRequest.getScheduleId());
 //        responseDTO.setClassroomId(savedRequest.getClassroom().getClassroomId());
-////        responseDTO.setLesson(savedRequest.getLesson());
 //        responseDTO.setEndDate(savedRequest.getEndDate());
 //        responseDTO.setDateTime(savedRequest.getDateTime());
 //        responseDTO.setStatus(savedRequest.getStatus());
 //        responseDTO.setCreatedAt(savedRequest.getCreatedAt());
-////        responseDTO.setClassType(savedRequest.getClassType());
 //
-//        // Ánh xạ assignment và các thông tin liên quan
 //        TeachingScheduleRequestResponseDTO.TeachingAssignmentDTO assignmentDTO = new TeachingScheduleRequestResponseDTO.TeachingAssignmentDTO();
 //        assignmentDTO.setAssignmentId(savedRequest.getAssignment().getAssignmentId());
 //        assignmentDTO.setAssignmentType(savedRequest.getAssignment().getAssignmentType());
 //
-//        // Ánh xạ lecturer
 //        TeachingScheduleRequestResponseDTO.TeachingAssignmentDTO.LecturerDTO lecturerDTO = new TeachingScheduleRequestResponseDTO.TeachingAssignmentDTO.LecturerDTO();
 //        lecturerDTO.setLecturerId(savedRequest.getAssignment().getLecturer().getUserId());
 //        lecturerDTO.setLecturerName(savedRequest.getAssignment().getLecturer().getUser().getUserName());
 //        assignmentDTO.setLecturer(lecturerDTO);
 //
-//        // Ánh xạ subject
 //        TeachingScheduleRequestResponseDTO.TeachingAssignmentDTO.SubjectDTO subjectDTO = new TeachingScheduleRequestResponseDTO.TeachingAssignmentDTO.SubjectDTO();
 //        subjectDTO.setSubjectId(savedRequest.getAssignment().getSubject().getSubjectId());
 //        subjectDTO.setSubjectName(savedRequest.getAssignment().getSubject().getSubjectName());
@@ -320,10 +323,9 @@ public class TeachingScheduleRequestService implements ITeachingScheduleRequestS
 //        subjectDTO.setThCredits(savedRequest.getAssignment().getSubject().getThCredits());
 //        assignmentDTO.setSubject(subjectDTO);
 //
-//        // Ánh xạ termClass
 //        TeachingScheduleRequestResponseDTO.TeachingAssignmentDTO.TermClassDTO termClassDTO = new TeachingScheduleRequestResponseDTO.TeachingAssignmentDTO.TermClassDTO();
 //        termClassDTO.setTermClassId(savedRequest.getAssignment().getTermClass().getTermclassId());
-//        termClassDTO.setTermName(savedRequest.getAssignment().getTermClass().getClassname()); // Giả định có getter termName
+//        termClassDTO.setTermName(savedRequest.getAssignment().getTermClass().getClassname());
 //        assignmentDTO.setTermClass(termClassDTO);
 //
 //        responseDTO.setAssignment(assignmentDTO);
@@ -346,7 +348,6 @@ public class TeachingScheduleRequestService implements ITeachingScheduleRequestS
 //                .collect(Collectors.toList());
 //        responseDTO.setScheduleDetails(scheduleDetailDTOs);
 //
-//        // Ánh xạ materials sang DTO
 //        List<TeachingScheduleRequestResponseDTO.MaterialDTO> materialDTOs = null;
 //        if (savedRequest.getMaterials() != null) {
 //            materialDTOs = savedRequest.getMaterials().stream()
@@ -365,41 +366,45 @@ public class TeachingScheduleRequestService implements ITeachingScheduleRequestS
 
     @Transactional
     public TeachingScheduleRequestResponseDTO registerTeachingSchedule(TeachingScheduleRequestDTO dto) {
+        // Validate input
         if (dto == null || dto.getAssignmentId() == null || dto.getScheduleDetails() == null || dto.getScheduleDetails().isEmpty() || dto.getStatus() == null) {
             throw new IllegalArgumentException("TeachingScheduleRequestDTO không hợp lệ: Thiếu các trường bắt buộc");
         }
 
+        // Check registration period
         LocalDateTime now = LocalDateTime.now();
         TeachingRegistrationPeriod currentPeriod = teachingRegistrationPeriodRepository.findActivePeriod(now)
                 .orElseThrow(() -> new RuntimeException("Hiện tại không có đợt đăng ký giảng dạy nào đang mở"));
 
         if (now.isBefore(currentPeriod.getStartDate()) || now.isAfter(currentPeriod.getEndDate())) {
-            throw new IllegalStateException(String.format("Yêu cầu đăng ký giảng dạy chỉ được thực hiện trong khoảng thời gian từ %s đến %s", currentPeriod.getStartDate(), currentPeriod.getEndDate()));
+            throw new IllegalStateException(String.format(
+                    "Yêu cầu đăng ký giảng dạy chỉ được thực hiện trong khoảng thời gian từ %s đến %s",
+                    currentPeriod.getStartDate(), currentPeriod.getEndDate()));
         }
 
+        // Check if assignment already registered
         if (teachingScheduleRequestRepository.existsByAssignment_AssignmentId(dto.getAssignmentId())) {
             throw new IllegalStateException("Phân công với ID " + dto.getAssignmentId() + " đã được đăng ký.");
         }
 
+        // Get teaching assignment
         TeachingAssignment assignment = teachingAssignmentService.findById(dto.getAssignmentId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phân công có ID: " + dto.getAssignmentId()));
 
+        // Check classroom availability
         checkClassroomAvailability(dto, assignment);
 
-        // Kiểm tra trùng lịch trong cùng 1 ngày
+        // Check for lecturer schedule conflicts
         Long lecturerId = assignment.getLecturer().getUserId();
         LocalDateTime newDateTime = LocalDateTime.parse(dto.getScheduleDetails().get(0).getDateTime(), DateTimeFormatter.ISO_DATE_TIME);
         String newLesson = dto.getScheduleDetails().get(0).getLesson();
 
-// Tính thời gian bắt đầu và kết thúc của ngày đó
         LocalDateTime startOfDay = newDateTime.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = newDateTime.toLocalDate().atTime(LocalTime.MAX);
 
-// Truy vấn tất cả lịch đã đăng ký trong ngày
         List<TeachingScheduleRequest> sameDayRequests =
                 teachingScheduleRequestRepository.findByLecturerIdAndDate(lecturerId, startOfDay, endOfDay);
 
-// So sánh trùng tiết
         for (TeachingScheduleRequest existing : sameDayRequests) {
             if (isLessonOverlap(newLesson, existing.getLesson())) {
                 throw new IllegalStateException(String.format(
@@ -409,7 +414,33 @@ public class TeachingScheduleRequestService implements ITeachingScheduleRequestS
             }
         }
 
+        // Check for lesson overlap between LT and TH classes on the same day
+        Map<LocalDate, List<TeachingScheduleRequestDTO.ScheduleDetailDTO>> detailsByDate = dto.getScheduleDetails().stream()
+                .collect(Collectors.groupingBy(detail ->
+                        LocalDateTime.parse(detail.getDateTime(), DateTimeFormatter.ISO_DATE_TIME).toLocalDate()));
 
+        for (Map.Entry<LocalDate, List<TeachingScheduleRequestDTO.ScheduleDetailDTO>> entry : detailsByDate.entrySet()) {
+            List<TeachingScheduleRequestDTO.ScheduleDetailDTO> dailyDetails = entry.getValue();
+            List<TeachingScheduleRequestDTO.ScheduleDetailDTO> ltDetails = dailyDetails.stream()
+                    .filter(d -> "LT".equals(d.getClassType()))
+                    .collect(Collectors.toList());
+            List<TeachingScheduleRequestDTO.ScheduleDetailDTO> thDetails = dailyDetails.stream()
+                    .filter(d -> "TH".equals(d.getClassType()))
+                    .collect(Collectors.toList());
+
+            for (TeachingScheduleRequestDTO.ScheduleDetailDTO ltDetail : ltDetails) {
+                for (TeachingScheduleRequestDTO.ScheduleDetailDTO thDetail : thDetails) {
+                    if (isLessonOverlap(ltDetail.getLesson(), thDetail.getLesson())) {
+                        throw new IllegalStateException(String.format(
+                                "Lịch giảng dạy trùng tiết trong cùng ngày %s: Lớp lý thuyết (%s) trùng với lớp thực hành (%s)",
+                                entry.getKey(), ltDetail.getLesson(), thDetail.getLesson()
+                        ));
+                    }
+                }
+            }
+        }
+
+        // Create TeachingScheduleRequest
         TeachingScheduleRequest request = new TeachingScheduleRequest();
         Long classroomId = dto.getScheduleDetails().get(0).getClassroomId();
         Classroom classroom = classroomService.findById(classroomId)
@@ -428,6 +459,7 @@ public class TeachingScheduleRequestService implements ITeachingScheduleRequestS
         request.setCreatedAt(LocalDateTime.now());
         request.setClassType(dto.getScheduleDetails().get(0).getClassType());
 
+        // Map schedule details
         List<TeachingScheduleRequest.ScheduleDetail> scheduleDetails = dto.getScheduleDetails().stream()
                 .map(dtoDetail -> {
                     TeachingScheduleRequest.ScheduleDetail detail = new TeachingScheduleRequest.ScheduleDetail();
@@ -443,12 +475,14 @@ public class TeachingScheduleRequestService implements ITeachingScheduleRequestS
                 .collect(Collectors.toList());
         request.setScheduleDetails(scheduleDetails);
 
+        // Set end date
         LocalDateTime latestEndDate = scheduleDetails.stream()
                 .map(detail -> LocalDateTime.parse(detail.getEndDate(), DateTimeFormatter.ISO_DATE_TIME))
                 .max(LocalDateTime::compareTo)
                 .orElse(null);
         request.setEndDate(latestEndDate);
 
+        // Map materials
         List<TeachingScheduleRequest.Material> materials = null;
         if (dto.getMaterials() != null) {
             materials = dto.getMaterials().stream()
@@ -462,8 +496,10 @@ public class TeachingScheduleRequestService implements ITeachingScheduleRequestS
         }
         request.setMaterials(materials);
 
+        // Save request
         TeachingScheduleRequest savedRequest = teachingScheduleRequestRepository.save(request);
 
+        // Create ClassStudent if status is success
         if ("success".equalsIgnoreCase(dto.getStatus())) {
             ClassStudent classStudent = new ClassStudent();
             classStudent.setTeachingScheduleRequest(savedRequest);
@@ -474,6 +510,7 @@ public class TeachingScheduleRequestService implements ITeachingScheduleRequestS
             classStudentRepository.save(classStudent);
         }
 
+        // Build response DTO
         TeachingScheduleRequestResponseDTO responseDTO = new TeachingScheduleRequestResponseDTO();
         responseDTO.setScheduleId(savedRequest.getScheduleId());
         responseDTO.setClassroomId(savedRequest.getClassroom().getClassroomId());
@@ -539,11 +576,27 @@ public class TeachingScheduleRequestService implements ITeachingScheduleRequestS
         return responseDTO;
     }
 
-    private boolean isLessonOverlap(String lesson1, String lesson2) {
-        int[] range1 = parseLessonRange(lesson1);
-        int[] range2 = parseLessonRange(lesson2);
-        return range1[0] <= range2[1] && range2[0] <= range1[1];
+private boolean isLessonOverlap(String lesson1, String lesson2) {
+    if (lesson1 == null || lesson2 == null) return false;
+
+    String[] parts1 = lesson1.split("-");
+    String[] parts2 = lesson2.split("-");
+
+    if (parts1.length != 2 || parts2.length != 2) {
+        throw new IllegalArgumentException("Định dạng tiết học không hợp lệ");
     }
+
+    try {
+        int start1 = Integer.parseInt(parts1[0]);
+        int end1 = Integer.parseInt(parts1[1]);
+        int start2 = Integer.parseInt(parts2[0]);
+        int end2 = Integer.parseInt(parts2[1]);
+
+        return start1 <= end2 && start2 <= end1;
+    } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("Định dạng tiết học không hợp lệ");
+    }
+}
 
     private int[] parseLessonRange(String lessonStr) {
         String[] parts = lessonStr.split("-");

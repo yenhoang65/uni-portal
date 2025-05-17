@@ -2,6 +2,8 @@ package io.spring.uni_portal.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "class_subject_student")
 public class ClassSubjectStudent {
@@ -21,6 +23,8 @@ public class ClassSubjectStudent {
 
     @Column(name = "status")
     private String status;
+
+    private LocalDateTime registrationTime; // thời gian đăng ký 
 
     // Constructors
     public ClassSubjectStudent() {}
@@ -62,5 +66,13 @@ public class ClassSubjectStudent {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public LocalDateTime getRegistrationTime() {
+        return registrationTime;
+    }
+
+    public void setRegistrationTime(LocalDateTime registrationTime) {
+        this.registrationTime = registrationTime;
     }
 }
