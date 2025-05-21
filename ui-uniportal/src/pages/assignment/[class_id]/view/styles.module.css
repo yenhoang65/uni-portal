@@ -1,59 +1,72 @@
-.detailContainer {
-    padding: 20px;
-}
-
-.detailItem {
-    margin-bottom: 15px;
+.detailHeader {
     display: flex;
-    gap: 15px;
-    align-items: flex-start;
-}
-
-.detailLabel {
-    font-weight: bold;
-    min-width: 150px;
-}
-
-.buttonGroup {
-    margin-top: 30px;
-    display: flex;
-    gap: 20px;
     align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
 }
 
-.backButton {
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    text-decoration: none;
-    color: inherit;
-    transition: text-decoration 0.3s ease;
-}
-
-.backButton:hover {
-    text-decoration: underline;
-}
-
-.backIcon {
-    margin-right: 5px;
-    font-size: 1.2em;
+.assignmentTitle {
+    font-size: 1.65rem;
+    font-weight: 700;
+    margin: 0;
 }
 
 .editButton {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    padding: 10px 15px;
-    border-radius: 8px;
-    background-color: var(--secondary-blue);
-    cursor: pointer;
-    border: none;
+    background: #1677ff;
     color: #fff;
-    transition: background-color 0.3s ease;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.18s;
+}
+.editButton:hover {
+    background: #0958d9;
 }
 
-.editButton:hover {
-    color: #000;
-    background-color: #e0e0e0;
+.detailGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 36px;
+    margin-bottom: 36px;
+}
+
+.detailLabel {
+    font-weight: 600;
+    color: #1677ff;
+    display: block;
+}
+
+.detailValue {
+    margin-left: 0.5em;
+    font-weight: 400;
+    color: #222;
+}
+
+.buttonGroup {
+    display: flex;
+    justify-content: flex-end;
+    gap: 18px;
+}
+
+.backButton {
+    background: #f7f9fa;
+    padding: 8px 22px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    outline: none;
+    border: none;
+}
+
+.backIcon {
+    font-size: 18px;
 }

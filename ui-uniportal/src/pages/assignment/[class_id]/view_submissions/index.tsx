@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styles from "./styles.module.css";
 import AuthGuard from "@/components/AuthGuard";
 import BorderBox from "@/components/BorderBox";
@@ -10,6 +10,8 @@ interface Submission {
     file_url: string;
     submission_time: string;
     is_late: boolean;
+    score?: number | null;
+    feedback?: string;
 }
 
 interface Assignment {
@@ -27,68 +29,74 @@ const mockSubmissions: Submission[] = [
         submission_time: "2024-03-10T23:50:00",
         is_late: false,
     },
-    {
-        id: "2",
-        student_id: "SV002",
-        student_name: "Trần Thị B",
-        file_url: "https://example.com/bai-tap-1-sv002.docx",
-        submission_time: "2024-03-11T00:05:00",
-        is_late: true,
-    },
-    {
-        id: "3",
-        student_id: "SV003",
-        student_name: "Lê Công C",
-        file_url: "https://example.com/bai-tap-1-sv003.zip",
-        submission_time: "2024-03-10T22:00:00",
-        is_late: false,
-    },
-    {
-        id: "4",
-        student_id: "SV004",
-        student_name: "Phạm Thu D",
-        file_url: "https://example.com/bai-tap-1-sv004.pdf",
-        submission_time: "2024-03-11T01:20:00",
-        is_late: true,
-    },
-    {
-        id: "5",
-        student_id: "SV005",
-        student_name: "Hoàng Minh E",
-        file_url: "https://example.com/bai-tap-1-sv005.docx",
-        submission_time: "2024-03-10T23:30:00",
-        is_late: false,
-    },
-    {
-        id: "6",
-        student_id: "SV006",
-        student_name: "Vũ Ngọc F",
-        file_url: "https://example.com/bai-tap-1-sv006.pdf",
-        submission_time: "2024-03-11T00:01:00",
-        is_late: true,
-    },
+    // ...các dòng khác giữ nguyên
 ];
 
-const ViewSubmissions = ({ assignment }: { assignment: Assignment }) => {
-    const [submissions, setSubmissions] = useState<Submission[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+const assignment: Assignment = {
+    id: "BT01",
+    title: "Bài tập về nhà số 1",
+    deadline: "2024-03-11T00:00:00",
+};
+
+const ViewSubmissions = () => {
+    const [submissions, setSubmissions] =
+        useState<Submission[]>(mockSubmissions);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [grading, setGrading] = useState<{
+        [id: string]: { score: string; feedback: string };
+    }>({});
+
+    const handleInputChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+        id: string
+    ) => {
+        const { name, value } = e.target;
+        setGrading((prev) => ({
+            ...prev,
+            [id]: {
+                ...prev[id],
+                [name]: value,
+            },
+        }));
+    };
+
+    const handleGrade = (id: string) => {
+        const { score = "", feedback = "" } = grading[id] || {};
+        setSubmissions((prev) =>
+            prev.map((s) =>
+                s.id === id
+                    ? {
+                          ...s,
+                          score: score !== "" ? Number(score) : null,
+                          feedback: feedback,
+                      }
+                    : s
+            )
+        );
+        setSelectedId(null);
+        setGrading((prev) => ({
+            ...prev,
+            [id]: { score: "", feedback: "" },
+        }));
+    };
 
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
-            <BorderBox title="Danh sách sinh viên đã nộp bài tập 1 - Lớp 125213">
+            <BorderBox
+                title={`Danh sách sinh viên đã nộp "${assignment.title}"`}
+            >
                 <div className={styles.viewSubmissionsContainer}>
                     <h1 className={styles.viewSubmissionsTitle}>
-                        Bài nộp: "assignment.title"
+                        Bài nộp: "{assignment.title}"
                     </h1>
                     <p className={styles.assignmentDeadline}>
-                        {/* Hạn nộp: {new Date(assignment.deadline).toLocaleString()} */}
-                        Hạn nộp: 10/5/2025
+                        Hạn nộp:{" "}
+                        {new Date(assignment.deadline).toLocaleString()}
                     </p>
 
                     <div className={styles.submissionsScrollArea}>
                         <div className={styles.submissionsList}>
-                            {mockSubmissions.length === 0 ? (
+                            {submissions.length === 0 ? (
                                 <div className={styles.noSubmissions}>
                                     Chưa có sinh viên nào nộp bài.
                                 </div>
@@ -96,95 +104,225 @@ const ViewSubmissions = ({ assignment }: { assignment: Assignment }) => {
                                 <table className={styles.submissionsTable}>
                                     <thead className={styles.submissionsThead}>
                                         <tr>
-                                            <th className={styles.tableHeader}>
-                                                STT
-                                            </th>
-                                            <th className={styles.tableHeader}>
-                                                Mã SV
-                                            </th>
-                                            <th className={styles.tableHeader}>
-                                                Tên SV
-                                            </th>
-                                            <th className={styles.tableHeader}>
-                                                File
-                                            </th>
-                                            <th className={styles.tableHeader}>
-                                                Thời gian nộp
-                                            </th>
-                                            <th className={styles.tableHeader}>
-                                                Trạng thái
-                                            </th>
+                                            <th>STT</th>
+                                            <th>Mã SV</th>
+                                            <th>Tên SV</th>
+                                            <th>File</th>
+                                            <th>Thời gian nộp</th>
+                                            <th>Trạng thái</th>
                                         </tr>
                                     </thead>
                                     <tbody className={styles.submissionsTbody}>
-                                        {mockSubmissions.map(
+                                        {submissions.map(
                                             (submission, index) => (
-                                                <tr
+                                                <React.Fragment
                                                     key={submission.id}
-                                                    className={
-                                                        styles.submissionRow
-                                                    }
                                                 >
-                                                    <td
+                                                    <tr
                                                         className={
-                                                            styles.tableCell
+                                                            styles.submissionRow
+                                                        }
+                                                        style={{
+                                                            cursor: "pointer",
+                                                            background:
+                                                                selectedId ===
+                                                                submission.id
+                                                                    ? "#f0f7ff"
+                                                                    : undefined,
+                                                        }}
+                                                        onClick={() =>
+                                                            setSelectedId(
+                                                                selectedId ===
+                                                                    submission.id
+                                                                    ? null
+                                                                    : submission.id
+                                                            )
                                                         }
                                                     >
-                                                        {index + 1}
-                                                    </td>
-                                                    <td
-                                                        className={
-                                                            styles.tableCell
-                                                        }
-                                                    >
-                                                        {submission.student_id}
-                                                    </td>
-                                                    <td
-                                                        className={
-                                                            styles.tableCell
-                                                        }
-                                                    >
-                                                        {
-                                                            submission.student_name
-                                                        }
-                                                    </td>
-                                                    <td
-                                                        className={
-                                                            styles.tableCell
-                                                        }
-                                                    >
-                                                        <a
-                                                            href={
-                                                                submission.file_url
+                                                        <td>{index + 1}</td>
+                                                        <td>
+                                                            {
+                                                                submission.student_id
                                                             }
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className={
-                                                                styles.fileLink
+                                                        </td>
+                                                        <td>
+                                                            {
+                                                                submission.student_name
                                                             }
-                                                        >
-                                                            {submission.file_url
-                                                                .split("/")
-                                                                .pop()}
-                                                        </a>
-                                                    </td>
-                                                    <td
-                                                        className={
-                                                            styles.tableCell
-                                                        }
-                                                    >
-                                                        {new Date(
-                                                            submission.submission_time
-                                                        ).toLocaleString()}
-                                                    </td>
-                                                    <td
-                                                        className={
-                                                            styles.tableCell
-                                                        }
-                                                    >
-                                                        Nộp muộn
-                                                    </td>
-                                                </tr>
+                                                        </td>
+                                                        <td>
+                                                            <a
+                                                                href={
+                                                                    submission.file_url
+                                                                }
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className={
+                                                                    styles.fileLink
+                                                                }
+                                                                onClick={(e) =>
+                                                                    e.stopPropagation()
+                                                                }
+                                                            >
+                                                                {submission.file_url
+                                                                    .split("/")
+                                                                    .pop()}
+                                                            </a>
+                                                        </td>
+                                                        <td>
+                                                            {new Date(
+                                                                submission.submission_time
+                                                            ).toLocaleString()}
+                                                        </td>
+                                                        <td>
+                                                            {submission.is_late ? (
+                                                                <span
+                                                                    className={
+                                                                        styles.lateStatus
+                                                                    }
+                                                                >
+                                                                    Nộp muộn
+                                                                </span>
+                                                            ) : (
+                                                                <span
+                                                                    className={
+                                                                        styles.onTimeStatus
+                                                                    }
+                                                                >
+                                                                    Đúng hạn
+                                                                </span>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                    {selectedId ===
+                                                        submission.id && (
+                                                        <tr>
+                                                            <td
+                                                                colSpan={6}
+                                                                className={
+                                                                    styles.gradeExpandCell
+                                                                }
+                                                            >
+                                                                <form
+                                                                    className={
+                                                                        styles.gradeExpandRowVertical
+                                                                    }
+                                                                    onClick={(
+                                                                        e
+                                                                    ) =>
+                                                                        e.stopPropagation()
+                                                                    }
+                                                                    onSubmit={(
+                                                                        e
+                                                                    ) => {
+                                                                        e.preventDefault();
+                                                                        handleGrade(
+                                                                            submission.id
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    <div
+                                                                        className={
+                                                                            styles.gradeExpandRow
+                                                                        }
+                                                                    >
+                                                                        <div
+                                                                            className={
+                                                                                styles.gradeHorizontalItem
+                                                                            }
+                                                                        >
+                                                                            <label
+                                                                                className={
+                                                                                    styles.gradeLabel
+                                                                                }
+                                                                            >
+                                                                                Chấm
+                                                                                điểm
+                                                                            </label>
+                                                                            <input
+                                                                                type="number"
+                                                                                min={
+                                                                                    0
+                                                                                }
+                                                                                max={
+                                                                                    10
+                                                                                }
+                                                                                name="score"
+                                                                                value={
+                                                                                    grading[
+                                                                                        submission
+                                                                                            .id
+                                                                                    ]
+                                                                                        ?.score ??
+                                                                                    submission.score?.toString() ??
+                                                                                    ""
+                                                                                }
+                                                                                className={
+                                                                                    styles.inputScore
+                                                                                }
+                                                                                onChange={(
+                                                                                    e
+                                                                                ) =>
+                                                                                    handleInputChange(
+                                                                                        e,
+                                                                                        submission.id
+                                                                                    )
+                                                                                }
+                                                                                placeholder="Điểm"
+                                                                            />
+                                                                        </div>
+                                                                        <div
+                                                                            className={
+                                                                                styles.gradeHorizontalItem
+                                                                            }
+                                                                        >
+                                                                            <label
+                                                                                className={
+                                                                                    styles.gradeLabel
+                                                                                }
+                                                                            >
+                                                                                Nhận
+                                                                                xét
+                                                                            </label>
+                                                                            <textarea
+                                                                                name="feedback"
+                                                                                value={
+                                                                                    grading[
+                                                                                        submission
+                                                                                            .id
+                                                                                    ]
+                                                                                        ?.feedback ??
+                                                                                    submission.feedback ??
+                                                                                    ""
+                                                                                }
+                                                                                className={
+                                                                                    styles.inputFeedback
+                                                                                }
+                                                                                onChange={(
+                                                                                    e
+                                                                                ) =>
+                                                                                    handleInputChange(
+                                                                                        e,
+                                                                                        submission.id
+                                                                                    )
+                                                                                }
+                                                                                placeholder="Nhận xét"
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                    <button
+                                                                        type="submit"
+                                                                        className={
+                                                                            styles.gradeButtonFull
+                                                                        }
+                                                                    >
+                                                                        Lưu
+                                                                    </button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </React.Fragment>
                                             )
                                         )}
                                     </tbody>

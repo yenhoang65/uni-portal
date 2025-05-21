@@ -1,11 +1,9 @@
 .formContainer {
-    padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 24px;
     background-color: #fdfdfd;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .formGrid {

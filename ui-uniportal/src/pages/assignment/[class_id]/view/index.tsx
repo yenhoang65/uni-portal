@@ -7,67 +7,172 @@ import { AiFillEdit } from "react-icons/ai";
 import AuthGuard from "@/components/AuthGuard";
 import styles from "./styles.module.css";
 
-type Assignment = {
-    exercise_id: number;
+// Mock data for grade_event
+type GradeEvent = {
+    grade_event_id: string;
+    class_subject_id: string;
+    grade_type_id: string;
     title: string;
+    event_date: string;
+    max_score: number;
+    coeff_override: number | null;
     description: string;
-    deadline: string;
-    file_url: string;
     created_at: string;
-    class_subject_id: number;
 };
 
-const mockAssignment: Assignment = {
-    exercise_id: 123,
-    title: "Bài tập về nhà số 1",
-    description: "Giải các bài toán từ trang 20 đến 25 trong sách giáo trình.",
-    deadline: "2025-05-15T23:59:00Z",
-    file_url: "https://example.com/assignment1.pdf",
+const mockGradeEvent: GradeEvent = {
+    grade_event_id: "GE001",
+    class_subject_id: "CS001",
+    grade_type_id: "GT002",
+    title: "Thi cuối kỳ Công nghệ phần mềm",
+    event_date: "2025-06-10T08:00:00Z",
+    max_score: 10,
+    coeff_override: 1.5,
+    description: "Thi cuối kỳ, thời gian làm bài 120 phút.",
     created_at: "2025-05-01T10:00:00Z",
-    class_subject_id: 101,
 };
 
-const AssignmentDetail = () => {
+const GradeEventDetail = () => {
     const router = useRouter();
-    const { query } = router;
-    const { id } = query; // Lấy ID bài tập từ query
+    const { id } = router.query;
 
-    // State để lưu trữ dữ liệu bài tập (sử dụng mock data cho đơn giản)
-    const [assignment, setAssignment] = useState<Assignment | null>(null);
+    const [gradeEvent, setGradeEvent] = useState<GradeEvent | null>(null);
 
     useEffect(() => {
-        // Trong thực tế, bạn sẽ fetch dữ liệu bài tập từ API dựa trên ID
-
         if (id) {
-            setAssignment(mockAssignment); // Đặt mock data vào state
+            setGradeEvent(mockGradeEvent); // Thay thế bằng fetch thực tế nếu cần
         }
     }, [id]);
 
-    if (!assignment) {
+    if (!gradeEvent) {
         return <div>Loading...</div>;
     }
 
-    const deadlineDate = new Date(assignment.deadline);
-    const createdDate = new Date(assignment.created_at);
+    const eventDate = new Date(gradeEvent.event_date);
+    const createdDate = new Date(gradeEvent.created_at);
 
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
-            <BorderBox title={`Chi tiết bài tập: ${assignment.title}`}>
-                <div className={styles.detailContainer}>
-                    <div className={styles.detailItem}>
+            <BorderBox title={`Chi tiết Sự kiện điểm`}>
+                <div className={styles.detailHeader}>
+                    <TypographyBody
+                        tag="span"
+                        theme="lg"
+                        className={styles.assignmentTitle}
+                    >
+                        {gradeEvent.title}
+                    </TypographyBody>
+                    <button
+                        className={styles.editButton}
+                        onClick={() =>
+                            router.push(
+                                `/assignment/${gradeEvent.class_subject_id}/create-edit?id=${gradeEvent.grade_event_id}&mode=edit`
+                            )
+                        }
+                    >
+                        <AiFillEdit /> Chỉnh sửa
+                    </button>
+                </div>
+                <div className={styles.detailGrid}>
+                    <div>
                         <TypographyBody
                             tag="span"
                             theme="md"
                             className={styles.detailLabel}
                         >
-                            Tiêu đề:
+                            Mã sự kiện điểm:
                         </TypographyBody>
-                        <TypographyBody tag="span" theme="md">
-                            {assignment.title}
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailValue}
+                        >
+                            {gradeEvent.grade_event_id}
                         </TypographyBody>
                     </div>
-
-                    <div className={styles.detailItem}>
+                    <div>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailLabel}
+                        >
+                            Lớp học phần:
+                        </TypographyBody>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailValue}
+                        >
+                            {gradeEvent.class_subject_id}
+                        </TypographyBody>
+                    </div>
+                    <div>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailLabel}
+                        >
+                            Loại điểm:
+                        </TypographyBody>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailValue}
+                        >
+                            {gradeEvent.grade_type_id}
+                        </TypographyBody>
+                    </div>
+                    <div>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailLabel}
+                        >
+                            Ngày diễn ra:
+                        </TypographyBody>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailValue}
+                        >
+                            {eventDate.toLocaleString()}
+                        </TypographyBody>
+                    </div>
+                    <div>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailLabel}
+                        >
+                            Điểm tối đa:
+                        </TypographyBody>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailValue}
+                        >
+                            {gradeEvent.max_score}
+                        </TypographyBody>
+                    </div>
+                    <div>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailLabel}
+                        >
+                            Hệ số (override):
+                        </TypographyBody>
+                        <TypographyBody
+                            tag="span"
+                            theme="md"
+                            className={styles.detailValue}
+                        >
+                            {gradeEvent.coeff_override !== null
+                                ? gradeEvent.coeff_override
+                                : "Không có"}
+                        </TypographyBody>
+                    </div>
+                    <div style={{ gridColumn: "1 / -1" }}>
                         <TypographyBody
                             tag="span"
                             theme="md"
@@ -75,54 +180,15 @@ const AssignmentDetail = () => {
                         >
                             Mô tả:
                         </TypographyBody>
-                        <TypographyBody tag="span" theme="md">
-                            {assignment.description}
-                        </TypographyBody>
-                    </div>
-
-                    <div className={styles.detailItem}>
                         <TypographyBody
                             tag="span"
                             theme="md"
-                            className={styles.detailLabel}
+                            className={styles.detailValue}
                         >
-                            Hạn nộp:
-                        </TypographyBody>
-                        <TypographyBody
-                            tag="span"
-                            theme="md"
-                            className={styles.deadline}
-                        >
-                            {deadlineDate.toLocaleString()}
+                            {gradeEvent.description}
                         </TypographyBody>
                     </div>
-
-                    <div className={styles.detailItem}>
-                        <TypographyBody
-                            tag="span"
-                            theme="md"
-                            className={styles.detailLabel}
-                        >
-                            File:
-                        </TypographyBody>
-                        {assignment.file_url && (
-                            <a
-                                href={assignment.file_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={styles.fileLink}
-                            >
-                                Tải xuống
-                            </a>
-                        )}
-                        {!assignment.file_url && (
-                            <TypographyBody tag="span" theme="md">
-                                Không có file
-                            </TypographyBody>
-                        )}
-                    </div>
-
-                    <div className={styles.detailItem}>
+                    <div>
                         <TypographyBody
                             tag="span"
                             theme="md"
@@ -130,46 +196,27 @@ const AssignmentDetail = () => {
                         >
                             Ngày tạo:
                         </TypographyBody>
-                        <TypographyBody tag="span" theme="md">
-                            {createdDate.toLocaleString()}
-                        </TypographyBody>
-                    </div>
-                    <div className={styles.detailItem}>
                         <TypographyBody
                             tag="span"
                             theme="md"
-                            className={styles.detailLabel}
+                            className={styles.detailValue}
                         >
-                            Mã Lớp Học:
-                        </TypographyBody>
-                        <TypographyBody tag="span" theme="md">
-                            {assignment.class_subject_id}
+                            {createdDate.toLocaleString()}
                         </TypographyBody>
                     </div>
-
-                    <div className={styles.buttonGroup}>
-                        <div
-                            className={styles.backButton}
-                            onClick={() => router.back()}
-                        >
-                            <IoIosArrowBack className={styles.backIcon} />
-                            <span className={styles.backText}>Back</span>
-                        </div>
-                        <button
-                            className={styles.editButton}
-                            onClick={() =>
-                                router.push(
-                                    `/assignment/${assignment.class_subject_id}/create-edit?id=${assignment.exercise_id}&mode=edit`
-                                )
-                            }
-                        >
-                            <AiFillEdit /> Edit
-                        </button>
-                    </div>
+                </div>
+                <div className={styles.buttonGroup}>
+                    <button
+                        className={styles.backButton}
+                        onClick={() => router.back()}
+                    >
+                        <IoIosArrowBack className={styles.backIcon} />
+                        Quay lại
+                    </button>
                 </div>
             </BorderBox>
         </AuthGuard>
     );
 };
 
-export default AssignmentDetail;
+export default GradeEventDetail;
