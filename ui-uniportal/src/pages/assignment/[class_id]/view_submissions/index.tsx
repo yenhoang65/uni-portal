@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styles from "./styles.module.css";
 import AuthGuard from "@/components/AuthGuard";
 import BorderBox from "@/components/BorderBox";
+import { TypographyHeading } from "@/components/TypographyHeading";
 
 interface Submission {
     id: string;
@@ -20,6 +21,23 @@ interface Assignment {
     deadline: string;
 }
 
+interface Student {
+    student_id: string;
+    student_name: string;
+}
+
+// Giả sử đây là list toàn bộ sinh viên của lớp:
+const allStudents: Student[] = [
+    { student_id: "SV001", student_name: "Nguyễn Văn A" },
+    { student_id: "SV002", student_name: "Trần Thị B" },
+    { student_id: "SV003", student_name: "Lê Công C" },
+    { student_id: "SV004", student_name: "Phạm Thu D" },
+    { student_id: "SV005", student_name: "Hoàng Minh E" },
+    { student_id: "SV006", student_name: "Vũ Ngọc F" },
+    { student_id: "SV007", student_name: "Đặng Thùy G" },
+    { student_id: "SV008", student_name: "Ngô Minh H" },
+];
+
 const mockSubmissions: Submission[] = [
     {
         id: "1",
@@ -29,7 +47,30 @@ const mockSubmissions: Submission[] = [
         submission_time: "2024-03-10T23:50:00",
         is_late: false,
     },
-    // ...các dòng khác giữ nguyên
+    {
+        id: "2",
+        student_id: "SV003",
+        student_name: "Lê Công C",
+        file_url: "https://example.com/bai-tap-1-sv003.docx",
+        submission_time: "2024-03-11T00:30:00",
+        is_late: true,
+    },
+    {
+        id: "3",
+        student_id: "SV005",
+        student_name: "Hoàng Minh E",
+        file_url: "https://example.com/bai-tap-1-sv005.docx",
+        submission_time: "2024-03-10T23:30:00",
+        is_late: false,
+    },
+    {
+        id: "4",
+        student_id: "SV006",
+        student_name: "Vũ Ngọc F",
+        file_url: "https://example.com/bai-tap-1-sv006.pdf",
+        submission_time: "2024-03-11T00:01:00",
+        is_late: true,
+    },
 ];
 
 const assignment: Assignment = {
@@ -45,6 +86,12 @@ const ViewSubmissions = () => {
     const [grading, setGrading] = useState<{
         [id: string]: { score: string; feedback: string };
     }>({});
+
+    // Tìm những sinh viên chưa có bài nộp
+    const submittedStudentIds = new Set(submissions.map((s) => s.student_id));
+    const notSubmittedStudents = allStudents.filter(
+        (stu) => !submittedStudentIds.has(stu.student_id)
+    );
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -329,6 +376,60 @@ const ViewSubmissions = () => {
                                 </table>
                             )}
                         </div>
+                    </div>
+
+                    {/* BẢNG SINH VIÊN CHƯA NỘP */}
+                    <div className={styles.notSubmittedContainer}>
+                        <TypographyHeading
+                            tag="span"
+                            theme="lg"
+                            className={styles.notSubmittedTitle}
+                        >
+                            Danh sách sinh viên chưa nộp
+                        </TypographyHeading>
+
+                        <table className={styles.notSubmittedTable}>
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Mã SV</th>
+                                    <th>Tên SV</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {notSubmittedStudents.length === 0 ? (
+                                    <tr>
+                                        <td
+                                            colSpan={4}
+                                            style={{
+                                                textAlign: "center",
+                                                color: "#888",
+                                            }}
+                                        >
+                                            Tất cả sinh viên đã nộp bài.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    notSubmittedStudents.map((stu, idx) => (
+                                        <tr key={stu.student_id}>
+                                            <td>{idx + 1}</td>
+                                            <td>{stu.student_id}</td>
+                                            <td>{stu.student_name}</td>
+                                            <td>
+                                                <span
+                                                    className={
+                                                        styles.lateStatus
+                                                    }
+                                                >
+                                                    Chưa nộp
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </BorderBox>

@@ -187,6 +187,39 @@
     box-shadow: 2px 4px 20px rgba(9, 88, 217, 0.13);
 }
 
+.notSubmittedContainer {
+    margin-top: 20px;
+    background: #f6faff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.notSubmittedTitle {
+    font-weight: 700;
+}
+
+.notSubmittedTable {
+    margin-top: 10px;
+    width: 100%;
+    border-collapse: collapse;
+    background: #fafdff;
+}
+.notSubmittedTable th,
+.notSubmittedTable td {
+    border-bottom: 1px solid #eaeaea;
+    padding: 9px 7px;
+    font-size: 16px;
+    text-align: left;
+}
+.notSubmittedTable th {
+    background: #e6f7ff;
+    color: #1677ff;
+    font-weight: 700;
+}
+.notSubmittedTable tr:last-child td {
+    border-bottom: none;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
     .gradeExpandRow {
