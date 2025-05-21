@@ -312,7 +312,7 @@ const CreateEditTeachingScheduleRequest = () => {
 
         console.log(obj);
 
-        // dispatch(regisSchedule({ dto: obj }));
+        dispatch(regisSchedule({ dto: obj }));
     };
 
     useEffect(() => {

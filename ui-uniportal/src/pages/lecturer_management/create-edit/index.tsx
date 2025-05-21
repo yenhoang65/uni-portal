@@ -255,7 +255,7 @@ const CreateEditLecturer = () => {
         setSelectedFile(null);
         setFileName(null);
         if (fileInputRef.current) {
-            fileInputRef.current.value = ""; // Reset the file input
+            fileInputRef.current.value = "";
         }
     };
 

@@ -26,6 +26,41 @@ type GetParam = {
     searchValue: string;
 };
 
+export interface TeachingSchedule {
+    scheduleId: number;
+    lesson: string;
+    dateTime: string;
+    endDate: string;
+    assignment: {
+        assignmentId: number;
+        lecturer: {
+            lecturerId: number;
+            lecturerName: string;
+        };
+        subject: {
+            subjectId: number;
+            subjectName: string;
+            ltCredits: number;
+            thCredits: number;
+        };
+        termClass: {
+            termClassId: number;
+            termName: string;
+        };
+    };
+    scheduleDetails: {
+        classroomId: number;
+        lesson: string;
+        dateTime: string;
+        endDate: string;
+        classType: "LT" | "TH"; // Hoặc string nếu có thêm loại
+    }[];
+    materials: {
+        lt: string;
+        th: string;
+    }[];
+}
+
 //class offical
 export const getListClassOffical = createAsyncThunk(
     "class/getListClassOffical",
@@ -38,6 +73,74 @@ export const getListClassOffical = createAsyncThunk(
             return fulfillWithValue(data);
         } catch (error) {
             // return rejectWithValue(error.response.data);
+        }
+    }
+);
+
+//delete class offical
+export const deleteClassOffical = createAsyncThunk(
+    "class/deleteClassOffical",
+    async (id: any, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.delete(`/classes/${id}`, {
+                withCredentials: true,
+            });
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
+export const getClassOfficalDetail = createAsyncThunk(
+    "class/getClassOfficalDetail",
+    async (id: any, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get(`/classes/${id}`, {
+                withCredentials: true,
+            });
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
+export const updateClassOfficial = createAsyncThunk(
+    "class/updateClassOfficial",
+    async (
+        { id, dto }: { id: any; dto: any },
+        { rejectWithValue, fulfillWithValue }
+    ) => {
+        try {
+            const { data } = await api.put(`/classes/${id}`, dto, {
+                withCredentials: true,
+            });
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
+export const createClassOfficial = createAsyncThunk(
+    "class/createClassOfficial",
+    async ({ dto }: { dto: any }, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.post(`/classes`, dto, {
+                withCredentials: true,
+            });
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );
@@ -121,6 +224,33 @@ export const deleteTermClass = createAsyncThunk(
     }
 );
 
+// get list lớp học success  - lecturer
+export const getClassByStatusLecturer = createAsyncThunk(
+    "class/getClassByStatusLecturer",
+    async (
+        { statuses, currentPage, perPage, searchValue }: any,
+        { rejectWithValue, fulfillWithValue }
+    ) => {
+        try {
+            const token = window.localStorage.getItem("accessToken");
+            const { data } = await api.get(
+                `/teaching-schedule/by-status?currentPage=${currentPage}&perPage=${perPage}&statuses=${statuses}&searchValue=${searchValue}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log(data);
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            // return rejectWithValue(error.response.data);
+        }
+    }
+);
+
 export const classReducer = createSlice({
     name: "class",
     initialState: {
@@ -131,6 +261,9 @@ export const classReducer = createSlice({
 
         classTerms: [] as ClassTerm[],
         classTerm: {} as ClassTerm,
+
+        classByStatus: [] as TeachingSchedule[],
+        totalClassByStatus: 0,
     },
     reducers: {
         messageClear: (state) => {
@@ -148,6 +281,67 @@ export const classReducer = createSlice({
             // })
             .addCase(getListClassOffical.fulfilled, (state, { payload }) => {
                 state.classOfficals = payload.data;
+            })
+            .addCase(deleteClassOffical.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+
+            .addCase(deleteClassOffical.fulfilled, (state, { payload }) => {
+                state.successMessage = "Xóa lớp thành công";
+            })
+            .addCase(getClassOfficalDetail.fulfilled, (state, { payload }) => {
+                state.classOffical = payload.data;
+            })
+
+            .addCase(updateClassOfficial.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+
+            .addCase(updateClassOfficial.fulfilled, (state, { payload }) => {
+                state.successMessage = "Chỉnh sửa lớp thành công";
+            })
+            .addCase(createClassOfficial.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+
+            .addCase(createClassOfficial.fulfilled, (state, { payload }) => {
+                state.successMessage = "Thêm lớp thành công";
             })
 
             //term class
@@ -174,7 +368,14 @@ export const classReducer = createSlice({
             })
             .addCase(deleteTermClass.fulfilled, (state, { payload }) => {
                 state.successMessage = "Xóa class học phần thành công";
-            });
+            })
+            .addCase(
+                getClassByStatusLecturer.fulfilled,
+                (state, { payload }) => {
+                    state.classByStatus = payload.data.content;
+                    state.totalClassByStatus = payload.data.totalElements;
+                }
+            );
     },
 });
 

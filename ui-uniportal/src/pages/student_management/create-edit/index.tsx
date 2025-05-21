@@ -104,8 +104,8 @@ const CreateEditStudent = () => {
     });
 
     useEffect(() => {
-        getListClassOffical();
-        getListSpec();
+        dispatch(getListClassOffical());
+        dispatch(getListSpec());
     }, []);
 
     const inputHandle = (
@@ -207,8 +207,6 @@ const CreateEditStudent = () => {
             bankAccountNumber: state.bankAccountNumber,
         };
 
-        console.log(state.dateOfBirth);
-
         if (mode === "create") {
             dispatch(createStudent({ dto: obj }));
         } else {
@@ -237,17 +235,19 @@ const CreateEditStudent = () => {
                 }
             >
                 <section className={styles.container}>
-                    <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Mã sinh viên"
-                            name="userId"
-                            value={String(state.userId)}
-                            onChange={inputHandle}
-                            type="text"
-                            required
-                            disabled={mode === "edit"}
-                        />
-                    </div>
+                    {mode == "edit" && (
+                        <div className={styles.gridItem}>
+                            <InputWithLabel
+                                label="Mã sinh viên"
+                                name="userId"
+                                value={String(state.userId)}
+                                onChange={inputHandle}
+                                type="text"
+                                required
+                                disabled={mode === "edit"}
+                            />
+                        </div>
+                    )}
 
                     <div className={styles.gridItem}>
                         <InputWithLabel

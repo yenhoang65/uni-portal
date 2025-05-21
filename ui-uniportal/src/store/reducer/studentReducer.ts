@@ -57,6 +57,8 @@ export const getListStudent = createAsyncThunk(
             return fulfillWithValue(data);
         } catch (error) {
             // return rejectWithValue(error.response.data);
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );
@@ -90,8 +92,8 @@ export const updateStudent = createAsyncThunk(
 
             return fulfillWithValue(data);
         } catch (error) {
-            // Xử lý lỗi nếu có
-            // return rejectWithValue(error.response?.data || error.message);
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );
@@ -106,8 +108,8 @@ export const createStudent = createAsyncThunk(
 
             return fulfillWithValue(data);
         } catch (error) {
-            // Xử lý lỗi nếu có
-            return rejectWithValue("Đã có lỗi xảy ra, vui lòng thử");
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );
@@ -177,7 +179,19 @@ export const studentReducer = createSlice({
                 state.successMessage = "Update student thành công";
             })
             .addCase(createStudent.rejected, (state, { payload }) => {
-                state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
             })
             .addCase(createStudent.fulfilled, (state, { payload }) => {
                 state.successMessage = "Thêm student thành công";

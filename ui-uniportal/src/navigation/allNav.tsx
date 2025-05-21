@@ -8,6 +8,7 @@ import {
     AiOutlineCalendar,
 } from "react-icons/ai";
 import { FaUserGraduate, FaUserTie } from "react-icons/fa";
+import { PiExamBold } from "react-icons/pi";
 
 export const allNav = [
     {
@@ -74,6 +75,13 @@ export const allNav = [
                 role: ["employee", "admin"],
                 path: "/list-class-follow-day",
             },
+            {
+                id: 31,
+                title: "Quản lý kỳ thi",
+                icon: <PiExamBold />,
+                role: ["admin"],
+                path: "/exam-schedule-management",
+            },
         ],
     },
     {
@@ -125,7 +133,7 @@ export const allNav = [
                 id: 22,
                 title: "Danh sách lớp đã đăng ký lịch giảng dạy",
                 icon: <AiOutlineCalendar />,
-                role: ["lecturer", "admin"],
+                role: ["lecturer"],
                 path: "/teaching-schedule-request/view",
             },
             {
@@ -134,6 +142,20 @@ export const allNav = [
                 icon: <AiOutlineCalendar />,
                 role: ["lecturer", "admin"],
                 path: "/lecturer-timetable",
+            },
+            {
+                id: 32,
+                title: "Danh sách lớp tín chỉ đã đăng ký",
+                icon: <AiOutlineCalendar />,
+                role: ["student"],
+                path: "/registered-credit-classes",
+            },
+            {
+                id: 33,
+                title: "Quản lý đầu điểm",
+                icon: <AiOutlineCalendar />,
+                role: ["admin"],
+                path: "/point-management",
             },
         ],
     },
@@ -202,7 +224,7 @@ export const allNav = [
                 title: "Quản lý bài tập",
                 icon: <AiOutlineUser />,
                 role: ["student"],
-                path: "submit-assignment",
+                path: "/submit-assignment",
             },
         ],
     },

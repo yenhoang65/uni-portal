@@ -55,20 +55,6 @@ const SubjectManagement = () => {
             dispatch(messageClear());
 
             dispatch(getListSubject());
-            // const obj = {
-            //     parPage: parseInt(parPage),
-            //     currentPage: parseInt(currentPage),
-            //     searchValue,
-            //     typeCate,
-            // };
-            // dispatch(get_category(obj));
-
-            // setState({
-            //     name: "",
-            //     image: "",
-            //     type: "",
-            // });
-            // setImageShow("");
         }
         if (errorMessage) {
             toast.error(errorMessage);

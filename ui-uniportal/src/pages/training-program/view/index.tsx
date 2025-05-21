@@ -188,14 +188,16 @@ const ViewTrainingProgram = () => {
                     >
                         Các môn học trong chương trình
                     </TypographyHeading>
-                    <div
-                        className={styles.buttonAddSubject}
-                        onClick={() => {
-                            setIsOpenModal(true);
-                        }}
-                    >
-                        Thêm môn học
-                    </div>
+                    {role !== "student" && (
+                        <div
+                            className={styles.buttonAddSubject}
+                            onClick={() => {
+                                setIsOpenModal(true);
+                            }}
+                        >
+                            Thêm môn học
+                        </div>
+                    )}
                 </div>
                 {subjects.length > 0 ? (
                     <div className={styles.tableWrapper}>

@@ -6,7 +6,7 @@ import { lessonTimeMap } from "@/constants/lession";
 import styles from "./styles.module.css";
 import { IoIosArrowBack } from "react-icons/io";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ModalConfirm from "@/components/ModalConfirm";
 import { AppDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -182,11 +182,15 @@ const ListClassSubject = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-        if (subject_id) {
+        if (router.isReady && subject_id) {
             dispatch(getClassFollowSubject(subject_id));
         }
-    }, [subject_id]);
-    const events = generateEventsFromAPI(classOpenFollowSubject || []);
+    }, [router.isReady, subject_id, dispatch]);
+
+    const events = useMemo(
+        () => generateEventsFromAPI(classOpenFollowSubject),
+        [classOpenFollowSubject]
+    );
 
     const message = selectedClass ? (
         <div style={{ whiteSpace: "pre-wrap", textAlign: "left" }}>
@@ -243,6 +247,7 @@ const ListClassSubject = () => {
     return (
         <BorderBox title="Các lớp đang mở môn Công nghệ phần mềm">
             <Calendar
+                key={events.length}
                 className={styles.calendar}
                 localizer={localizer}
                 formats={{

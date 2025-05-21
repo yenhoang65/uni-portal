@@ -176,11 +176,14 @@ export const regisSchedule = createAsyncThunk(
     "schedule/regisSchedule",
     async ({ dto }: { dto: any }, { rejectWithValue, fulfillWithValue }) => {
         try {
+            const token = window.localStorage.getItem("accessToken");
             const { data } = await api.post(
                 `/teaching-schedule/register`,
                 dto,
                 {
-                    withCredentials: true,
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
             );
 

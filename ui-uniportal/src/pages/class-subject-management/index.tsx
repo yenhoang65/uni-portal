@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -10,70 +10,31 @@ import { BiListCheck } from "react-icons/bi";
 import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import AuthGuard from "@/components/AuthGuard";
-
-type ClassSubjectType = {
-    id: string;
-    className: string;
-    subjectName: string;
-    totalStudents: number;
-};
-
-const classSubjects: ClassSubjectType[] = [
-    {
-        id: "CS001",
-        className: "Lớp Toán Cao Cấp 1",
-        subjectName: "Toán Cao Cấp",
-        totalStudents: 45,
-    },
-    {
-        id: "CS002",
-        className: "Lớp Lập Trình Web",
-        subjectName: "Lập Trình Web",
-        totalStudents: 30,
-    },
-    {
-        id: "CS003",
-        className: "Lớp Giải Tích 2",
-        subjectName: "Giải Tích",
-        totalStudents: 50,
-    },
-    {
-        id: "CS004",
-        className: "Lớp Cơ Sở Dữ Liệu",
-        subjectName: "Cơ Sở Dữ Liệu",
-        totalStudents: 35,
-    },
-    {
-        id: "CS005",
-        className: "Lớp Mạng Máy Tính",
-        subjectName: "Mạng Máy Tính",
-        totalStudents: 40,
-    },
-    {
-        id: "CS006",
-        className: "Lớp Vật Lý Đại Cương A1",
-        subjectName: "Vật Lý Đại Cương",
-        totalStudents: 55,
-    },
-];
+import { AppDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { getClassByStatusLecturer } from "@/store/reducer/classReducer";
 
 const ClassSubjectManagement = () => {
-    const [currentPage, setCurrentPage] = useState(1);
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { classByStatus, totalClassByStatus } = useSelector(
+        (state: RootState) => state.class
+    );
+
+    const [currentPage, setCurrentPage] = useState(0);
     const [searchValue, setSearchValue] = useState("");
-    const [parPage, setParPage] = useState(5);
+    const [parPage, setParPage] = useState(10);
 
-    const filteredClassSubjects = classSubjects.filter((classSubject) =>
-        Object.values(classSubject).some((value) =>
-            String(value).toLowerCase().includes(searchValue.toLowerCase())
-        )
-    );
-
-    const startIndex = (currentPage - 1) * parPage;
-    const endIndex = startIndex + parPage;
-    const currentClassSubjects = filteredClassSubjects.slice(
-        startIndex,
-        endIndex
-    );
+    useEffect(() => {
+        dispatch(
+            getClassByStatusLecturer({
+                statuses: "success",
+                currentPage: currentPage,
+                perPage: parPage,
+                searchValue: searchValue,
+            })
+        );
+    }, [currentPage, searchValue, parPage]);
 
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
@@ -105,9 +66,9 @@ const ClassSubjectManagement = () => {
                                     <th style={{ minWidth: "150px" }}>
                                         Tên Môn Học
                                     </th>
-                                    <th style={{ minWidth: "100px" }}>
+                                    {/* <th style={{ minWidth: "100px" }}>
                                         Tổng Số Sinh Viên
-                                    </th>
+                                    </th> */}
                                     <th
                                         style={{
                                             minWidth: "300px",
@@ -119,74 +80,88 @@ const ClassSubjectManagement = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentClassSubjects.map(
-                                    (classSubject, index) => (
-                                        <tr key={classSubject.id}>
-                                            <td>
-                                                {(currentPage - 1) * parPage +
-                                                    index +
-                                                    1}
-                                            </td>
-                                            <td>{classSubject.id}</td>
-                                            <td>{classSubject.subjectName}</td>
-                                            <td className={styles.totalStudent}>
+                                {classByStatus.map((classSubject, index) => (
+                                    <tr
+                                        key={
+                                            classSubject.assignment.assignmentId
+                                        }
+                                    >
+                                        <td>
+                                            {(currentPage - 1) * parPage +
+                                                index +
+                                                1}
+                                        </td>
+                                        <td>
+                                            {
+                                                classSubject.assignment
+                                                    .termClass.termName
+                                            }
+                                        </td>
+                                        <td>
+                                            {
+                                                classSubject.assignment.subject
+                                                    .subjectName
+                                            }
+                                        </td>
+                                        {/* <td className={styles.totalStudent}>
                                                 {classSubject.totalStudents}
-                                            </td>
-                                            <td className={styles.buttonAction}>
-                                                <Link
-                                                    href={`class-subject-management/attendance/${classSubject.id}`}
-                                                    className={clsx(
-                                                        styles.viewButton,
-                                                        styles.attendanceButton
-                                                    )}
-                                                >
-                                                    <AiOutlineCheckSquare />
-                                                    Điểm danh
-                                                </Link>
-                                                <Link
-                                                    href={`/grading/${classSubject.id}`}
-                                                    className={clsx(
-                                                        styles.viewButton,
-                                                        styles.gradingButton
-                                                    )}
-                                                >
-                                                    <AiFillStar /> Chấm điểm
-                                                </Link>
-                                                <Link
-                                                    href={`/student-list/${classSubject.id}`}
-                                                    className={clsx(
-                                                        styles.viewButton,
-                                                        styles.listButton
-                                                    )}
-                                                >
-                                                    <BiListCheck /> In danh sách
-                                                </Link>
-                                                <Link
-                                                    href={`../assignment/${classSubject.id}`}
-                                                    className={clsx(
-                                                        styles.viewButton,
-                                                        styles.assignment
-                                                    )}
-                                                >
-                                                    <BiListCheck /> Giao bài tập
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                    )
-                                )}
+                                            </td> */}
+                                        <td className={styles.buttonAction}>
+                                            <Link
+                                                href={`class-subject-management/attendance/${classSubject.assignment.assignmentId}`}
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.attendanceButton
+                                                )}
+                                            >
+                                                <AiOutlineCheckSquare />
+                                                Điểm danh
+                                            </Link>
+                                            <Link
+                                                href={`/grading/${classSubject.assignment.assignmentId}`}
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.gradingButton
+                                                )}
+                                            >
+                                                <AiFillStar /> Chấm điểm
+                                            </Link>
+                                            <Link
+                                                href={`/student-list/${classSubject.assignment.assignmentId}`}
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.listButton
+                                                )}
+                                            >
+                                                <BiListCheck /> In danh sách
+                                            </Link>
+                                            <Link
+                                                href={`../assignment/${classSubject.assignment.assignmentId}`}
+                                                className={clsx(
+                                                    styles.viewButton,
+                                                    styles.assignment
+                                                )}
+                                            >
+                                                <BiListCheck /> Giao bài tập
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
 
-                    <div className={styles.paginationWrapper}>
-                        <Pagination
-                            pageNumber={currentPage}
-                            setPageNumber={setCurrentPage}
-                            totalItem={filteredClassSubjects.length}
-                            parPage={parPage}
-                            showItem={3}
-                        />
-                    </div>
+                    {totalClassByStatus <= parPage && (
+                        <div className={styles.paginationWrapper}>
+                            <Pagination
+                                pageNumber={currentPage}
+                                setPageNumber={setCurrentPage}
+                                totalItem={totalClassByStatus}
+                                parPage={parPage}
+                                showItem={3}
+                            />
+                        </div>
+                    )}
                 </div>
             </BorderBox>
         </AuthGuard>

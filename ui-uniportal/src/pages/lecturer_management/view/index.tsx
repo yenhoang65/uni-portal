@@ -160,7 +160,9 @@ const LecturerDetail = () => {
                                 Ngày vào trường:
                             </TypographyBody>
                             <TypographyBody tag="span">
-                                {lecturer.admissionDate}
+                                {new Date(
+                                    lecturer.admissionDate
+                                ).toLocaleDateString("vi-VN")}
                             </TypographyBody>
                         </div>
                     )}

@@ -13,50 +13,19 @@ import ModalConfirm from "@/components/ModalConfirm";
 import AuthGuard from "@/components/AuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { getListClassOffical } from "@/store/reducer/classReducer";
-
-const classTerms = [
-    {
-        id: "CT001",
-        class_name: 101,
-        progress: 75,
-        semester: 1,
-        school_year: 2024,
-    },
-    {
-        id: "CT002",
-        class_name: 102,
-        progress: 90,
-        semester: 2,
-        school_year: 2025,
-    },
-    {
-        id: "CT003",
-        class_name: 201,
-        progress: 60,
-        semester: 1,
-        school_year: 2023,
-    },
-    {
-        id: "CT004",
-        class_name: 202,
-        progress: 80,
-        semester: 2,
-        school_year: 2024,
-    },
-    {
-        id: "CT005",
-        class_name: 101,
-        progress: 85,
-        semester: 1,
-        school_year: 2022,
-    },
-];
+import {
+    deleteClassOffical,
+    getListClassOffical,
+    messageClear,
+} from "@/store/reducer/classReducer";
+import toast from "react-hot-toast";
 
 const ClassOffical = () => {
     const dispatch = useDispatch<AppDispatch>();
 
-    const { classOfficals } = useSelector((state: RootState) => state.class);
+    const { classOfficals, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.class
+    );
     const { lecturers } = useSelector((state: RootState) => state.lecturer);
     const { trainingPrograms } = useSelector(
         (state: RootState) => state.trainingProgram
@@ -66,25 +35,38 @@ const ClassOffical = () => {
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [deleteClassTermId, setDeleteClassTermId] = useState<number | null>(
-        null
-    );
+    const [deleteClassOfficalId, setDeleteClassOfficalId] = useState<
+        number | null
+    >(null);
 
     useEffect(() => {
         dispatch(getListClassOffical());
     }, []);
 
     const handleDelete = () => {
-        if (deleteClassTermId) {
+        if (deleteClassOfficalId) {
+            dispatch(deleteClassOffical(deleteClassOfficalId));
             setIsModalOpen(false);
-            setDeleteClassTermId(null);
+            setDeleteClassOfficalId(null);
         }
     };
 
     const handleCancel = () => {
         setIsModalOpen(false);
-        setDeleteClassTermId(null);
+        setDeleteClassOfficalId(null);
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+            dispatch(getListClassOffical());
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -97,7 +79,10 @@ const ClassOffical = () => {
                             searchValue={searchValue}
                         />
 
-                        <Link href={""} className={styles.buttonAdd}>
+                        <Link
+                            href={"/class_official/create-edit"}
+                            className={styles.buttonAdd}
+                        >
                             <IoMdAddCircle /> Add New
                         </Link>
                     </div>
@@ -128,15 +113,7 @@ const ClassOffical = () => {
                                         <td>{term.schoolYear}</td>
                                         <td className={styles.buttonAction}>
                                             <Link
-                                                href={`/class-term-subject/view?id=${term.classId}`}
-                                                className={clsx(
-                                                    styles.viewButton
-                                                )}
-                                            >
-                                                <FaEye />
-                                            </Link>
-                                            <Link
-                                                href={`/class-term-subject/create-edit?id=${term.classId}&mode=edit`}
+                                                href={`/class_official/create-edit?id=${term.classId}&mode=edit`}
                                                 className={clsx(
                                                     styles.viewButton,
                                                     styles.viewButtonUpdate
@@ -149,7 +126,7 @@ const ClassOffical = () => {
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     setIsModalOpen(true);
-                                                    setDeleteClassTermId(
+                                                    setDeleteClassOfficalId(
                                                         term.classId
                                                     );
                                                 }}
@@ -162,7 +139,7 @@ const ClassOffical = () => {
                                             </Link>
 
                                             {isModalOpen &&
-                                                deleteClassTermId ===
+                                                deleteClassOfficalId ===
                                                     term.classId && (
                                                     <ModalConfirm
                                                         message="Are you sure you want to delete?"
@@ -173,7 +150,7 @@ const ClassOffical = () => {
                                         </td>
                                     </tr>
                                 ))}
-                                {classTerms.length === 0 && (
+                                {classOfficals.length === 0 && (
                                     <tr>
                                         <td
                                             colSpan={6}
@@ -191,7 +168,7 @@ const ClassOffical = () => {
                         <Pagination
                             pageNumber={currentPage}
                             setPageNumber={setCurrentPage}
-                            totalItem={classTerms.length}
+                            totalItem={classOfficals.length}
                             parPage={parPage}
                             showItem={3}
                         />

@@ -73,6 +73,55 @@ type GetParam = {
     searchValue: string;
 };
 
+export type ScheduleDetail = {
+    classroom_id: number;
+    lesson: string;
+    date_time: string;
+    end_date: string;
+    class_type: "LT" | "TH";
+};
+
+export type Material = {
+    lt: string;
+    th: string;
+};
+
+export type RegisteredCreditClass = {
+    classSubjectStudentId: number;
+    classSubjectStudentStatus: "success" | "pending";
+    classStudentId: number;
+    classStudentStatus: "success" | "pending";
+    classStudentCreatedAt: string;
+    classStudentEndDate: string;
+    classStudentMaterials: any;
+    scheduleId: number;
+    endDate: string;
+    dateTime: string;
+    scheduleStatus: "success" | "pending";
+    scheduleDetails: ScheduleDetail[];
+    materials: Material[];
+    assignmentId: number;
+    assignmentType: string | null;
+    subjectId: number;
+    subjectName: string;
+    subjectDescription: string;
+    ltCredits: number;
+    thCredits: number;
+    subjectCoefficient: number;
+    termclassId: number;
+    classname: string;
+    schoolyears: string;
+    semester: string;
+    progress: string;
+    classroomId: number;
+    classroomName: string;
+    numberOfSeats: number;
+    device: string;
+    classroomStatus: string;
+};
+
+export type RegisteredCreditClasses = RegisteredCreditClass[];
+
 export const getSubjectsFollowUser = createAsyncThunk(
     "regis/getSubjectsFollowUser",
     async (_, { rejectWithValue, fulfillWithValue }) => {
@@ -128,6 +177,50 @@ export const registerTC = createAsyncThunk(
     }
 );
 
+//get lớp đã đăng ký
+export const getRegisteredCreditClasses = createAsyncThunk(
+    "regis/getRegisteredCreditClasses",
+    async (_, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const token = window.localStorage.getItem("accessToken");
+            const { data } = await api.get(`/class-registration/student`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return fulfillWithValue(data);
+        } catch (error) {
+            // return rejectWithValue(error.response.data);
+        }
+    }
+);
+
+//hủy đăng ký lớp TC
+export const cancelRegisteredCreditClasses = createAsyncThunk(
+    "regis/cancelRegisteredCreditClasses",
+    async (
+        classSubjectStudentId: any,
+        { rejectWithValue, fulfillWithValue }
+    ) => {
+        try {
+            const token = window.localStorage.getItem("accessToken");
+            const { data } = await api.post(
+                "/class-registration/unregister",
+                { classSubjectStudentId },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
 //TKB Lecturer
 export const lecturerTimeline = createAsyncThunk(
     "timeline/lecturerTimeline",
@@ -140,7 +233,6 @@ export const lecturerTimeline = createAsyncThunk(
                 },
             });
 
-            console.log(data);
             return fulfillWithValue(data);
         } catch (error) {
             const e = error as Error;
@@ -159,6 +251,7 @@ export const creditRegistrationReducer = createSlice({
         subjects: [] as Subject[],
         classOpenFollowSubject: [],
         lecturerTimelines: [],
+        creditClasses: [] as RegisteredCreditClasses,
     },
     reducers: {
         messageClear: (state) => {
@@ -195,7 +288,39 @@ export const creditRegistrationReducer = createSlice({
             })
             .addCase(lecturerTimeline.fulfilled, (state, { payload }) => {
                 state.lecturerTimelines = payload.data;
-            });
+            })
+            .addCase(
+                getRegisteredCreditClasses.fulfilled,
+                (state, { payload }) => {
+                    state.creditClasses = payload.data;
+                }
+            )
+            .addCase(
+                cancelRegisteredCreditClasses.rejected,
+                (state, { payload }) => {
+                    if (typeof payload === "string") {
+                        state.errorMessage = payload;
+                    } else if (
+                        payload &&
+                        typeof payload === "object" &&
+                        "message" in payload
+                    ) {
+                        state.errorMessage = (
+                            payload as { message: string }
+                        ).message;
+                    } else {
+                        state.errorMessage =
+                            "Đã có lỗi xảy ra, vui lòng thử lại";
+                    }
+                }
+            )
+
+            .addCase(
+                cancelRegisteredCreditClasses.fulfilled,
+                (state, { payload }) => {
+                    state.successMessage = "Hủy lớp tín chỉ thành công";
+                }
+            );
     },
 });
 
