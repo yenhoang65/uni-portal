@@ -7,8 +7,10 @@ import Image from "next/image";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { IoMdLogOut } from "react-icons/io";
+import { useTranslation } from "react-i18next";
 
 const Sidebar: React.FC = () => {
+    const { t } = useTranslation();
     const router = useRouter();
     const { pathname } = router;
     const [allNav, setAllNav] = useState<NavGroup[]>([]);
@@ -70,7 +72,7 @@ const Sidebar: React.FC = () => {
                                                     : styles.titleName
                                             }`}
                                         >
-                                            {item.title}
+                                            {t(item.title)}
                                         </span>
                                     </Link>
                                 </li>
@@ -78,18 +80,7 @@ const Sidebar: React.FC = () => {
                         </ul>
                     </div>
                 ))}
-                <button
-                    className={`${styles.navItem}`}
-                    onClick={() => {
-                        window.localStorage.removeItem("accessToken");
-                        window.location.href = "/login";
-                    }}
-                >
-                    <span className={styles.navIcon}>
-                        <IoMdLogOut />
-                    </span>
-                    <span className={styles.titleName}>Đăng xuất</span>
-                </button>
+               
             </div>
         </div>
     );
