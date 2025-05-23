@@ -17,6 +17,23 @@ type TrainingProgram = {
     prerequisiteFor: string;
 };
 
+export type Subject = {
+    subjectId: number;
+    subjectName: string;
+    subjectType: string;
+    prerequisiteFor: {
+        subjectId: number;
+        subjectName: string;
+    }[];
+};
+
+export type TrainingProgramWithSubjects = {
+    trainingProgramId: number;
+    trainingProgramName: string;
+    schoolYear: string;
+    subjects: Subject[];
+};
+
 type GetParam = {
     currentPage: number;
     parPage: number;
@@ -67,8 +84,8 @@ export const updateTrainingProgram = createAsyncThunk(
 
             return fulfillWithValue(data);
         } catch (error) {
-            // Xử lý lỗi nếu có
-            // return rejectWithValue(error.response?.data || error.message);
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );
@@ -83,8 +100,8 @@ export const createTrainingProgram = createAsyncThunk(
 
             return fulfillWithValue(data);
         } catch (error) {
-            // Xử lý lỗi nếu có
-            return rejectWithValue("Đã có lỗi xảy ra, vui lòng thử");
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );
@@ -97,7 +114,48 @@ export const deleteTrainingProgram = createAsyncThunk(
 
             return fulfillWithValue(data);
         } catch (error) {
-            // return rejectWithValue(error.response.data);
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
+//lấy danh sách các môn học theo mã CTĐT
+export const getSubjectFollowTrainingProgram = createAsyncThunk(
+    "trainingProgram/getSubjectFollowTrainingProgram",
+    async (trainingProgramId: any, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get(
+                `/intermediaries/search/program/${trainingProgramId}`
+            );
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
+//xóa môn học ra khỏi CTĐT:
+export const deleteSubjectFollowTrainingProgram = createAsyncThunk(
+    "trainingProgram/deleteSubjectFollowTrainingProgram",
+    async (
+        {
+            trainingProgramId,
+            subjectId,
+        }: { trainingProgramId: any; subjectId: any },
+        { rejectWithValue, fulfillWithValue }
+    ) => {
+        try {
+            const { data } = await api.delete(
+                `/intermediaries?trainingProgramId=${trainingProgramId}&subjectId=${subjectId}`
+            );
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );
@@ -109,6 +167,7 @@ export const trainingProgramReducer = createSlice({
         errorMessage: "",
         trainingPrograms: [] as TrainingProgram[],
         trainingProgram: {} as TrainingProgram,
+        subjectFollowTrainingProgram: {} as TrainingProgramWithSubjects,
     },
     reducers: {
         messageClear: (state) => {
@@ -126,7 +185,85 @@ export const trainingProgramReducer = createSlice({
             // })
             .addCase(getListTrainingProgram.fulfilled, (state, { payload }) => {
                 state.trainingPrograms = payload.data;
-            });
+            })
+            .addCase(
+                getTrainingProgramDetail.fulfilled,
+                (state, { payload }) => {
+                    state.trainingProgram = payload.data;
+                }
+            )
+            .addCase(createTrainingProgram.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+
+            .addCase(createTrainingProgram.fulfilled, (state, { payload }) => {
+                state.successMessage = "Thêm CTĐT thành công";
+            })
+            .addCase(deleteTrainingProgram.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+            .addCase(deleteTrainingProgram.fulfilled, (state, { payload }) => {
+                state.successMessage = "Xóa CTĐT thành công";
+            })
+            .addCase(
+                getSubjectFollowTrainingProgram.fulfilled,
+                (state, { payload }) => {
+                    state.subjectFollowTrainingProgram = Array.isArray(
+                        payload.data
+                    )
+                        ? payload.data[0]
+                        : null;
+                }
+            )
+            .addCase(
+                deleteSubjectFollowTrainingProgram.rejected,
+                (state, { payload }) => {
+                    if (typeof payload === "string") {
+                        state.errorMessage = payload;
+                    } else if (
+                        payload &&
+                        typeof payload === "object" &&
+                        "message" in payload
+                    ) {
+                        state.errorMessage = (
+                            payload as { message: string }
+                        ).message;
+                    } else {
+                        state.errorMessage =
+                            "Đã có lỗi xảy ra, vui lòng thử lại";
+                    }
+                }
+            )
+            .addCase(
+                deleteSubjectFollowTrainingProgram.fulfilled,
+                (state, { payload }) => {
+                    state.successMessage = "Xóa môn học thành công";
+                }
+            );
     },
 });
 

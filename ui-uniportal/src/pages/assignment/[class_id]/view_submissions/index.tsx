@@ -3,6 +3,7 @@ import styles from "./styles.module.css";
 import AuthGuard from "@/components/AuthGuard";
 import BorderBox from "@/components/BorderBox";
 import { TypographyHeading } from "@/components/TypographyHeading";
+import { TypographyBody } from "@/components/TypographyBody";
 
 interface Submission {
     id: string;
@@ -19,6 +20,7 @@ interface Assignment {
     id: string;
     title: string;
     deadline: string;
+    max_score: number;
 }
 
 interface Student {
@@ -77,6 +79,7 @@ const assignment: Assignment = {
     id: "BT01",
     title: "Bài tập về nhà số 1",
     deadline: "2024-03-11T00:00:00",
+    max_score: 100,
 };
 
 const ViewSubmissions = () => {
@@ -137,7 +140,7 @@ const ViewSubmissions = () => {
                         Bài nộp: "{assignment.title}"
                     </h1>
                     <p className={styles.assignmentDeadline}>
-                        Hạn nộp:{" "}
+                        Hạn nộp:
                         {new Date(assignment.deadline).toLocaleString()}
                     </p>
 

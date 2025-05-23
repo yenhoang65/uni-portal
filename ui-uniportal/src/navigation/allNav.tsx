@@ -82,6 +82,27 @@ export const allNav = [
                 role: ["admin"],
                 path: "/exam-schedule-management",
             },
+            {
+                id: 17,
+                title: "Lịch học",
+                icon: <AiOutlineCalendar />,
+                role: ["student", "admin"],
+                path: "/student-timetable",
+            },
+            {
+                id: 32,
+                title: "Lịch thi",
+                icon: <PiExamBold />,
+                role: ["student"],
+                path: "/exam-schedule-management/exam-schedule",
+            },
+            {
+                id: 33,
+                title: "Kết quả học tập",
+                icon: <PiExamBold />,
+                role: ["student"],
+                path: "/learning-results",
+            },
         ],
     },
     {
@@ -122,30 +143,24 @@ export const allNav = [
                 role: ["student"],
                 path: "/credit-registration",
             },
-            {
-                id: 17,
-                title: "Thời khóa biểu sinh viên",
-                icon: <AiOutlineCalendar />,
-                role: ["student", "admin"],
-                path: "/student-timetable",
-            },
+
             {
                 id: 22,
-                title: "Danh sách lớp đã đăng ký lịch giảng dạy",
+                title: "Lịch sử đăng ký lịch giảng dạy",
                 icon: <AiOutlineCalendar />,
                 role: ["lecturer"],
                 path: "/teaching-schedule-request/view",
             },
             {
                 id: 30,
-                title: "Thời khóa biểu giảng viên",
+                title: "Lịch dạy",
                 icon: <AiOutlineCalendar />,
                 role: ["lecturer", "admin"],
                 path: "/lecturer-timetable",
             },
             {
                 id: 32,
-                title: "Danh sách lớp tín chỉ đã đăng ký",
+                title: "Lịch sử đăng ký tín chỉ",
                 icon: <AiOutlineCalendar />,
                 role: ["student"],
                 path: "/registered-credit-classes",
@@ -209,7 +224,7 @@ export const allNav = [
         items: [
             {
                 id: 11,
-                title: "Quản lý thông tin cá nhân",
+                title: "Thông tin cá nhân",
                 icon: <AiOutlineUser />,
                 role: ["admin", "employee", "student", "lecturer"],
                 path: "/profile/view",

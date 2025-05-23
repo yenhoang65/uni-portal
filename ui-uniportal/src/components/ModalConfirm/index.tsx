@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./styles.module.css";
-import { FaTrash } from "react-icons/fa";
+import { FaTimesCircle, FaCheckCircle } from "react-icons/fa";
+import { BsCheckCircleFill } from "react-icons/bs";
 
 type ModalConfirmProps = {
     message?: React.ReactNode;
@@ -14,31 +15,31 @@ const ModalConfirm: React.FC<ModalConfirmProps> = ({
     message,
     onConfirm,
     onCancel,
-    confirmText = "Delete",
-    buttonText = "Delete",
+    confirmText = "hủy lớp học phần",
+    buttonText = "Đồng ý",
 }) => {
     return (
         <div className={styles.overlay}>
-            <div
-                className={styles.modal}
-                onClick={(e) => e.stopPropagation()} // Ngăn sự kiện click overlay lọt vào modal
-            >
+            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.iconWrapper}>
-                    <FaTrash className={styles.icon} />
+                    <BsCheckCircleFill className={styles.icon} />
                 </div>
-                <h2 className={styles.title}>Confirm {confirmText}</h2>
+                <h2 className={styles.title}>
+                    Bạn chắc chắn muốn {confirmText}?
+                </h2>
                 <p className={styles.message}>
-                    {message ||
-                        "Are you sure you want to delete this item? This action cannot be undone."}
+                    {message || "Chọn hủy để quay lại"}
                 </p>
                 <div className={styles.actions}>
                     <button className={styles.cancelButton} onClick={onCancel}>
-                        Cancel
+                        <FaTimesCircle className={styles.buttonIcon} />
+                        Hủy
                     </button>
                     <button
                         className={styles.confirmButton}
                         onClick={onConfirm}
                     >
+                        <FaCheckCircle className={styles.buttonIcon} />
                         {buttonText}
                     </button>
                 </div>

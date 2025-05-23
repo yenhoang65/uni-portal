@@ -7,94 +7,66 @@ import { TypographyHeading } from "@/components/TypographyHeading";
 import { FaMinusCircle } from "react-icons/fa";
 import { IoMdAddCircle } from "react-icons/io";
 import Modal from "@/components/Modal";
-import SelectWithLabel from "@/components/SelectWithLabel";
+import ModalConfirm from "@/components/ModalConfirm";
 import { TypographyBody } from "@/components/TypographyBody";
 import AuthGuard from "@/components/AuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-
-type TrainingProgram = {
-    training_program_id: string;
-    specialization_id: string;
-    train_code: string;
-    specialization_name?: string;
-};
-
-type Subject = {
-    subject_id: string;
-    subject_name: string;
-    subject_type: string;
-    prerequisite_for: string | null;
-};
-
-type Intermediary = {
-    training_program_id: string;
-    subject_id: string;
-};
+import {
+    deleteSubjectFollowTrainingProgram,
+    getSubjectFollowTrainingProgram,
+    messageClear,
+} from "@/store/reducer/trainingProgramReducer";
+import toast from "react-hot-toast";
 
 const ViewTrainingProgram = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { role } = useSelector((state: RootState) => state.auth);
+    const { subjectFollowTrainingProgram, successMessage, errorMessage } =
+        useSelector((state: RootState) => state.trainingProgram);
 
     const router = useRouter();
     const { id } = router.query;
 
-    const [intermediaryData, setIntermediaryData] = useState<Intermediary[]>(
-        []
-    );
-
     const [selectedSubjectsToAdd, setSelectedSubjectsToAdd] = useState<
         string[]
     >([]);
-
     const [isOpenModal, setIsOpenModal] = useState(false);
+
+    // Confirm delete modal state
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [subjectIdPendingRemove, setSubjectIdPendingRemove] = useState<
+        string | null
+    >(null);
 
     useEffect(() => {
         if (id) {
-            // Mô phỏng gọi API để lấy Training Program
+            dispatch(getSubjectFollowTrainingProgram(id));
         }
-    }, [id]);
+    }, [id, dispatch]);
 
-    const handleRemoveSubject = async (subjectIdToRemove: string) => {
-        if (!id) return;
-
-        // Mô phỏng gọi API xóa khỏi intermediary
+    // Xác nhận xóa môn học
+    const handleRemoveSubject = (subjectIdToRemove: string) => {
+        setSubjectIdPendingRemove(subjectIdToRemove);
+        setShowConfirmModal(true);
+    };
+    const handleConfirmRemove = () => {
+        if (!id || !subjectIdPendingRemove) return;
+        dispatch(
+            deleteSubjectFollowTrainingProgram({
+                trainingProgramId: id,
+                subjectId: subjectIdPendingRemove,
+            })
+        );
+        setShowConfirmModal(false);
+        setSubjectIdPendingRemove(null);
+    };
+    const handleCancelRemove = () => {
+        setShowConfirmModal(false);
+        setSubjectIdPendingRemove(null);
     };
 
-    const trainingProgram = {
-        training_program_id: "TP2024-IT",
-        specialization_id: "SP001",
-        specialization_name: "Công nghệ thông tin",
-        train_code: "2024",
-    };
-
-    const subjects = [
-        {
-            subject_id: "SUB001",
-            subject_name: "Lập trình căn bản",
-            subject_type: "Bắt buộc",
-            prerequisite_for: "",
-        },
-        {
-            subject_id: "SUB002",
-            subject_name: "Cấu trúc dữ liệu và giải thuật",
-            subject_type: "Bắt buộc",
-            prerequisite_for: "SUB001",
-        },
-        {
-            subject_id: "SUB003",
-            subject_name: "Toán rời rạc",
-            subject_type: "Bắt buộc",
-            prerequisite_for: "",
-        },
-        {
-            subject_id: "SUB004",
-            subject_name: "Thiết kế Web",
-            subject_type: "Tự chọn",
-            prerequisite_for: "SUB001",
-        },
-    ];
-
+    // Danh sách tất cả môn học, nên lấy qua API ở thực tế
     const allSubjects = [
         { subject_id: "SUB001", subject_name: "Lập trình căn bản" },
         {
@@ -106,21 +78,20 @@ const ViewTrainingProgram = () => {
         { subject_id: "SUB005", subject_name: "Cơ sở dữ liệu" },
         { subject_id: "SUB006", subject_name: "Mạng máy tính" },
     ];
-
-    const availableSubjectsToAdd = allSubjects.filter(
-        (subject) => !subjects.some((s) => s.subject_id === subject.subject_id)
-    );
+    // Lọc những môn chưa có trong CTĐT
+    const availableSubjectsToAdd =
+        subjectFollowTrainingProgram?.subjects &&
+        Array.isArray(subjectFollowTrainingProgram.subjects)
+            ? allSubjects.filter(
+                  (subject) =>
+                      !subjectFollowTrainingProgram.subjects.some(
+                          (s: any) => s.subjectId === subject.subject_id
+                      )
+              )
+            : allSubjects;
 
     const handleAddSelectedSubjects = () => {
-        if (id && selectedSubjectsToAdd.length > 0) {
-            console.log(
-                "Thêm các môn học:",
-                selectedSubjectsToAdd,
-                "vào CTĐT:",
-                id
-            );
-            // Gọi API để thêm các môn học đã chọn
-        }
+        // Logic thêm môn học vào CTĐT
         setIsOpenModal(false);
     };
 
@@ -134,13 +105,24 @@ const ViewTrainingProgram = () => {
         }
     };
 
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+            if (id) dispatch(getSubjectFollowTrainingProgram(id));
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage, id, dispatch]);
+
     return (
         <AuthGuard allowedRoles={["admin", "student"]}>
             <BorderBox
-                title={`Chương trình Đào tạo: ${trainingProgram.train_code} - ${
-                    trainingProgram.specialization_name ||
-                    trainingProgram.specialization_id
-                }`}
+                title={`Chương trình Đào tạo: ${
+                    subjectFollowTrainingProgram?.trainingProgramId || ""
+                } - ${subjectFollowTrainingProgram?.trainingProgramName || ""}`}
             >
                 <div className={styles.groupTitle}>
                     <div className={styles.group}>
@@ -148,37 +130,30 @@ const ViewTrainingProgram = () => {
                             <TypographyHeading tag="span" theme="lg">
                                 Mã CTĐT:
                             </TypographyHeading>{" "}
-                            {trainingProgram.training_program_id}
+                            {subjectFollowTrainingProgram?.trainingProgramId}
                         </div>
-
                         <div>
                             <TypographyHeading tag="span" theme="lg">
-                                Chuyên ngành:
+                                Tên CTĐT:
                             </TypographyHeading>{" "}
-                            {trainingProgram.specialization_name ||
-                                trainingProgram.specialization_id}
+                            {subjectFollowTrainingProgram?.trainingProgramName}
                         </div>
-
                         <div>
                             <TypographyHeading tag="span" theme="lg">
-                                Mã khóa học:
+                                Năm học:
                             </TypographyHeading>{" "}
-                            {trainingProgram.train_code}
+                            {subjectFollowTrainingProgram?.schoolYear}
                         </div>
                     </div>
-
                     {role !== "student" && (
                         <div
                             className={styles.buttonAdd}
-                            onClick={() => {
-                                setIsOpenModal(true);
-                            }}
+                            onClick={() => setIsOpenModal(true)}
                         >
                             <IoMdAddCircle /> Chỉnh sửa
                         </div>
                     )}
                 </div>
-
                 <div className={styles.action}>
                     <TypographyHeading
                         tag="h5"
@@ -191,65 +166,90 @@ const ViewTrainingProgram = () => {
                     {role !== "student" && (
                         <div
                             className={styles.buttonAddSubject}
-                            onClick={() => {
-                                setIsOpenModal(true);
-                            }}
+                            onClick={() => setIsOpenModal(true)}
                         >
                             Thêm môn học
                         </div>
                     )}
                 </div>
-                {subjects.length > 0 ? (
+                {subjectFollowTrainingProgram?.subjects?.length > 0 ? (
                     <div className={styles.tableWrapper}>
                         <table className={styles.table}>
                             <thead className={styles.thead}>
                                 <tr>
-                                    <th>Mã học phần</th>
+                                    <th style={{ textAlign: "center" }}>
+                                        Mã học phần
+                                    </th>
                                     <th>Tên học phần</th>
-                                    <th>Loại môn học</th>
-                                    <th>Môn học phụ thuộc</th>
-                                    {role !== "student" && <th>Hành động</th>}
+                                    <th style={{ textAlign: "center" }}>
+                                        Môn học phụ thuộc
+                                    </th>
+                                    {role !== "student" && (
+                                        <th style={{ textAlign: "center" }}>
+                                            Hành động
+                                        </th>
+                                    )}
                                 </tr>
                             </thead>
                             <tbody>
-                                {subjects.map((subject) => (
-                                    <tr key={subject.subject_id}>
-                                        <td>{subject.subject_id}</td>
-                                        <td>{subject.subject_name}</td>
-                                        <td>{subject.subject_type}</td>
-                                        <td>
-                                            {subject.prerequisite_for || "-"}
-                                        </td>
-                                        {role !== "student" && (
-                                            <td>
-                                                <Button
-                                                    className={
-                                                        styles.actionButton
-                                                    }
-                                                    onClick={() => {
-                                                        handleRemoveSubject(
-                                                            subject.subject_id
-                                                        );
+                                {subjectFollowTrainingProgram.subjects.map(
+                                    (subject: any) => (
+                                        <tr key={subject.subjectId}>
+                                            <td style={{ textAlign: "center" }}>
+                                                {subject.subjectId}
+                                            </td>
+                                            <td>{subject.subjectName}</td>
+                                            <td style={{ textAlign: "center" }}>
+                                                {subject.prerequisiteFor
+                                                    ?.length > 0
+                                                    ? subject.prerequisiteFor.map(
+                                                          (
+                                                              pre: any,
+                                                              idx: number
+                                                          ) => (
+                                                              <span
+                                                                  key={
+                                                                      pre.subjectId
+                                                                  }
+                                                              >
+                                                                  {
+                                                                      pre.subjectName
+                                                                  }
+                                                                  {idx <
+                                                                  subject
+                                                                      .prerequisiteFor
+                                                                      .length -
+                                                                      1
+                                                                      ? ", "
+                                                                      : ""}
+                                                              </span>
+                                                          )
+                                                      )
+                                                    : "—"}
+                                            </td>
+                                            {role !== "student" && (
+                                                <td
+                                                    style={{
+                                                        textAlign: "center",
                                                     }}
                                                 >
-                                                    <FaMinusCircle />
-                                                </Button>
-                                            </td>
-                                        )}
-                                        {/* <td>
-                                            <Button
-                                                className={styles.actionButton}
-                                                onClick={() => {
-                                                    handleRemoveSubject(
-                                                        subject.subject_id
-                                                    );
-                                                }}
-                                            >
-                                                <FaMinusCircle />
-                                            </Button>
-                                        </td> */}
-                                    </tr>
-                                ))}
+                                                    <Button
+                                                        className={
+                                                            styles.actionButton
+                                                        }
+                                                        onClick={() =>
+                                                            handleRemoveSubject(
+                                                                subject.subjectId
+                                                            )
+                                                        }
+                                                    >
+                                                        <FaMinusCircle />
+                                                    </Button>
+                                                </td>
+                                            )}
+                                        </tr>
+                                    )
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -258,19 +258,23 @@ const ViewTrainingProgram = () => {
                         Chưa có môn học nào trong chương trình này.
                     </p>
                 )}
-
                 <Modal
                     isOpen={isOpenModal}
                     onClose={() => setIsOpenModal(false)}
-                    title={`Thêm môn học vào CTĐT: ${trainingProgram.specialization_name}`}
+                    title={`Thêm môn học vào CTĐT: ${
+                        subjectFollowTrainingProgram?.trainingProgramId || ""
+                    } - ${
+                        subjectFollowTrainingProgram?.trainingProgramName || ""
+                    }`}
                 >
                     <div className={styles.checkboxTableWrapper}>
                         <TypographyBody
                             tag="span"
                             className={styles.titleModal}
                         >
-                            Các môn học chưa tồn tại trong CTĐT: Công nghệ thông
-                            tin
+                            Các môn học chưa tồn tại trong CTĐT:{" "}
+                            {subjectFollowTrainingProgram?.trainingProgramId} -{" "}
+                            {subjectFollowTrainingProgram?.trainingProgramName}
                         </TypographyBody>
                         <table className={styles.checkboxTable}>
                             <thead>
@@ -317,6 +321,15 @@ const ViewTrainingProgram = () => {
                         </Button>
                     </div>
                 </Modal>
+                {showConfirmModal && (
+                    <ModalConfirm
+                        message="Bạn sẽ xóa môn học này khỏi chương trình đào tạo. Hành động này không thể hoàn tác!"
+                        confirmText="xóa môn học khỏi CTĐT"
+                        buttonText="Xóa"
+                        onConfirm={handleConfirmRemove}
+                        onCancel={handleCancelRemove}
+                    />
+                )}
             </BorderBox>
         </AuthGuard>
     );

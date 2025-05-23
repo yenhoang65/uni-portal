@@ -15,14 +15,19 @@ import AuthGuard from "@/components/AuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { getListSpec } from "@/store/reducer/specializationReducer";
-import { getListTrainingProgram } from "@/store/reducer/trainingProgramReducer";
+import {
+    deleteTrainingProgram,
+    getListTrainingProgram,
+    messageClear,
+} from "@/store/reducer/trainingProgramReducer";
+import toast from "react-hot-toast";
 
 const TrainingProgram = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { specializations } = useSelector(
         (state: RootState) => state.specialization
     );
-    const { trainingPrograms } = useSelector(
+    const { trainingPrograms, successMessage, errorMessage } = useSelector(
         (state: RootState) => state.trainingProgram
     );
 
@@ -39,8 +44,7 @@ const TrainingProgram = () => {
 
     const handleDelete = () => {
         if (deleteProgramId) {
-            // Gọi API hoặc dispatch action để xóa chương trình đào tạo
-            console.log("Deleting program with ID:", deleteProgramId);
+            dispatch(deleteTrainingProgram(deleteProgramId));
             setIsModalOpen(false);
             setDeleteProgramId(null);
         }
@@ -50,6 +54,18 @@ const TrainingProgram = () => {
         setIsModalOpen(false);
         setDeleteProgramId(null);
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+            dispatch(getListTrainingProgram());
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
