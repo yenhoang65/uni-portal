@@ -13,8 +13,10 @@ import AuthGuard from "@/components/AuthGuard";
 import { AppDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { getClassByStatusLecturer } from "@/store/reducer/classReducer";
+import { useTranslation } from "react-i18next";
 
 const ClassSubjectManagement = () => {
+    const { t } = useTranslation();
     const dispatch = useDispatch<AppDispatch>();
 
     const { classByStatus, totalClassByStatus } = useSelector(
@@ -38,7 +40,7 @@ const ClassSubjectManagement = () => {
 
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
-            <BorderBox title="Quản lý Lớp Học">
+            <BorderBox title={t("classSubject.title")}>
                 <div className={styles.box}>
                     <div className={styles.add}>
                         <Search
@@ -51,7 +53,7 @@ const ClassSubjectManagement = () => {
                             href={"/class-subject/create"}
                             className={styles.buttonAdd}
                         >
-                            <IoMdAddCircle /> Thêm mới
+                            <IoMdAddCircle /> {t("common.addNew")}
                         </Link>
                     </div>
 
@@ -59,12 +61,14 @@ const ClassSubjectManagement = () => {
                         <table className={styles.table}>
                             <thead className={styles.thead}>
                                 <tr>
-                                    <th style={{ minWidth: "50px" }}>No</th>
+                                    <th style={{ minWidth: "50px" }}>
+                                        {t("common.index")}
+                                    </th>
                                     <th style={{ minWidth: "200px" }}>
-                                        Tên Lớp Học
+                                        {t("classSubject.className")}
                                     </th>
                                     <th style={{ minWidth: "150px" }}>
-                                        Tên Môn Học
+                                        {t("classSubject.subjectName")}
                                     </th>
                                     {/* <th style={{ minWidth: "100px" }}>
                                         Tổng Số Sinh Viên
@@ -75,7 +79,7 @@ const ClassSubjectManagement = () => {
                                             textAlign: "center",
                                         }}
                                     >
-                                        Hành động
+                                        {t("common.action")}
                                     </th>
                                 </tr>
                             </thead>
@@ -115,7 +119,7 @@ const ClassSubjectManagement = () => {
                                                 )}
                                             >
                                                 <AiOutlineCheckSquare />
-                                                Điểm danh
+                                                {t("classSubject.attendance")}
                                             </Link>
                                             <Link
                                                 href={`/grading/${classSubject.assignment.assignmentId}`}
@@ -124,7 +128,8 @@ const ClassSubjectManagement = () => {
                                                     styles.gradingButton
                                                 )}
                                             >
-                                                <AiFillStar /> Chấm điểm
+                                                <AiFillStar />{" "}
+                                                {t("classSubject.grading")}
                                             </Link>
                                             <Link
                                                 href={`/student-list/${classSubject.assignment.assignmentId}`}
@@ -133,7 +138,8 @@ const ClassSubjectManagement = () => {
                                                     styles.listButton
                                                 )}
                                             >
-                                                <BiListCheck /> In danh sách
+                                                <BiListCheck />{" "}
+                                                {t("classSubject.printList")}
                                             </Link>
                                             <Link
                                                 href={`../assignment/${classSubject.assignment.assignmentId}`}
@@ -142,7 +148,8 @@ const ClassSubjectManagement = () => {
                                                     styles.assignment
                                                 )}
                                             >
-                                                <BiListCheck /> Giao bài tập
+                                                <BiListCheck />{" "}
+                                                {t("classSubject.assignment")}
                                             </Link>
                                         </td>
                                     </tr>

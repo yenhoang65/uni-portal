@@ -6,6 +6,7 @@ import styles from "./styles.module.css";
 import { useRouter } from "next/router";
 import AuthGuard from "@/components/AuthGuard";
 import BorderBox from "@/components/BorderBox";
+import { useTranslation } from "react-i18next";
 
 type Assignment = {
     deadline: string;
@@ -24,36 +25,37 @@ const AssignmentItem = ({
     assignment: Assignment;
     submissionsCount: number;
 }) => {
+    const { t } = useTranslation();
     return (
         <div className={styles.assignmentItem}>
             <h3 className={styles.title}>{assignment.title}</h3>
             <p className={styles.description}>{assignment.description}</p>
             <div className={styles.infoRow}>
-                <strong>Hạn nộp:</strong>
+                <strong>{t("assignmentList.deadline")}:</strong>
                 <span className={styles.deadline}>{assignment.deadline}</span>
             </div>
             <div className={styles.infoRow}>
-                <strong>Đã nộp:</strong>
+                <strong>{t("assignmentList.submitted")}:</strong>
                 <span className={styles.submissionsCount}>
                     {submissionsCount} / 10
                 </span>
-                sinh viên
+                {t("assignmentList.students")}
             </div>
             {assignment.file_url && (
                 <div className={styles.infoRow}>
-                    <strong>File:</strong>{" "}
+                    <strong>{t("assignmentList.file")}:</strong>{" "}
                     <a
                         href={assignment.file_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={styles.fileLink}
                     >
-                        Xem file
+                        {t("assignmentList.detail")}
                     </a>
                 </div>
             )}
             <div className={styles.infoRow}>
-                <strong>Ngày tạo:</strong>{" "}
+                <strong>{t("assignmentList.createdAt")}:</strong>{" "}
                 <span className={styles.createdDate}>
                     {new Date(assignment.created_at).toLocaleDateString()}
                 </span>
@@ -63,19 +65,19 @@ const AssignmentItem = ({
                     href={`/assignment/${assignment.class_subject_id}/view/?id=${assignment.exercise_id}`}
                     className={styles.buttonDetail}
                 >
-                    Xem chi tiết
+                    {t("assignmentList.file")}
                 </Link>
                 <Link
                     href={`/assignment/${assignment.class_subject_id}/create-edit?id=${assignment.exercise_id}&mode=edit`}
                     className={styles.buttonUpdate}
                 >
-                    Chỉnh sửa
+                    {t("assignmentList.edit")}
                 </Link>
                 <Link
                     href={`/assignment/${assignment.class_subject_id}/view_submissions/?id=${assignment.exercise_id}`}
                     className={styles.viewSubmissions}
                 >
-                    Xem bài nộp
+                    {t("assignmentList.viewSubmissions")}
                 </Link>
             </div>
         </div>
@@ -83,6 +85,7 @@ const AssignmentItem = ({
 };
 
 const AssignmentList = () => {
+    const { t } = useTranslation();
     const [assignments, setAssignments] = useState<Assignment[]>([
         {
             exercise_id: 1,
@@ -130,13 +133,15 @@ const AssignmentList = () => {
 
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
-            <BorderBox title="Danh sách bài tập lớp 125213">
+            <BorderBox
+                title={t("assignmentList.title", { className: "125213" })}
+            >
                 <div className={styles.assignmentList}>
                     <Link
                         href={`/assignment/${class_id}/create-edit`}
                         className={styles.addAssignmentButton}
                     >
-                        <IoMdAddCircle /> Thêm mới
+                        <IoMdAddCircle /> {t("assignmentList.add")}
                     </Link>
                     <div className={styles.assignmentGrid}>
                         {assignments.map((assignment) => (

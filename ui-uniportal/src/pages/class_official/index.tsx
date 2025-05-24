@@ -19,8 +19,10 @@ import {
     messageClear,
 } from "@/store/reducer/classReducer";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const ClassOffical = () => {
+    const { t } = useTranslation();
     const dispatch = useDispatch<AppDispatch>();
 
     const { classOfficals, successMessage, errorMessage } = useSelector(
@@ -70,7 +72,7 @@ const ClassOffical = () => {
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
-            <BorderBox title="Class Offical">
+            <BorderBox title={t("classOfficial.title")}>
                 <div className={styles.box}>
                     <div className={styles.add}>
                         <Search
@@ -83,7 +85,7 @@ const ClassOffical = () => {
                             href={"/class_official/create-edit"}
                             className={styles.buttonAdd}
                         >
-                            <IoMdAddCircle /> Add New
+                            <IoMdAddCircle /> {t("classOfficial.addNew")}
                         </Link>
                     </div>
 
@@ -91,16 +93,24 @@ const ClassOffical = () => {
                         <table className={styles.table}>
                             <thead className={styles.thead}>
                                 <tr>
-                                    <th style={{ width: "80px" }}>No</th>
-                                    <th style={{ width: "150px" }}>Class ID</th>
-                                    <th style={{ minWidth: "120px" }}>GVCN</th>
-                                    <th style={{ width: "420px" }}>
-                                        Training Program
+                                    <th style={{ width: "80px" }}>
+                                        {t("classOfficial.index")}
                                     </th>
                                     <th style={{ width: "150px" }}>
-                                        School Year
+                                        {t("classOfficial.classId")}
                                     </th>
-                                    <th style={{ minWidth: "70px" }}>Action</th>
+                                    <th style={{ minWidth: "120px" }}>
+                                        {t("classOfficial.lecturer")}
+                                    </th>
+                                    <th style={{ width: "420px" }}>
+                                        {t("classOfficial.trainingProgram")}
+                                    </th>
+                                    <th style={{ width: "150px" }}>
+                                        {t("classOfficial.schoolYear")}
+                                    </th>
+                                    <th style={{ minWidth: "70px" }}>
+                                        {t("classOfficial.action")}
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -142,7 +152,9 @@ const ClassOffical = () => {
                                                 deleteClassOfficalId ===
                                                     term.classId && (
                                                     <ModalConfirm
-                                                        message="Are you sure you want to delete?"
+                                                        message={t(
+                                                            "classOfficial.confirmDelete"
+                                                        )}
                                                         onConfirm={handleDelete}
                                                         onCancel={handleCancel}
                                                     />
@@ -156,7 +168,7 @@ const ClassOffical = () => {
                                             colSpan={6}
                                             className={styles.noData}
                                         >
-                                            No data
+                                            {t("classOfficial.noData")}
                                         </td>
                                     </tr>
                                 )}

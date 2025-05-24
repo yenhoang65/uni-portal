@@ -12,7 +12,7 @@ import { PiExamBold } from "react-icons/pi";
 
 export const allNav = [
     {
-        group: "QUẢN LÝ TRƯỜNG HỌC",
+        group: "nav.SCHOOL_MANAGEMENT",
         items: [
             {
                 id: 1,
@@ -38,7 +38,7 @@ export const allNav = [
         ],
     },
     {
-        group: "QUẢN LÝ ĐÀO TẠO",
+        group: "nav.TRAINING_MANAGEMENT",
         items: [
             {
                 id: 4,
@@ -86,7 +86,7 @@ export const allNav = [
                 id: 17,
                 title: "nav.studentTimetable",
                 icon: <AiOutlineCalendar />,
-                role: ["student", "admin"],
+                role: ["student"],
                 path: "/student-timetable",
             },
             {
@@ -106,7 +106,7 @@ export const allNav = [
         ],
     },
     {
-        group: "QUẢN LÝ LỊCH VÀ ĐĂNG KÝ",
+        group: "nav.SCHEDULE_AND_REGISTRATION_MANAGEMENT",
         items: [
             {
                 id: 6,
@@ -155,7 +155,7 @@ export const allNav = [
                 id: 30,
                 title: "nav.lecturerTimetable",
                 icon: <AiOutlineCalendar />,
-                role: ["lecturer", "admin"],
+                role: ["lecturer"],
                 path: "/lecturer-timetable",
             },
             {
@@ -175,7 +175,7 @@ export const allNav = [
         ],
     },
     {
-        group: "QUẢN LÝ NHÂN SỰ",
+        group: "nav.HUMAN_RESOURCES_MANAGEMENT",
         items: [
             {
                 id: 8,
@@ -194,7 +194,7 @@ export const allNav = [
         ],
     },
     {
-        group: "QUẢN LÝ LỚP HỌC",
+        group: "nav.CLASS_MANAGEMENT",
         items: [
             {
                 id: 10,
@@ -220,7 +220,7 @@ export const allNav = [
         ],
     },
     {
-        group: "QUẢN LÝ THÔNG TIN CÁ NHÂN",
+        group: "nav.PROFILE",
         items: [
             {
                 id: 11,
@@ -232,7 +232,7 @@ export const allNav = [
         ],
     },
     {
-        group: "QUẢN LÝ BÀI TẬP",
+        group: "nav.ASSIGNMENT_MANAGEMENT",
         items: [
             {
                 id: 20,

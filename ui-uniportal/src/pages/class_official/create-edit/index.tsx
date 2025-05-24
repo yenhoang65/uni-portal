@@ -18,8 +18,10 @@ import {
     messageClear,
     updateClassOfficial,
 } from "@/store/reducer/classReducer";
+import { useTranslation } from "react-i18next";
 
 const CreateEditClassOffical = () => {
+    const { t } = useTranslation();
     const dispatch = useDispatch<AppDispatch>();
 
     const { lecturers } = useSelector((state: RootState) => state.lecturer);
@@ -121,14 +123,14 @@ const CreateEditClassOffical = () => {
             <BorderBox
                 title={
                     mode === "edit"
-                        ? "Chỉnh sửa lớp chính thức"
-                        : "Thêm lớp chính thức"
+                        ? t("classForm.editTitle")
+                        : t("classForm.createTitle")
                 }
             >
                 <section className={styles.container}>
                     <div className={styles.gridItem}>
                         <InputWithLabel
-                            label="Mã lớp"
+                            label={t("classForm.classId")}
                             name="classId"
                             value={state.classId}
                             onChange={inputHandle}
@@ -139,7 +141,7 @@ const CreateEditClassOffical = () => {
                     </div>
                     <div className={styles.gridItem}>
                         <SelectWithLabel
-                            label="Chọn giảng viên"
+                            label={t("classForm.lecturer")}
                             name="lecturerId"
                             value={state.lecturerId}
                             onChange={
@@ -160,7 +162,7 @@ const CreateEditClassOffical = () => {
                     </div>
                     <div className={styles.gridItem}>
                         <SelectWithLabel
-                            label="Chương trình đào tạo"
+                            label={t("classForm.trainingProgram")}
                             name="trainingProgramId"
                             value={state.trainingProgramId}
                             onChange={
@@ -169,7 +171,7 @@ const CreateEditClassOffical = () => {
                             options={[
                                 {
                                     value: "",
-                                    label: "------------------------Tất cả-------------------------",
+                                    label: t("common.allOption"),
                                 },
                                 ...trainingPrograms.map((tp) => ({
                                     value: tp.trainingProgramId || "",
@@ -181,7 +183,7 @@ const CreateEditClassOffical = () => {
                     </div>
                     <div className={styles.gridItem}>
                         <InputWithLabel
-                            label="Niên khóa"
+                            label={t("classForm.schoolYear")}
                             name="schoolYear"
                             value={state.schoolYear}
                             onChange={inputHandle}
@@ -195,7 +197,9 @@ const CreateEditClassOffical = () => {
                             className={styles.buttonAction}
                             type="submit"
                         >
-                            {mode === "create" ? "Lưu" : "Cập nhật"}
+                            {mode === "create"
+                                ? t("common.save")
+                                : t("common.update")}
                         </Button>
                     </div>
                 </section>

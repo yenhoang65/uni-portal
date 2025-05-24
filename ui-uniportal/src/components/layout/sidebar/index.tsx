@@ -44,7 +44,9 @@ const Sidebar: React.FC = () => {
             <div className={styles.navList}>
                 {allNav.map((group) => (
                     <div key={group.group} className={styles.navGroup}>
-                        <div className={styles.groupTitle}>{group.group}</div>
+                        <div className={styles.groupTitle}>
+                            {t(group.group)}
+                        </div>
                         <ul>
                             {group.items.map((item) => (
                                 <li key={item.id}>
@@ -80,7 +82,6 @@ const Sidebar: React.FC = () => {
                         </ul>
                     </div>
                 ))}
-               
             </div>
         </div>
     );

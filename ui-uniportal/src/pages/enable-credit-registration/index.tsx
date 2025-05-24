@@ -19,6 +19,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import { MdDeleteForever } from "react-icons/md";
 import ModalConfirm from "@/components/ModalConfirm";
+import { useTranslation } from "react-i18next";
 
 type ActivateTime = {
     schoolYear: number;
@@ -28,6 +29,7 @@ type ActivateTime = {
     // status: string | null;
 };
 const RegistrationTimeActivation = () => {
+    const { t } = useTranslation();
     const dispatch = useDispatch<AppDispatch>();
 
     const {
@@ -101,10 +103,10 @@ const RegistrationTimeActivation = () => {
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
-            <BorderBox title="Kích hoạt thời gian đăng ký tín chỉ">
+            <BorderBox title={t("registration.title")}>
                 <div className={styles.activationForm}>
                     <InputWithLabel
-                        label="Ngày giờ Bắt đầu"
+                        label={t("registration.startDate")}
                         type="datetime-local"
                         name="startDate"
                         value={state.startDate.toISOString().slice(0, 16)}
@@ -112,7 +114,7 @@ const RegistrationTimeActivation = () => {
                         required
                     />
                     <InputWithLabel
-                        label="Ngày giờ Kết thúc"
+                        label={t("registration.endDate")}
                         type="datetime-local"
                         name="endDate"
                         value={state.endDate.toISOString().slice(0, 16)}
@@ -120,7 +122,7 @@ const RegistrationTimeActivation = () => {
                         required
                     />
                     <InputWithLabel
-                        label="Kỳ học"
+                        label={t("registration.semester")}
                         type="number"
                         name="semester"
                         value={String(state.semester)}
@@ -128,7 +130,7 @@ const RegistrationTimeActivation = () => {
                         required
                     />
                     <InputWithLabel
-                        label="Năm học"
+                        label={t("registration.schoolYear")}
                         type="number"
                         name="schoolYear"
                         value={String(state.schoolYear)}
@@ -140,7 +142,7 @@ const RegistrationTimeActivation = () => {
                         onClick={handleActivateTime}
                         className={styles.activateButton}
                     >
-                        Kích hoạt
+                        {t("registration.button")}
                     </Button>
                 </div>
 
@@ -150,19 +152,19 @@ const RegistrationTimeActivation = () => {
                         theme="md-bold"
                         className={styles.listTitle}
                     >
-                        Danh sách Thời gian đã kích hoạt
+                        {t("registration.listTitle")}
                     </TypographyBody>
                     {activeTimeStudents.length > 0 ? (
                         <table className={styles.activatedTable}>
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Thời gian Bắt đầu</th>
-                                    <th>Thời gian Kết thúc</th>
-                                    <th>Kỳ học - Năm học</th>
-                                    <th>Trạng thái</th>
+                                    <th>{t("registration.id")}</th>
+                                    <th>{t("registration.startDate")}</th>
+                                    <th>{t("registration.endDate")}</th>
+                                    <th>{t("registration.semesterYear")}</th>
+                                    <th>{t("registration.status")}</th>
                                     <th style={{ minWidth: "70px" }}>
-                                        Hành động
+                                        {t("registration.action")}
                                     </th>
                                 </tr>
                             </thead>
@@ -212,7 +214,9 @@ const RegistrationTimeActivation = () => {
                                                 deleteActiveTimeId ===
                                                     time.id && (
                                                     <ModalConfirm
-                                                        message="Bạn có chắc chắn muốn xóa khoảng thời gian kích hoạt này?"
+                                                        message={t(
+                                                            "registration.confirmDelete"
+                                                        )}
                                                         onConfirm={handleDelete}
                                                         onCancel={handleCancel}
                                                     />
@@ -228,7 +232,7 @@ const RegistrationTimeActivation = () => {
                             theme="sm"
                             className={styles.noData}
                         >
-                            Chưa có thời gian nào được kích hoạt.
+                            {t("registration.noData")}
                         </TypographyBody>
                     )}
                 </div>

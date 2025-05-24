@@ -6,6 +6,7 @@ import AuthGuard from "@/components/AuthGuard";
 import SelectWithLabel from "@/components/SelectWithLabel";
 import clsx from "clsx";
 import InputWithLabel from "@/components/InputWithLabel";
+import { useTranslation } from "react-i18next";
 
 interface Student {
     id: string;
@@ -65,6 +66,7 @@ const mockSessions: AttendanceSession[] = [
 ];
 
 const Attendance = () => {
+    const { t } = useTranslation();
     const classSubjectId = "CS001";
     const [students] = useState<Student[]>(mockStudents);
 

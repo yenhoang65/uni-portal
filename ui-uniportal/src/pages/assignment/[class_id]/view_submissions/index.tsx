@@ -4,6 +4,7 @@ import AuthGuard from "@/components/AuthGuard";
 import BorderBox from "@/components/BorderBox";
 import { TypographyHeading } from "@/components/TypographyHeading";
 import { TypographyBody } from "@/components/TypographyBody";
+import { useTranslation } from "react-i18next";
 
 interface Submission {
     id: string;
@@ -83,6 +84,7 @@ const assignment: Assignment = {
 };
 
 const ViewSubmissions = () => {
+    const { t } = useTranslation();
     const [submissions, setSubmissions] =
         useState<Submission[]>(mockSubmissions);
     const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -133,14 +135,14 @@ const ViewSubmissions = () => {
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
             <BorderBox
-                title={`Danh sách sinh viên đã nộp "${assignment.title}"`}
+                title={t("submission.title", { title: assignment.title })}
             >
                 <div className={styles.viewSubmissionsContainer}>
                     <h1 className={styles.viewSubmissionsTitle}>
-                        Bài nộp: "{assignment.title}"
+                        {t("submission.heading", { title: assignment.title })}
                     </h1>
                     <p className={styles.assignmentDeadline}>
-                        Hạn nộp:
+                        {t("submission.deadline")}:
                         {new Date(assignment.deadline).toLocaleString()}
                     </p>
 
@@ -148,18 +150,22 @@ const ViewSubmissions = () => {
                         <div className={styles.submissionsList}>
                             {submissions.length === 0 ? (
                                 <div className={styles.noSubmissions}>
-                                    Chưa có sinh viên nào nộp bài.
+                                    {t("submission.empty")}
                                 </div>
                             ) : (
                                 <table className={styles.submissionsTable}>
                                     <thead className={styles.submissionsThead}>
                                         <tr>
-                                            <th>STT</th>
-                                            <th>Mã SV</th>
-                                            <th>Tên SV</th>
-                                            <th>File</th>
-                                            <th>Thời gian nộp</th>
-                                            <th>Trạng thái</th>
+                                            <th>{t("submission.index")}</th>
+                                            <th>{t("submission.studentId")}</th>
+                                            <th>
+                                                {t("submission.studentName")}
+                                            </th>
+                                            <th>{t("submission.file")}</th>
+                                            <th>
+                                                {t("submission.submitTime")}
+                                            </th>
+                                            <th>{t("submission.status")}</th>
                                         </tr>
                                     </thead>
                                     <tbody className={styles.submissionsTbody}>
@@ -231,7 +237,9 @@ const ViewSubmissions = () => {
                                                                         styles.lateStatus
                                                                     }
                                                                 >
-                                                                    Nộp muộn
+                                                                    {t(
+                                                                        "submission.late"
+                                                                    )}
                                                                 </span>
                                                             ) : (
                                                                 <span
@@ -239,7 +247,9 @@ const ViewSubmissions = () => {
                                                                         styles.onTimeStatus
                                                                     }
                                                                 >
-                                                                    Đúng hạn
+                                                                    {t(
+                                                                        "submission.onTime"
+                                                                    )}
                                                                 </span>
                                                             )}
                                                         </td>
@@ -286,8 +296,9 @@ const ViewSubmissions = () => {
                                                                                     styles.gradeLabel
                                                                                 }
                                                                             >
-                                                                                Chấm
-                                                                                điểm
+                                                                                {t(
+                                                                                    "submission.score"
+                                                                                )}
                                                                             </label>
                                                                             <input
                                                                                 type="number"
@@ -318,7 +329,9 @@ const ViewSubmissions = () => {
                                                                                         submission.id
                                                                                     )
                                                                                 }
-                                                                                placeholder="Điểm"
+                                                                                placeholder={t(
+                                                                                    "submission.scorePlaceholder"
+                                                                                )}
                                                                             />
                                                                         </div>
                                                                         <div
@@ -331,8 +344,9 @@ const ViewSubmissions = () => {
                                                                                     styles.gradeLabel
                                                                                 }
                                                                             >
-                                                                                Nhận
-                                                                                xét
+                                                                                {t(
+                                                                                    "submission.feedback"
+                                                                                )}
                                                                             </label>
                                                                             <textarea
                                                                                 name="feedback"
@@ -356,7 +370,9 @@ const ViewSubmissions = () => {
                                                                                         submission.id
                                                                                     )
                                                                                 }
-                                                                                placeholder="Nhận xét"
+                                                                                placeholder={t(
+                                                                                    "submission.feedback"
+                                                                                )}
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -366,7 +382,9 @@ const ViewSubmissions = () => {
                                                                             styles.gradeButtonFull
                                                                         }
                                                                     >
-                                                                        Lưu
+                                                                        {t(
+                                                                            "submission.save"
+                                                                        )}
                                                                     </button>
                                                                 </form>
                                                             </td>
@@ -388,16 +406,16 @@ const ViewSubmissions = () => {
                             theme="lg"
                             className={styles.notSubmittedTitle}
                         >
-                            Danh sách sinh viên chưa nộp
+                            {t("submission.notSubmittedTitle")}
                         </TypographyHeading>
 
                         <table className={styles.notSubmittedTable}>
                             <thead>
                                 <tr>
                                     <th>STT</th>
-                                    <th>Mã SV</th>
-                                    <th>Tên SV</th>
-                                    <th>Trạng thái</th>
+                                    <th>{t("submission.studentId")}</th>
+                                    <th>{t("submission.studentName")}</th>
+                                    <th>{t("submission.status")}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -410,7 +428,7 @@ const ViewSubmissions = () => {
                                                 color: "#888",
                                             }}
                                         >
-                                            Tất cả sinh viên đã nộp bài.
+                                            {t("submission.allSubmitted")}
                                         </td>
                                     </tr>
                                 ) : (
@@ -425,7 +443,9 @@ const ViewSubmissions = () => {
                                                         styles.lateStatus
                                                     }
                                                 >
-                                                    Chưa nộp
+                                                    {t(
+                                                        "submission.notSubmitted"
+                                                    )}
                                                 </span>
                                             </td>
                                         </tr>
