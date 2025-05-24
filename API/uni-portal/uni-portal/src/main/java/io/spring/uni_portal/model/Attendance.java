@@ -17,8 +17,8 @@ public class Attendance {
     private AttendanceSession attendanceSession;
 
     @ManyToOne
-    @JoinColumn(name = "class_student_id")
-    private ClassStudent classStudent;
+    @JoinColumn(name = "class_subject_student_id")
+    private ClassSubjectStudent classSubjectStudent;
 
     @Column(name = "status")
     private String status;
@@ -43,12 +43,12 @@ public class Attendance {
         this.attendanceSession = attendanceSession;
     }
 
-    public ClassStudent getClassStudent() {
-        return classStudent;
+    public ClassSubjectStudent getClassSubjectStudent() {
+        return classSubjectStudent;
     }
 
-    public void setClassStudent(ClassStudent classStudent) {
-        this.classStudent = classStudent;
+    public void setClassSubjectStudent(ClassSubjectStudent classSubjectStudent) {
+        this.classSubjectStudent = classSubjectStudent;
     }
 
     public String getStatus() {

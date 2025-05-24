@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TeachingAssignmentRepository extends JpaRepository<TeachingAssignment, Long> {
@@ -37,4 +38,6 @@ Page<TeachingAssignment> findAllBySearchValue(@Param("searchValue") String searc
             @Param("userId") Long userId,
             @Param("searchValue") String searchValue,
             Pageable pageable);
+
+    Optional<TeachingAssignment> findByTermClass_TermclassId(Long termclassId);
 }

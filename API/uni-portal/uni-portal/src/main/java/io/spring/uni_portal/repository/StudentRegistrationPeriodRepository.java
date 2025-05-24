@@ -14,4 +14,7 @@ public interface StudentRegistrationPeriodRepository extends JpaRepository<Stude
 
     @Query("SELECT s FROM StudentRegistrationPeriod s WHERE :now BETWEEN s.startDate AND s.endDate AND s.status = 'active'")
     Optional<StudentRegistrationPeriod> findActivePeriod(@Param("now") LocalDateTime now);
+
+
+
 }

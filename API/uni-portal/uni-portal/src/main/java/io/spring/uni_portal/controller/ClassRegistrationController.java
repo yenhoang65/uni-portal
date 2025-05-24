@@ -28,15 +28,13 @@ public class ClassRegistrationController {
         return ResponseEntity.ok(Response.success("Đăng ký lớp học thành công", result));
     }
 
-
-    @PostMapping("/attendance")
-    public ResponseEntity<String> markAttendance(@RequestParam Long sessionId,
-                                                 @RequestParam Long classStudentId,
-                                                 @RequestParam String status,
-                                                 @RequestParam(required = false) String note) {
-        registrationService.markAttendance(sessionId, classStudentId, status, note);
-        return ResponseEntity.ok("Cập nhật điểm danh thành công");
+    @PostMapping("/finalize-registration-period/{periodId}")
+    public ResponseEntity<String> finalizeRegistrationPeriod(@PathVariable Long periodId) {
+        registrationService.finalizeRegistrationPeriod(periodId);
+        return ResponseEntity.ok("Đợt đăng ký ID " + periodId + " đã được xử lý thành công.");
     }
+
+
 
     @GetMapping("/student")
     public ResponseEntity<Response<List<RegisteredClassDTO>>> getUserRegisteredClasses(Authentication authentication) {

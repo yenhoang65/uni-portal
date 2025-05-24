@@ -26,6 +26,8 @@ public class TeachingScheduleRequest {
     @Column(name = "start_date")
     private LocalDateTime startDate;
 
+
+
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
@@ -230,4 +232,6 @@ public class TeachingScheduleRequest {
     public void setMaterials(List<Material> materials) {
         this.materials = materials;
     }
+
+
 }

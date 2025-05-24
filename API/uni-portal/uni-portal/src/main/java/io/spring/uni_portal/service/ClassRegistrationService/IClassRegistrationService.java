@@ -10,12 +10,13 @@ import java.util.List;
 
 public interface IClassRegistrationService {
     public ClassSubjectStudentDTO registerStudentToClass(RegisterClassRequestDTO dto);
-    void markAttendance(Long sessionId, Long classStudentId, String status, String note);
+//    void markAttendance(Long sessionId, Long classStudentId, String status, String note);
 
     List<RegisteredClassDTO> getRegisteredClasses(Long userId);
 
     void unregisterStudentFromClass(UnregisterClassRequestDTO dto);
 
-//    ClassSubjectStudentDTO unregisterStudentFromClass(UnregisterClassRequestDTO dto);
+    void finalizeRegistrationPeriod(Long periodId);
+
 
 }
