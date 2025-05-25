@@ -19,6 +19,10 @@ public class ClassStudent {
     @JoinColumn(name = "schedule_id", nullable = false)
     private TeachingScheduleRequest teachingScheduleRequest;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "period_id")
+    private StudentRegistrationPeriod registrationPeriod;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -88,5 +92,13 @@ public class ClassStudent {
 
     public void setMaterials(String materials) {
         this.materials = materials;
+    }
+
+    public StudentRegistrationPeriod getRegistrationPeriod() {
+        return registrationPeriod;
+    }
+
+    public void setRegistrationPeriod(StudentRegistrationPeriod registrationPeriod) {
+        this.registrationPeriod = registrationPeriod;
     }
 }

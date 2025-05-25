@@ -49,8 +49,14 @@ public class SecurityConfig {
                                 "/api/teaching-schedule/**",
                                 "/api/user/**",
                                 "/api/class-student/**",
-                                "/api/class-registration",
-                                "/api/class-subject-student"
+                                "/api/class-registration/**",
+                                "/api/class-subject-student/**",
+                                "/api/attendance/**",
+                                "/api/exam-period/**",
+                                "/api/grade-types/**",
+                                "/api/exam-schedule/**",
+                                "/api/grade-event/**",
+                                "/api/student-grade/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

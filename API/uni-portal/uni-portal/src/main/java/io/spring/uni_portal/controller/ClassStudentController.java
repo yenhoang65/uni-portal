@@ -1,6 +1,8 @@
 package io.spring.uni_portal.controller;
 
 import io.spring.uni_portal.dto.ClassStudent.ClassStudentDTO;
+import io.spring.uni_portal.dto.ClassStudent.ClassStudentRequestDTO;
+import io.spring.uni_portal.dto.ClassStudent.ClassStudentResponse;
 import io.spring.uni_portal.dto.ClassStudent.OpenedClassFullDTO;
 import io.spring.uni_portal.response.Response;
 import io.spring.uni_portal.service.ClassStudentService.ClassStudentServiceImpl;
@@ -43,5 +45,16 @@ public class ClassStudentController {
     }
 
 
+    @GetMapping("/students/{classStudentId}")
+    public ResponseEntity<Response<List<ClassStudentResponse>>> getStudentsByClass(
+            @PathVariable Long classStudentId) {
+        Response<List<ClassStudentResponse>> response = classStudentService.getStudentsByClass(classStudentId);
+        return ResponseEntity.ok(response);
+    }
 
+    @GetMapping("/successful")
+    public ResponseEntity<List<ClassStudentRequestDTO>> getAllSuccessfulClasses() {
+        List<ClassStudentRequestDTO> classes = classStudentService.getAllSuccessfulClasses();
+        return ResponseEntity.ok(classes);
+    }
 }

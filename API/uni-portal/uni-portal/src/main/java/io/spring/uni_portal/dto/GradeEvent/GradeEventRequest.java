@@ -1,0 +1,61 @@
+package io.spring.uni_portal.dto.GradeEvent;
+
+import java.time.LocalDate;
+
+public class GradeEventRequest {
+    private Long classStudentId;
+    private Long gradeTypeId;
+    private String title;
+    private LocalDate eventDate;
+    private Double maxScore;
+    private String description;
+
+    // Getters and Setters
+    public Long getClassStudentId() {
+        return classStudentId;
+    }
+
+    public void setClassStudentId(Long classStudentId) {
+        this.classStudentId = classStudentId;
+    }
+
+    public Long getGradeTypeId() {
+        return gradeTypeId;
+    }
+
+    public void setGradeTypeId(Long gradeTypeId) {
+        this.gradeTypeId = gradeTypeId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public LocalDate getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(LocalDate eventDate) {
+        this.eventDate = eventDate;
+    }
+
+    public Double getMaxScore() {
+        return maxScore;
+    }
+
+    public void setMaxScore(Double maxScore) {
+        this.maxScore = maxScore;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+}

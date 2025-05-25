@@ -17,8 +17,9 @@ import java.util.Optional;
 public interface ClassSubjectStudentRepository extends JpaRepository<ClassSubjectStudent, Long> {
     long countByClassStudent_ClassStudentId(Long classStudentId);
     boolean existsByClassStudent_ClassStudentIdAndStudent_UserId(Long classStudentId, Long userId);
-    List<ClassSubjectStudent> findByClassStudent_ClassStudentId(Long classStudentId);
 
+
+    List<ClassSubjectStudent> findByStudent_UserId(Long userId);
 
 
     @Query("""
@@ -35,6 +36,18 @@ public interface ClassSubjectStudentRepository extends JpaRepository<ClassSubjec
 
     boolean existsByStudent_UserIdAndClassStudent_TeachingScheduleRequest_Assignment_Subject_SubjectIdAndRegistrationTimeBetween(
             Long studentId, Long subjectId, LocalDateTime startDate, LocalDateTime endDate);
+
+
+    long countByClassStudent_ClassStudentIdAndStatus(Long classStudentId, String status);
+
+    List<ClassSubjectStudent> findByClassStudent_ClassStudentIdAndStatus(Long classStudentId, String status);
+
+
+    List<ClassSubjectStudent> findByClassStudent_ClassStudentId(Long classStudentId);
+
+
+    @Query("SELECT css FROM ClassSubjectStudent css WHERE css.classStudent.classStudentId = :classStudentId AND css.student.userId = :userId")
+    Optional<ClassSubjectStudent> findByClassStudentIdAndUserId(Long classStudentId, Long userId);
 
 
 }
