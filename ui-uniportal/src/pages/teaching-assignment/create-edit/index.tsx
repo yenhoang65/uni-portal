@@ -71,7 +71,7 @@ const CreateEditTeachingAssignment = () => {
 
     useEffect(() => {
         if (query.id) {
-            getTeachingAssignmentDetail(query.id);
+            dispatch(getTeachingAssignmentDetail(query.id));
         }
     }, [query.id]);
 
@@ -79,13 +79,13 @@ const CreateEditTeachingAssignment = () => {
         if (teachingAssignment && query.id) {
             setMode("edit");
             setState({
-                assignmentId: 0,
-                lecturerId: 0,
-                lecturerName: "",
-                subjectId: 0,
-                subjectName: "",
-                termClassId: 0,
-                className: "",
+                assignmentId: teachingAssignment.assignmentId,
+                lecturerId: teachingAssignment.lecturerId,
+                lecturerName: teachingAssignment.lecturerName,
+                subjectId: teachingAssignment.subjectId,
+                subjectName: teachingAssignment.subjectName,
+                termClassId: teachingAssignment.termClassId,
+                className: teachingAssignment.className,
             });
         } else {
             setMode("create");

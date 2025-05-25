@@ -157,8 +157,19 @@ export const authReducer = createSlice({
             //     state.loader = true;
             // })
             .addCase(login.rejected, (state, { payload }) => {
-                state.loader = false;
-                state.errorMessage = "Đăng nhập không thành công. Hãy thử lại";
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
             })
             .addCase(login.fulfilled, (state, { payload }) => {
                 state.loader = false;

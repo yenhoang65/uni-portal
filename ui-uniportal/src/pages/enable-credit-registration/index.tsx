@@ -55,10 +55,16 @@ const RegistrationTimeActivation = () => {
     const inputHandle = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) => {
-        setState({
-            ...state,
-            [e.target.name]: e.target.value,
-        });
+        const { name, value } = e.target;
+        setState((prev) => ({
+            ...prev,
+            [name]:
+                name === "startDate" || name === "endDate"
+                    ? new Date(value)
+                    : name === "schoolYear" || name === "semester"
+                    ? Number(value)
+                    : value,
+        }));
     };
 
     useEffect(() => {
@@ -71,6 +77,7 @@ const RegistrationTimeActivation = () => {
             semester: state.semester,
             startDate: state.startDate,
             endDate: state.endDate,
+            status: "inactive",
         };
         dispatch(createActiveTimeRegisStu({ dto: obj }));
     };

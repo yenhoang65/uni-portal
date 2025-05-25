@@ -49,6 +49,44 @@ export const markAttendance = createAsyncThunk(
     }
 );
 
+export const getListAttendanceAfterMark = createAsyncThunk(
+    "attendance/getListAttendanceAfterMark",
+    async (attendanceId: any, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get(
+                `/attendance/get-by-session/${attendanceId}`
+            );
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
+export const updateMarkAttendance = createAsyncThunk(
+    "attendance/updateMarkAttendance",
+    async (
+        { attendanceId, dto }: { attendanceId: any; dto: any },
+        { rejectWithValue, fulfillWithValue }
+    ) => {
+        try {
+            const { data } = await api.put(
+                `/attendance/update/${attendanceId}`,
+                dto
+            );
+
+            console.log("/attendance/update/${attendanceId}", data);
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
 export const attendanceReducer = createSlice({
     name: "attendance",
     initialState: {
@@ -56,6 +94,8 @@ export const attendanceReducer = createSlice({
         errorMessage: "",
         attendanceSession: [] as any,
         listStudent: [] as any,
+
+        listAttendanceAfterMark: [] as any,
     },
     reducers: {
         messageClear: (state) => {
@@ -64,19 +104,20 @@ export const attendanceReducer = createSlice({
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(
-            getAttendancceSession.fulfilled,
-            (state, { payload }) => {
-                state.attendanceSession = payload.data;
-            }
-        );
         builder
+            .addCase(getAttendancceSession.fulfilled, (state, { payload }) => {
+                state.attendanceSession = payload.data;
+            })
             .addCase(
                 getListStudentFollowClassSubject.fulfilled,
                 (state, { payload }) => {
                     state.listStudent = payload.data;
                 }
             )
+
+            .addCase(markAttendance.pending, (state) => {
+                state.successMessage = "Saving";
+            })
             .addCase(markAttendance.rejected, (state, { payload }) => {
                 if (typeof payload === "string") {
                     state.errorMessage = payload;
@@ -94,7 +135,58 @@ export const attendanceReducer = createSlice({
             })
 
             .addCase(markAttendance.fulfilled, (state, { payload }) => {
-                state.successMessage = "Điểm danh thành công";
+                state.successMessage = "Saved";
+            })
+
+            .addCase(
+                getListAttendanceAfterMark.rejected,
+                (state, { payload }) => {
+                    if (typeof payload === "string") {
+                        state.errorMessage = payload;
+                    } else if (
+                        payload &&
+                        typeof payload === "object" &&
+                        "message" in payload
+                    ) {
+                        state.errorMessage = (
+                            payload as { message: string }
+                        ).message;
+                    } else {
+                        state.errorMessage =
+                            "Đã có lỗi xảy ra, vui lòng thử lại";
+                    }
+                }
+            )
+
+            .addCase(
+                getListAttendanceAfterMark.fulfilled,
+                (state, { payload }) => {
+                    state.listAttendanceAfterMark = payload.data;
+                }
+            )
+
+            .addCase(updateMarkAttendance.pending, (state) => {
+                state.successMessage = "Saving";
+            })
+
+            .addCase(updateMarkAttendance.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+
+            .addCase(updateMarkAttendance.fulfilled, (state, { payload }) => {
+                state.successMessage = "Saved";
             });
     },
 });

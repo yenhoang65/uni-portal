@@ -90,6 +90,8 @@ const TeachingAssignmentWithDetails = () => {
         });
     }, [teachingAssignments]);
 
+    console.log(teachingAssignments);
+
     return (
         <AuthGuard allowedRoles={["lecturer"]}>
             <BorderBox title="Danh sách lớp đã được phân công cho giảng viên">

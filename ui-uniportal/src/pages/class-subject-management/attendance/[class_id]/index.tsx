@@ -11,25 +11,33 @@ import { AppDispatch, RootState } from "@/store";
 import { useRouter } from "next/router";
 import {
     getAttendancceSession,
+    getListAttendanceAfterMark,
     getListStudentFollowClassSubject,
     markAttendance,
     messageClear,
+    updateMarkAttendance,
 } from "@/store/reducer/attendanceReducer";
 import toast from "react-hot-toast";
 
 interface AttendanceRecord {
     studentId: string;
     sessionId: string;
-    status: "present" | "absent" | "excused";
+    status: "" | "present" | "absent" | "excused";
     note?: string;
     classSubjectStudentId?: string;
+    attendanceId?: number;
 }
 
 const Attendance = () => {
     const { t } = useTranslation();
     const dispatch = useDispatch<AppDispatch>();
-    const { attendanceSession, listStudent, successMessage, errorMessage } =
-        useSelector((state: RootState) => state.attendance);
+    const {
+        attendanceSession,
+        listStudent,
+        listAttendanceAfterMark,
+        successMessage,
+        errorMessage,
+    } = useSelector((state: RootState) => state.attendance);
     const router = useRouter();
     const { class_id } = router.query;
 
@@ -67,19 +75,44 @@ const Attendance = () => {
         }
     }, [attendanceSession]);
 
+    // useEffect(() => {
+    //     if (listAttendanceAfterMark && listStudent.length > 0) {
+    //         setAttendanceRecords(
+    //             listStudent.map((stu: any) => {
+    //                 const found = listAttendanceAfterMark.find(
+    //                     (d: any) => d.userId === stu.userId
+    //                 );
+    //                 return {
+    //                     studentId: stu.userId,
+    //                     sessionId: selectedSessionId,
+    //                     status: found ? found.status : "absent",
+    //                     note: "",
+    //                     classSubjectStudentId: stu.classSubjectStudentId,
+    //                 };
+    //             })
+    //         );
+    //     }
+    // }, [listAttendanceAfterMark, listStudent, selectedSessionId]);
+
     useEffect(() => {
-        if (selectedSessionId && listStudent.length > 0) {
+        if (listAttendanceAfterMark && listStudent.length > 0) {
             setAttendanceRecords(
-                listStudent.map((stu: any) => ({
-                    studentId: stu.userId,
-                    sessionId: selectedSessionId,
-                    status: "absent",
-                    note: "",
-                    classSubjectStudentId: stu.classSubjectStudentId,
-                }))
+                listStudent.map((stu: any) => {
+                    const found = listAttendanceAfterMark.find(
+                        (d: any) => d.userId === stu.userId
+                    );
+                    return {
+                        studentId: stu.userId,
+                        sessionId: selectedSessionId,
+                        status: found ? found.status : "absent",
+                        note: found ? found.note || "" : "",
+                        classSubjectStudentId: stu.classSubjectStudentId,
+                        attendanceId: found ? found.attendanceId : undefined,
+                    };
+                })
             );
         }
-    }, [selectedSessionId, listStudent]);
+    }, [listAttendanceAfterMark, listStudent, selectedSessionId]);
 
     const handleSessionChange = (sessionId: string) => {
         setSelectedSessionId(sessionId);
@@ -94,30 +127,64 @@ const Attendance = () => {
         );
     };
 
+    // const handleMarkAttendance = async (
+    //     studentId: string,
+    //     sessionId: string,
+    //     status: "" | "present" | "absent" | "excused",
+    //     note?: string
+    // ) => {
+    //     const student = listStudent.find(
+    //         (stu: any) => stu.userId === studentId
+    //     );
+    //     if (!student) return;
+
+    //     if (!status) return;
+
+    //     const dto = {
+    //         sessionId: sessionId,
+    //         classSubjectStudentId: student.classSubjectStudentId,
+    //         status,
+    //         note: note || "",
+    //     };
+
+    //     await dispatch(markAttendance({ dto }));
+    // };
+
     const handleMarkAttendance = async (
         studentId: string,
         sessionId: string,
-        status: "present" | "absent" | "excused",
+        status: "" | "present" | "absent" | "excused",
         note?: string
     ) => {
-        const student = listStudent.find(
-            (stu: any) => stu.userId === studentId
+        const record = attendanceRecords.find(
+            (r) => r.studentId === studentId && r.sessionId === sessionId
         );
-        if (!student) return;
+        if (!record) return;
 
         const dto = {
-            sessionId: sessionId,
-            classSubjectStudentId: student.classSubjectStudentId,
+            sessionId,
+            classSubjectStudentId: record.classSubjectStudentId,
             status,
             note: note || "",
         };
 
-        await dispatch(markAttendance({ dto }));
+        if (record.attendanceId) {
+            // Gọi update nếu đã có attendanceId
+
+            console.log("call cũ");
+            await dispatch(
+                updateMarkAttendance({ attendanceId: record.attendanceId, dto })
+            );
+        } else {
+            // Gọi tạo mới nếu chưa có attendanceId
+            console.log("call mới");
+            await dispatch(markAttendance({ dto }));
+        }
     };
 
     const handleAttendanceChange = (
         studentId: string,
-        status: "present" | "absent" | "excused"
+        status: "" | "present" | "absent" | "excused"
     ) => {
         setAttendanceRecords((prev) =>
             prev.map((rec) =>
@@ -137,18 +204,30 @@ const Attendance = () => {
     };
 
     useEffect(() => {
+        if (selectedSessionId) {
+            dispatch(getListAttendanceAfterMark(selectedSessionId));
+        }
+    }, [selectedSessionId, dispatch]);
+
+    console.log(listAttendanceAfterMark);
+
+    useEffect(() => {
         if (successMessage) {
             toast.success(successMessage);
             dispatch(messageClear());
+
+            if (selectedSessionId) {
+                dispatch(getListAttendanceAfterMark(selectedSessionId));
+            }
         }
         if (errorMessage) {
             toast.error(errorMessage);
             dispatch(messageClear());
         }
-    }, [successMessage, errorMessage, dispatch]);
+    }, [successMessage, errorMessage, selectedSessionId, dispatch]);
 
     return (
-        <AuthGuard allowedRoles={["admin", "lecturer"]}>
+        <AuthGuard allowedRoles={["lecturer"]}>
             <BorderBox title={`Điểm danh`}>
                 <div
                     className={styles.attendanceHeader}
@@ -181,7 +260,6 @@ const Attendance = () => {
                                 <th>Mã SV</th>
                                 <th>Tên Sinh Viên</th>
                                 <th>Trạng thái</th>
-                                {/* <th>Ghi chú</th> */}
                             </tr>
                         </thead>
                         <tbody>
@@ -203,9 +281,7 @@ const Attendance = () => {
                                             <SelectWithLabel
                                                 label={undefined}
                                                 name={`status-${student.userId}`}
-                                                value={
-                                                    record?.status || "absent"
-                                                }
+                                                value={record?.status || ""}
                                                 onChange={(e) =>
                                                     handleAttendanceChange(
                                                         student.userId,
@@ -213,9 +289,14 @@ const Attendance = () => {
                                                             | "present"
                                                             | "absent"
                                                             | "excused"
+                                                            | ""
                                                     )
                                                 }
                                                 options={[
+                                                    {
+                                                        value: "",
+                                                        label: "---------",
+                                                    },
                                                     {
                                                         value: "present",
                                                         label: "Có mặt",
@@ -239,24 +320,13 @@ const Attendance = () => {
                                                         ? styles[
                                                               "selectExcused"
                                                           ]
-                                                        : styles["selectAbsent"]
+                                                        : record?.status ===
+                                                          "absent"
+                                                        ? styles["selectAbsent"]
+                                                        : ""
                                                 )}
                                             />
                                         </td>
-
-                                        {/* <td>
-                                            <InputWithLabel
-                                                type="text"
-                                                value={record?.note || ""}
-                                                onChange={(e) =>
-                                                    handleNoteChange(
-                                                        student.userId,
-                                                        e.target.value
-                                                    )
-                                                }
-                                                placeholder="Nhập ghi chú"
-                                            />
-                                        </td> */}
                                     </tr>
                                 );
                             })}

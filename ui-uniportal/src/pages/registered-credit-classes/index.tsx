@@ -16,7 +16,7 @@ import {
     cancelRegisteredCreditClasses,
     getRegisteredCreditClasses,
     messageClear,
-} from "@/store/reducer/creditRegistration";
+} from "@/store/reducer/creditRegistrationReducer";
 import toast from "react-hot-toast";
 
 const RegisteredCreditClasses = () => {

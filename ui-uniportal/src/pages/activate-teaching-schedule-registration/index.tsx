@@ -76,6 +76,7 @@ const ActivateTeachingScheduleRegistration = () => {
             semester: state.semester,
             startDate: state.startDate,
             endDate: state.endDate,
+            status: "inactive",
         };
         dispatch(createActiveTimeRegisLecturer({ dto: obj }));
     };

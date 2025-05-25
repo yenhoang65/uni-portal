@@ -190,7 +190,8 @@ export const getRegisteredCreditClasses = createAsyncThunk(
             });
             return fulfillWithValue(data);
         } catch (error) {
-            // return rejectWithValue(error.response.data);
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );
@@ -227,11 +228,16 @@ export const lecturerTimeline = createAsyncThunk(
     async (_, { rejectWithValue, fulfillWithValue }) => {
         try {
             const token = window.localStorage.getItem("accessToken");
-            const { data } = await api.get(`teaching-schedule/status-success`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const { data } = await api.get(
+                `/teaching-schedule/status-success`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log("success: ", data);
 
             return fulfillWithValue(data);
         } catch (error) {

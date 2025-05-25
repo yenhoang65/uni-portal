@@ -175,7 +175,9 @@ const CreateEditClassOffical = () => {
                                 },
                                 ...trainingPrograms.map((tp) => ({
                                     value: tp.trainingProgramId || "",
-                                    label: tp.trainingProgramName || "",
+                                    label:
+                                        `${tp.trainingProgramId} - ${tp.trainingProgramName}` ||
+                                        "",
                                 })),
                             ]}
                             required

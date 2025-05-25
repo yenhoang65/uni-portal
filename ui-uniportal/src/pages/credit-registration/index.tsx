@@ -9,7 +9,7 @@ import { FcViewDetails } from "react-icons/fc";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { getSubjectsFollowUser } from "@/store/reducer/creditRegistration";
+import { getSubjectsFollowUser } from "@/store/reducer/creditRegistrationReducer";
 
 const ClassRegistration = () => {
     const dispatch = useDispatch<AppDispatch>();

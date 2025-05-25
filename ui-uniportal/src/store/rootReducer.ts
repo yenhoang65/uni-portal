@@ -10,7 +10,7 @@ import trainingProgramReducer from "./reducer/trainingProgramReducer";
 import classReducer from "./reducer/classReducer";
 import studentReducer from "./reducer/studentReducer";
 import teachingAssignmentReducer from "./reducer/teachingAssignment";
-import creditRegistrationReducer from "./reducer/creditRegistration";
+import creditRegistrationReducer from "./reducer/creditRegistrationReducer";
 import attendanceReducer from "./reducer/attendanceReducer";
 import pointReducer from "./reducer/pointReducer";
 import examReducer from "./reducer/examReducer";

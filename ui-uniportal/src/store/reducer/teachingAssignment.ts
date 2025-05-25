@@ -152,7 +152,8 @@ export const deleteTeachingAssignment = createAsyncThunk(
 
             return fulfillWithValue(data);
         } catch (error) {
-            // return rejectWithValue(error.response.data);
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );
@@ -328,10 +329,24 @@ export const teachingAssignmentReducer = createSlice({
                     state.successMessage = "Thêm teachingAssignment thành công";
                 }
             )
+
             .addCase(
                 deleteTeachingAssignment.rejected,
                 (state, { payload }) => {
-                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                    if (typeof payload === "string") {
+                        state.errorMessage = payload;
+                    } else if (
+                        payload &&
+                        typeof payload === "object" &&
+                        "message" in payload
+                    ) {
+                        state.errorMessage = (
+                            payload as { message: string }
+                        ).message;
+                    } else {
+                        state.errorMessage =
+                            "Đã có lỗi xảy ra, vui lòng thử lại";
+                    }
                 }
             )
             .addCase(

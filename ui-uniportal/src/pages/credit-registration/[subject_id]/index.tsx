@@ -15,7 +15,7 @@ import {
     getClassFollowSubject,
     messageClear,
     registerTC,
-} from "@/store/reducer/creditRegistration";
+} from "@/store/reducer/creditRegistrationReducer";
 import toast from "react-hot-toast";
 
 moment.updateLocale("en", {
@@ -86,35 +86,84 @@ function getRandomColor(): string {
 }
 
 const CustomEventComponent = ({ event }: { event: any }) => {
-    const {
-        subjectName,
-        lecturerId,
-        lesson,
-        classroom_id,
-        thLesson,
-        thClassroom,
-        startDate,
-    } = event;
-
-    const lecturerName = "//TO DO";
     return (
         <div style={{ whiteSpace: "normal" }}>
-            <div>{subjectName}</div>
+            <div>{event.subjectName}</div>
             <div>
-                GV: {lecturerId} - {lecturerName}
+                GV: {event.lecturerId} - {event.lecturerName}
             </div>
-            <div>
-                - Lý thuyết: Tiết {lesson}, Phòng {classroom_id}
-            </div>
-            {thLesson && thClassroom && (
+            {event.ltLesson && (
                 <div>
-                    - Thực hành: Tiết {thLesson} - Phòng {thClassroom}
+                    - Lý thuyết: Tiết {event.ltLesson}, Phòng{" "}
+                    {event.ltClassroom}
+                    <br />
+                    Ngày bắt đầu: {event.ltDate}
                 </div>
             )}
-            <div>Ngày bắt đầu: {startDate}</div>
+            {event.thLesson && (
+                <div>
+                    - Thực hành: Tiết {event.thLesson}, Phòng{" "}
+                    {event.thClassroom}
+                    <br />
+                    Ngày bắt đầu: {event.thDate}
+                </div>
+            )}
         </div>
     );
 };
+
+// function generateEventsFromAPI(data: any[]): any[] {
+//     const events: any[] = [];
+
+//     data.forEach((item) => {
+//         const subjectName = item.subject?.subjectName;
+//         const lecturerId = item.teachingAssignment?.lecturerId;
+//         const scheduleDetails =
+//             item.teachingScheduleRequest?.scheduleDetails || [];
+
+//         scheduleDetails
+//             .filter((detail: any) => detail.class_type?.toUpperCase() === "LT")
+//             .forEach((ltDetail: any) => {
+//                 const { lesson, date_time, end_date, classroom_id } = ltDetail;
+//                 const [startLesson, endLesson] = lesson.split("-").map(Number);
+
+//                 // Lấy phần ngày yyyy-mm-dd (bỏ qua giờ)
+//                 const dateStr = date_time.slice(0, 10);
+
+//                 const startTime = moment(
+//                     `${dateStr} ${lessonTimeMap[startLesson].start}`,
+//                     "YYYY-MM-DD HH:mm"
+//                 );
+//                 const endTime = moment(
+//                     `${dateStr} ${lessonTimeMap[endLesson].end}`,
+//                     "YYYY-MM-DD HH:mm"
+//                 );
+
+//                 const color = getRandomColor();
+
+//                 const title = `${subjectName}
+// GV: ${lecturerId}
+// - Lý thuyết: Tiết ${lesson}, Phòng ${classroom_id}
+// Ngày bắt đầu: ${dateStr.split("-").reverse().join("/")}`;
+
+//                 events.push({
+//                     title: title,
+//                     start: startTime.toDate(),
+//                     end: endTime.toDate(),
+//                     allDay: false,
+//                     color,
+//                     subjectName,
+//                     lecturerId,
+//                     lesson,
+//                     classroom_id,
+//                     startDate: dateStr.split("-").reverse().join("/"),
+//                     originalClass: item,
+//                 });
+//             });
+//     });
+
+//     return events;
+// }
 
 function generateEventsFromAPI(data: any[]): any[] {
     const events: any[] = [];
@@ -122,48 +171,97 @@ function generateEventsFromAPI(data: any[]): any[] {
     data.forEach((item) => {
         const subjectName = item.subject?.subjectName;
         const lecturerId = item.teachingAssignment?.lecturerId;
+        const lecturerName = item.teachingAssignment?.lecturerName || "//TO DO";
         const scheduleDetails =
             item.teachingScheduleRequest?.scheduleDetails || [];
 
-        scheduleDetails
-            .filter((detail: any) => detail.class_type?.toUpperCase() === "LT")
-            .forEach((ltDetail: any) => {
-                const { lesson, date_time, end_date, classroom_id } = ltDetail;
-                const [startLesson, endLesson] = lesson.split("-").map(Number);
+        // Tìm LT và TH
+        const ltDetail = scheduleDetails.find(
+            (d: any) => d.class_type?.toUpperCase() === "LT"
+        );
+        const thDetail = scheduleDetails.find(
+            (d: any) => d.class_type?.toUpperCase() === "TH"
+        );
 
-                // Lấy phần ngày yyyy-mm-dd (bỏ qua giờ)
-                const dateStr = date_time.slice(0, 10);
+        // Nếu có LT, tạo event chính lấy thời gian từ LT, content gồm cả LT + TH nếu có
+        if (ltDetail) {
+            const { lesson, date_time, classroom_id } = ltDetail;
+            const [startLesson, endLesson] = lesson.split("-").map(Number);
+            const dateStr = date_time.slice(0, 10);
+            const startTime = moment(
+                `${dateStr} ${lessonTimeMap[startLesson].start}`,
+                "YYYY-MM-DD HH:mm"
+            );
+            const endTime = moment(
+                `${dateStr} ${lessonTimeMap[endLesson].end}`,
+                "YYYY-MM-DD HH:mm"
+            );
+            const color = getRandomColor();
 
-                const startTime = moment(
-                    `${dateStr} ${lessonTimeMap[startLesson].start}`,
-                    "YYYY-MM-DD HH:mm"
-                );
-                const endTime = moment(
-                    `${dateStr} ${lessonTimeMap[endLesson].end}`,
-                    "YYYY-MM-DD HH:mm"
-                );
+            let content = `${subjectName}\nGV: ${lecturerId} - ${lecturerName}\n- Lý thuyết: Tiết ${lesson}, Phòng ${classroom_id}\nNgày bắt đầu: ${moment(
+                ltDetail.date_time
+            ).format("DD/MM/YYYY")}`;
+            if (thDetail) {
+                content += `\n- Thực hành: Tiết ${thDetail.lesson}, Phòng ${
+                    thDetail.classroom_id
+                }\nNgày bắt đầu: ${moment(thDetail.date_time).format(
+                    "DD/MM/YYYY"
+                )}`;
+            }
 
-                const color = getRandomColor();
-
-                const title = `${subjectName}
-GV: ${lecturerId}
-- Lý thuyết: Tiết ${lesson}, Phòng ${classroom_id}
-Ngày bắt đầu: ${dateStr.split("-").reverse().join("/")}`;
-
-                events.push({
-                    title: title,
-                    start: startTime.toDate(),
-                    end: endTime.toDate(),
-                    allDay: false,
-                    color,
-                    subjectName,
-                    lecturerId,
-                    lesson,
-                    classroom_id,
-                    startDate: dateStr.split("-").reverse().join("/"),
-                    originalClass: item,
-                });
+            events.push({
+                title: content,
+                start: startTime.toDate(),
+                end: endTime.toDate(),
+                allDay: false,
+                color,
+                subjectName,
+                lecturerId,
+                lecturerName,
+                ltLesson: ltDetail.lesson,
+                ltClassroom: ltDetail.classroom_id,
+                ltDate: moment(ltDetail.date_time).format("DD/MM/YYYY"),
+                thLesson: thDetail?.lesson,
+                thClassroom: thDetail?.classroom_id,
+                thDate: thDetail
+                    ? moment(thDetail.date_time).format("DD/MM/YYYY")
+                    : undefined,
+                originalClass: item,
             });
+        } else if (thDetail) {
+            // Nếu chỉ có TH
+            const { lesson, date_time, classroom_id } = thDetail;
+            const [startLesson, endLesson] = lesson.split("-").map(Number);
+            const dateStr = date_time.slice(0, 10);
+            const startTime = moment(
+                `${dateStr} ${lessonTimeMap[startLesson].start}`,
+                "YYYY-MM-DD HH:mm"
+            );
+            const endTime = moment(
+                `${dateStr} ${lessonTimeMap[endLesson].end}`,
+                "YYYY-MM-DD HH:mm"
+            );
+            const color = getRandomColor();
+
+            let content = `${subjectName}\nGV: ${lecturerId} - ${lecturerName}\n- Thực hành: Tiết ${lesson}, Phòng ${classroom_id}\nNgày bắt đầu: ${moment(
+                thDetail.date_time
+            ).format("DD/MM/YYYY")}`;
+
+            events.push({
+                title: content,
+                start: startTime.toDate(),
+                end: endTime.toDate(),
+                allDay: false,
+                color,
+                subjectName,
+                lecturerId,
+                lecturerName,
+                thLesson: thDetail.lesson,
+                thClassroom: thDetail.classroom_id,
+                thDate: moment(thDetail.date_time).format("DD/MM/YYYY"),
+                originalClass: item,
+            });
+        }
     });
 
     return events;

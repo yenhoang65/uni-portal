@@ -20,6 +20,7 @@ import { TypographyHeading } from "@/components/TypographyHeading";
 import { TypographyBody } from "@/components/TypographyBody";
 import { getListClassroom } from "@/store/reducer/classroomReducer";
 import toast from "react-hot-toast";
+import moment from "moment";
 
 type scheduleDetail = {
     classroom_id: number;
@@ -305,7 +306,7 @@ const CreateEditTeachingScheduleRequest = () => {
             scheduleDetails: filteredScheduleDetails.map((d) => ({
                 ...d,
                 classroom_id: Number(d.classroom_id),
-                date_time: d.date_time.toISOString(),
+                date_time: moment(d.date_time).format("YYYY-MM-DDTHH:mm:ss"),
             })),
             materials: state.materials,
         };

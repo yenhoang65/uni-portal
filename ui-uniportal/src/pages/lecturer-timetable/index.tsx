@@ -244,7 +244,7 @@ import AuthGuard from "@/components/AuthGuard";
 import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { lecturerTimeline } from "@/store/reducer/creditRegistration";
+import { lecturerTimeline } from "@/store/reducer/creditRegistrationReducer";
 
 // Khởi tạo localizer cho react-big-calendar
 moment.updateLocale("en", {
