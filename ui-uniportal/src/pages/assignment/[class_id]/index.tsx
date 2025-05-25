@@ -1,5 +1,5 @@
 //xem list bài tập theo lớp của giảng viên
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { IoMdAddCircle } from "react-icons/io";
 import styles from "./styles.module.css";
@@ -7,129 +7,27 @@ import { useRouter } from "next/router";
 import AuthGuard from "@/components/AuthGuard";
 import BorderBox from "@/components/BorderBox";
 import { useTranslation } from "react-i18next";
-
-type Assignment = {
-    deadline: string;
-    title: string;
-    description: string;
-    file_url: string;
-    created_at: string;
-    exercise_id: number;
-    class_subject_id: number;
-};
-
-const AssignmentItem = ({
-    assignment,
-    submissionsCount,
-}: {
-    assignment: Assignment;
-    submissionsCount: number;
-}) => {
-    const { t } = useTranslation();
-    return (
-        <div className={styles.assignmentItem}>
-            <h3 className={styles.title}>{assignment.title}</h3>
-            <p className={styles.description}>{assignment.description}</p>
-            <div className={styles.infoRow}>
-                <strong>{t("assignmentList.deadline")}:</strong>
-                <span className={styles.deadline}>{assignment.deadline}</span>
-            </div>
-            <div className={styles.infoRow}>
-                <strong>{t("assignmentList.submitted")}:</strong>
-                <span className={styles.submissionsCount}>
-                    {submissionsCount} / 10
-                </span>
-                {t("assignmentList.students")}
-            </div>
-            {assignment.file_url && (
-                <div className={styles.infoRow}>
-                    <strong>{t("assignmentList.file")}:</strong>{" "}
-                    <a
-                        href={assignment.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.fileLink}
-                    >
-                        {t("assignmentList.detail")}
-                    </a>
-                </div>
-            )}
-            <div className={styles.infoRow}>
-                <strong>{t("assignmentList.createdAt")}:</strong>{" "}
-                <span className={styles.createdDate}>
-                    {new Date(assignment.created_at).toLocaleDateString()}
-                </span>
-            </div>
-            <div className={styles.actions}>
-                <Link
-                    href={`/assignment/${assignment.class_subject_id}/view/?id=${assignment.exercise_id}`}
-                    className={styles.buttonDetail}
-                >
-                    {t("assignmentList.file")}
-                </Link>
-                <Link
-                    href={`/assignment/${assignment.class_subject_id}/create-edit?id=${assignment.exercise_id}&mode=edit`}
-                    className={styles.buttonUpdate}
-                >
-                    {t("assignmentList.edit")}
-                </Link>
-                <Link
-                    href={`/assignment/${assignment.class_subject_id}/view_submissions/?id=${assignment.exercise_id}`}
-                    className={styles.viewSubmissions}
-                >
-                    {t("assignmentList.viewSubmissions")}
-                </Link>
-            </div>
-        </div>
-    );
-};
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getExerciseByClass } from "@/store/reducer/pointReducer";
+import { TypographyBody } from "@/components/TypographyBody";
 
 const AssignmentList = () => {
     const { t } = useTranslation();
-    const [assignments, setAssignments] = useState<Assignment[]>([
-        {
-            exercise_id: 1,
-            class_subject_id: 101,
-            title: "Bài tập về nhà số 1",
-            description: "Giải các bài toán trang 10 đến 15.",
-            file_url: "https://example.com/baitap1.pdf",
-            deadline: "2025-05-10",
-            created_at: "2025-05-03T10:00:00Z",
-        },
-        {
-            exercise_id: 2,
-            class_subject_id: 101,
-            title: "Báo cáo thực hành",
-            description: "Viết báo cáo về buổi thực hành ngày 2 tháng 5.",
-            file_url: "https://example.com/baocao.docx",
-            deadline: "2025-05-15",
-            created_at: "2025-05-01T14:30:00Z",
-        },
-        {
-            exercise_id: 3,
-            class_subject_id: 102,
-            title: "Bài tập nhóm",
-            description: "Hoàn thành bài tập nhóm số 1",
-            file_url: "https://example.com/baitapnhom1.pdf",
-            deadline: "2025-05-20",
-            created_at: "2025-05-05T10:00:00Z",
-        },
-        {
-            exercise_id: 4,
-            class_subject_id: 102,
-            title: "Thuyết trình",
-            description: "Chuẩn bị bài thuyết trình",
-            file_url: "https://example.com/thuyettrinh.pptx",
-            deadline: "2025-05-22",
-            created_at: "2025-05-07T14:00:00Z",
-        },
-    ]);
-    const [submissionsCounts, setSubmissionsCounts] = useState<{
-        [key: number]: number;
-    }>({});
+
+    const dispatch = useDispatch<AppDispatch>();
+    const { exercises, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.point
+    );
 
     const router = useRouter();
     const { class_id } = router.query;
+
+    useEffect(() => {
+        if (class_id) {
+            dispatch(getExerciseByClass(class_id));
+        }
+    }, [class_id]);
 
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
@@ -143,18 +41,81 @@ const AssignmentList = () => {
                     >
                         <IoMdAddCircle /> {t("assignmentList.add")}
                     </Link>
-                    <div className={styles.assignmentGrid}>
-                        {assignments.map((assignment) => (
-                            <AssignmentItem
-                                key={assignment.exercise_id}
-                                assignment={assignment}
-                                submissionsCount={
-                                    submissionsCounts[assignment.exercise_id] ||
-                                    0
-                                }
-                            />
-                        ))}
-                    </div>
+
+                    {exercises[0]?.assignments?.length > 0 ? (
+                        <div className={styles.assignmentGrid}>
+                            {exercises[0]?.assignments?.map(
+                                (assignment: any) => (
+                                    <div
+                                        key={assignment.gradeEventId}
+                                        className={styles.assignmentItem}
+                                    >
+                                        <h3 className={styles.title}>
+                                            {class_id} -{" "}
+                                            {assignment.gradeEventId} -
+                                            {assignment.title}
+                                        </h3>
+                                        <p
+                                            dangerouslySetInnerHTML={{
+                                                __html: assignment.description,
+                                            }}
+                                            className={styles.description}
+                                        ></p>
+                                        <div className={styles.infoRow}>
+                                            <strong>
+                                                {t("assignmentList.deadline")}:
+                                            </strong>
+                                            <span className={styles.deadline}>
+                                                {assignment.eventDate}
+                                            </span>
+                                        </div>
+                                        <div className={styles.infoRow}>
+                                            <strong>
+                                                {t("assignmentList.submitted")}:
+                                            </strong>
+                                            <span
+                                                className={
+                                                    styles.submissionsCount
+                                                }
+                                            >
+                                                10 / 10
+                                            </span>
+                                            {t("assignmentList.students")}
+                                        </div>
+
+                                        <div className={styles.actions}>
+                                            <Link
+                                                href={`/assignment/${class_id}/view/?id=${assignment.gradeEventId}`}
+                                                className={styles.buttonDetail}
+                                            >
+                                                {t("assignmentList.detail")}
+                                            </Link>
+                                            <Link
+                                                href={`/assignment/${class_id}/create-edit?id=${assignment.gradeEventId}&mode=edit`}
+                                                className={styles.buttonUpdate}
+                                            >
+                                                {t("assignmentList.edit")}
+                                            </Link>
+                                            <Link
+                                                href={`/assignment/${class_id}/view_submissions/?id=${assignment.gradeEventId}`}
+                                                className={
+                                                    styles.viewSubmissions
+                                                }
+                                            >
+                                                {t(
+                                                    "assignmentList.viewSubmissions"
+                                                )}
+                                            </Link>
+                                        </div>
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    ) : (
+                        <TypographyBody tag="span" theme="lg">
+                            Không có dữ liệu
+                        </TypographyBody>
+                    )}
                 </div>
             </BorderBox>
         </AuthGuard>

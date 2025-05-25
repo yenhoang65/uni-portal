@@ -26,6 +26,12 @@ type GetParam = {
     searchValue: string;
 };
 
+type classSubjectFollowLecturer = {
+    classStudentId: string;
+    className: string;
+    subjectName: string;
+};
+
 export interface TeachingSchedule {
     scheduleId: number;
     lesson: string;
@@ -251,6 +257,27 @@ export const getClassByStatusLecturer = createAsyncThunk(
     }
 );
 
+//lấy danh sách lớp học phần đủ điều kiện mở lớp theo giảng viên
+export const getClassSubjectFollowLecturer = createAsyncThunk(
+    "class/getClassSubjectFollowLecturer",
+    async (_, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const token = window.localStorage.getItem("accessToken");
+            const { data } = await api.get(`/class-student/successful`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            console.log("classSubjectFollowLecturer data: ", data);
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            // return rejectWithValue(error.response.data);
+        }
+    }
+);
+
 export const classReducer = createSlice({
     name: "class",
     initialState: {
@@ -263,6 +290,8 @@ export const classReducer = createSlice({
         classTerm: {} as ClassTerm,
 
         classByStatus: [] as TeachingSchedule[],
+
+        classSubjectFollowLecturer: [] as classSubjectFollowLecturer[],
         totalClassByStatus: 0,
     },
     reducers: {
@@ -374,6 +403,12 @@ export const classReducer = createSlice({
                 (state, { payload }) => {
                     state.classByStatus = payload.data.content;
                     state.totalClassByStatus = payload.data.totalElements;
+                }
+            )
+            .addCase(
+                getClassSubjectFollowLecturer.fulfilled,
+                (state, { payload }) => {
+                    state.classSubjectFollowLecturer = payload;
                 }
             );
     },

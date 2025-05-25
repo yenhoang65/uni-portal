@@ -236,7 +236,7 @@ export const getListScheduleRequestFollowStatus = createAsyncThunk(
                 },
             });
 
-            console.log(data);
+            console.log("getListScheduleRequestFollowStatus: ", data);
 
             return fulfillWithValue(data);
         } catch (error) {
@@ -259,7 +259,7 @@ export const teachingAssignmentReducer = createSlice({
         classTermUnAssigns: [] as ClassTerm[],
 
         teachingScheduleFollowAssignId: {},
-        scheduleRequests: [],
+        scheduleRequests: [] as any,
     },
     reducers: {
         messageClear: (state) => {
@@ -364,6 +364,12 @@ export const teachingAssignmentReducer = createSlice({
                 getTeachingScheduleWithAssignID.fulfilled,
                 (state, { payload }) => {
                     state.teachingScheduleFollowAssignId = payload.data;
+                }
+            )
+            .addCase(
+                getListScheduleRequestFollowStatus.fulfilled,
+                (state, { payload }) => {
+                    state.scheduleRequests = payload.data.content;
                 }
             );
     },

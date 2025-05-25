@@ -8,113 +8,130 @@ import styles from "./styles.module.css";
 import AuthGuard from "@/components/AuthGuard";
 import { TypographyBody } from "@/components/TypographyBody";
 import dynamic from "next/dynamic";
+import { AppDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    createExercice,
+    getExerciseDetail,
+    getPoint,
+    messageClear,
+    updateExercice,
+} from "@/store/reducer/pointReducer";
+import toast from "react-hot-toast";
 
-// JoditEditor for description
 const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 
-// Mock data for select options
-const mockClassSubjects = [
-    { value: "CS001", label: "Công nghệ phần mềm (CS001)" },
-    { value: "CS002", label: "Cơ sở dữ liệu (CS002)" },
-    { value: "CS003", label: "Lập trình Web (CS003)" },
-];
-const mockGradeTypes = [
-    { value: "GT001", label: "Giữa kỳ" },
-    { value: "GT002", label: "Cuối kỳ" },
-    { value: "GT003", label: "15 phút" },
-];
-
 type State = {
-    grade_event_id: string;
-    class_subject_id: string;
-    grade_type_id: string;
+    gradeEventId: string;
+    classStudentId: number;
+    gradeTypeId: string;
     title: string;
-    event_date: string;
-    max_score: string;
-    coeff_override: string;
+    eventDate: Date;
+    maxScore: number;
     description: string;
-    created_at: string;
-};
-
-const defaultState: State = {
-    grade_event_id: "",
-    class_subject_id: "",
-    grade_type_id: "",
-    title: "",
-    event_date: "",
-    max_score: "",
-    coeff_override: "",
-    description: "",
-    created_at: "",
 };
 
 const CreateEditGradeEvent = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { exercise, listPoint, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.point
+    );
     const router = useRouter();
     const { query } = router;
+    const { class_id } = router.query;
     const [mode, setMode] = useState<"create" | "edit">("create");
-    const [state, setState] = useState<State>(defaultState);
-    const [loading, setLoading] = useState(false);
+    const [state, setState] = useState<State>({
+        gradeEventId: "",
+        classStudentId: 0,
+        gradeTypeId: "",
+        title: "",
+        eventDate: new Date(),
+        maxScore: 0,
+        description: "",
+    });
     const editor = useRef<any>(null);
 
     useEffect(() => {
+        dispatch(getPoint());
+    }, []);
+
+    useEffect(() => {
         if (query.id) {
+            dispatch(getExerciseDetail(query.id));
+        }
+    }, [query.id]);
+
+    useEffect(() => {
+        if (exercise && query.id) {
             setMode("edit");
-            setLoading(true);
-            // Mock fetch for edit mode
-            setTimeout(() => {
-                setState({
-                    grade_event_id: "GE001",
-                    class_subject_id: "CS001",
-                    grade_type_id: "GT001",
-                    title: "Giữa kỳ Công nghệ phần mềm",
-                    event_date: "2025-12-15",
-                    max_score: "10",
-                    coeff_override: "1.5",
-                    description: "Kiểm tra giữa kỳ môn Công nghệ phần mềm.",
-                    created_at: "2025-05-20",
-                });
-                setLoading(false);
-            }, 600);
+            setState({
+                gradeEventId: exercise.gradeEventId,
+                classStudentId: exercise.classStudentId,
+                gradeTypeId: exercise.gradeTypeId,
+                title: exercise.title,
+                eventDate: exercise.eventDate,
+                maxScore: exercise.maxScore,
+                description: exercise.description,
+            });
         } else {
             setMode("create");
             setState({
-                ...defaultState,
-                class_subject_id: mockClassSubjects[0]?.value || "",
-                grade_type_id: mockGradeTypes[0]?.value || "",
+                gradeEventId: "",
+                classStudentId: 0,
+                gradeTypeId: "",
+                title: "",
+                eventDate: new Date(),
+                maxScore: 0,
+                description: "",
             });
         }
-    }, [query.id]);
+    }, [exercise, query.id]);
 
     const inputHandle = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) => {
+        const { name, value, type } = e.target;
         setState({
             ...state,
-            [e.target.name]: e.target.value,
+            [name]:
+                type === "number" || name === "maxScore"
+                    ? Number(value)
+                    : value,
         });
     };
 
     const handleSubmit = async () => {
-        setLoading(true);
-        try {
-            if (mode === "create") {
-                // Call API create here
-                console.log("Creating grade event:", state);
-            } else {
-                // Call API update here
-                console.log("Updating grade event:", state);
-            }
-            router.push("/grade-event");
-        } catch (error) {
-            console.error("Failed to submit grade event:", error);
-        } finally {
-            setLoading(false);
+        const obj = {
+            classStudentId: class_id,
+            gradeTypeId: state.gradeTypeId,
+            title: state.title,
+            eventDate: state.eventDate,
+            maxScore: state.maxScore,
+            description: state.description,
+        };
+        if (mode === "create") {
+            dispatch(createExercice({ request: obj }));
+        } else {
+            dispatch(
+                updateExercice({
+                    gradeEventId: exercise.gradeEventId,
+                    request: obj,
+                })
+            );
         }
     };
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+            router.push(`/assignment/${class_id}`);
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
@@ -127,38 +144,40 @@ const CreateEditGradeEvent = () => {
             >
                 <div className={styles.formContainer}>
                     <div className={styles.formGrid}>
-                        <div className={styles.formItem}>
-                            <InputWithLabel
-                                label="Mã bài tập"
-                                name="grade_event_id"
-                                value={state.grade_event_id}
-                                onChange={inputHandle}
-                                type="text"
-                                required
-                                disabled={mode === "edit"}
-                            />
-                        </div>
-                        <div className={styles.formItem}>
-                            <SelectWithLabel
-                                label="Lớp học phần"
-                                name="class_subject_id"
-                                value={state.class_subject_id}
-                                onChange={
-                                    inputHandle as React.ChangeEventHandler<HTMLSelectElement>
-                                }
-                                options={mockClassSubjects}
-                                required
-                            />
-                        </div>
+                        {mode === "edit" && (
+                            <div className={styles.formItem}>
+                                <InputWithLabel
+                                    label="Mã bài tập"
+                                    name="gradeEventId"
+                                    value={state.gradeEventId}
+                                    onChange={inputHandle}
+                                    type="text"
+                                    required
+                                    disabled={mode === "edit"}
+                                />
+                            </div>
+                        )}
+
                         <div className={styles.formItem}>
                             <SelectWithLabel
                                 label="Loại điểm"
-                                name="grade_type_id"
-                                value={state.grade_type_id}
+                                name="gradeTypeId"
+                                value={state.gradeTypeId}
                                 onChange={
                                     inputHandle as React.ChangeEventHandler<HTMLSelectElement>
                                 }
-                                options={mockGradeTypes}
+                                options={[
+                                    {
+                                        value: "",
+                                        label: "---Tất cả---",
+                                    },
+                                    ...listPoint.map((point: any) => ({
+                                        value: point.gradeTypeId || "",
+                                        label:
+                                            `${point.code} - ${point.name}` ||
+                                            "",
+                                    })),
+                                ]}
                                 required
                             />
                         </div>
@@ -175,8 +194,8 @@ const CreateEditGradeEvent = () => {
                         <div className={styles.formItem}>
                             <InputWithLabel
                                 label="Ngày hết hạn"
-                                name="event_date"
-                                value={state.event_date}
+                                name="eventDate"
+                                value={String(state.eventDate)}
                                 onChange={inputHandle}
                                 type="date"
                                 required
@@ -185,22 +204,14 @@ const CreateEditGradeEvent = () => {
                         <div className={styles.formItem}>
                             <InputWithLabel
                                 label="Điểm tối đa"
-                                name="max_score"
-                                value={state.max_score}
+                                name="maxScore" // Đúng name với key trong state
+                                value={String(state.maxScore)}
                                 onChange={inputHandle}
                                 type="number"
                                 required
                             />
                         </div>
-                        <div className={styles.formItem}>
-                            <InputWithLabel
-                                label="Hệ số (nếu có)"
-                                name="coeff_override"
-                                value={state.coeff_override}
-                                onChange={inputHandle}
-                                type="number"
-                            />
-                        </div>
+
                         <div className={styles.formItemFull}>
                             <label
                                 htmlFor="description"
@@ -225,7 +236,6 @@ const CreateEditGradeEvent = () => {
                         <Button
                             className={styles.buttonAction}
                             onClick={handleSubmit}
-                            disabled={loading}
                         >
                             {mode === "create" ? "Tạo" : "Cập nhật"}
                         </Button>

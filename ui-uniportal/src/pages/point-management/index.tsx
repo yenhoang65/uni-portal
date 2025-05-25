@@ -9,6 +9,14 @@ import { MdDeleteForever } from "react-icons/md";
 import clsx from "clsx";
 import ModalConfirm from "@/components/ModalConfirm";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import {
+    deletePoint,
+    getPoint,
+    messageClear,
+} from "@/store/reducer/pointReducer";
+import toast from "react-hot-toast";
 
 // Mock data for grade_type
 type GradeType = {
@@ -30,6 +38,11 @@ const MOCK_GRADE_TYPES: GradeType[] = [
 ];
 
 const PointManagement = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { listPoint, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.point
+    );
+
     const [gradeTypes, setGradeTypes] = useState<GradeType[]>(MOCK_GRADE_TYPES);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
@@ -37,20 +50,13 @@ const PointManagement = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState<number | null>(null);
 
-    // Filter and paginate
-    const filteredTypes = gradeTypes.filter(
-        (g) =>
-            g.code.toLowerCase().includes(searchValue.toLowerCase()) ||
-            g.name.toLowerCase().includes(searchValue.toLowerCase())
-    );
-    const startIndex = (currentPage - 1) * parPage;
-    const paginatedTypes = filteredTypes.slice(
-        startIndex,
-        startIndex + parPage
-    );
+    useEffect(() => {
+        dispatch(getPoint());
+    }, []);
 
     const handleDelete = () => {
         if (deleteId !== null) {
+            dispatch(deletePoint(deleteId));
             setIsModalOpen(false);
             setDeleteId(null);
         }
@@ -60,6 +66,18 @@ const PointManagement = () => {
         setIsModalOpen(false);
         setDeleteId(null);
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+            dispatch(getPoint());
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage, dispatch]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -96,7 +114,7 @@ const PointManagement = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {paginatedTypes.length === 0 && (
+                                {listPoint.length === 0 && (
                                     <tr>
                                         <td
                                             colSpan={5}
@@ -106,15 +124,15 @@ const PointManagement = () => {
                                         </td>
                                     </tr>
                                 )}
-                                {paginatedTypes.map((type) => (
-                                    <tr key={type.grade_type_id}>
-                                        <td>{type.grade_type_id}</td>
+                                {listPoint.map((type: any) => (
+                                    <tr key={type.gradeTypeId}>
+                                        <td>{type.gradeTypeId}</td>
                                         <td>{type.code}</td>
                                         <td>{type.name}</td>
                                         <td>{type.coefficient}</td>
                                         <td className={styles.buttonAction}>
                                             <Link
-                                                href={`/point-management/create-edit?id=${type.grade_type_id}&mode=edit`}
+                                                href={`/point-management/create-edit?id=${type.gradeTypeId}&mode=edit`}
                                                 className={clsx(
                                                     styles.viewButton,
                                                     styles.viewButtonUpdate
@@ -128,7 +146,7 @@ const PointManagement = () => {
                                                     e.preventDefault();
                                                     setIsModalOpen(true);
                                                     setDeleteId(
-                                                        type.grade_type_id
+                                                        type.gradeTypeId
                                                     );
                                                 }}
                                                 className={clsx(
@@ -140,7 +158,7 @@ const PointManagement = () => {
                                             </Link>
                                             {isModalOpen &&
                                                 deleteId ===
-                                                    type.grade_type_id && (
+                                                    type.gradeTypeId && (
                                                     <ModalConfirm
                                                         message="Bạn có chắc chắn muốn xóa loại điểm này?"
                                                         onConfirm={handleDelete}

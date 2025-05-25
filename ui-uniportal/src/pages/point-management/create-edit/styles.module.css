@@ -16,6 +16,7 @@
 }
 
 .buttonAction {
+    cursor: pointer;
     min-width: 120px;
 }
 

@@ -7,9 +7,20 @@ import { TypographyBody } from "@/components/TypographyBody";
 import { Button } from "@/components/Button";
 import AuthGuard from "@/components/AuthGuard";
 import toast from "react-hot-toast";
+import { AppDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    createPoint,
+    getPoint,
+    getPointDetail,
+    messageClear,
+    updatePoint,
+} from "@/store/reducer/pointReducer";
+import { stat } from "fs";
+import { create } from "domain";
 
 type State = {
-    grade_type_id: string;
+    gradeTypeId: string;
     code: string;
     name: string;
     coefficient: string;
@@ -31,12 +42,17 @@ const MOCK_GRADE_TYPES = [
 ];
 
 const CreateEditPoint = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { point, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.point
+    );
+
     const router = useRouter();
     const { query } = router;
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [gradeTypes, setGradeTypes] = useState(MOCK_GRADE_TYPES);
     const [state, setState] = useState<State>({
-        grade_type_id: "",
+        gradeTypeId: "",
         code: "",
         name: "",
         coefficient: "",
@@ -44,22 +60,30 @@ const CreateEditPoint = () => {
 
     useEffect(() => {
         if (query.id) {
-            const found = gradeTypes.find((g) => g.grade_type_id === query.id);
-            if (found) {
-                setMode("edit");
-                setState({ ...found });
-            }
+            dispatch(getPointDetail(query.id));
+        }
+    }, [query.id]);
+
+    useEffect(() => {
+        if (point && query.id) {
+            setMode("edit");
+
+            setState({
+                gradeTypeId: point.gradeTypeId ?? "",
+                code: point.code ?? "",
+                name: point.name ?? "",
+                coefficient: point.coefficient ?? "",
+            });
         } else {
             setMode("create");
             setState({
-                grade_type_id: "",
+                gradeTypeId: "",
                 code: "",
                 name: "",
                 coefficient: "",
             });
         }
-        // eslint-disable-next-line
-    }, [query.id]);
+    }, [point, query.id, dispatch]);
 
     const inputHandle = (e: React.ChangeEvent<HTMLInputElement>) => {
         setState({
@@ -73,31 +97,30 @@ const CreateEditPoint = () => {
             toast.error("Vui lòng nhập đầy đủ thông tin bắt buộc!");
             return;
         }
+
+        const obj = {
+            code: state.code,
+            name: state.name,
+            coefficient: state.coefficient,
+        };
         if (mode === "create") {
-            setGradeTypes([
-                ...gradeTypes,
-                {
-                    ...state,
-                    grade_type_id: (
-                        Math.max(
-                            0,
-                            ...gradeTypes.map((g) => +g.grade_type_id)
-                        ) + 1
-                    ).toString(),
-                },
-            ]);
-            toast.success("Thêm loại điểm thành công!");
-            router.push("/point_management");
+            dispatch(createPoint({ dto: obj }));
         } else {
-            setGradeTypes(
-                gradeTypes.map((g) =>
-                    g.grade_type_id === state.grade_type_id ? state : g
-                )
-            );
-            toast.success("Cập nhật loại điểm thành công!");
-            router.push("/point_management");
+            dispatch(updatePoint({ id: point.gradeTypeId, dto: obj }));
         }
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+            router.push("/point-management");
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage, dispatch]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>

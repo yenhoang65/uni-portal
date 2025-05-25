@@ -133,7 +133,7 @@ export const allNav = [
                 id: 14,
                 title: "nav.teachingScheduleRequest",
                 icon: <AiOutlineCalendar />,
-                role: ["admin", "lecturer"],
+                role: ["lecturer"],
                 path: "/teaching-schedule-request",
             },
             {
@@ -149,7 +149,7 @@ export const allNav = [
                 title: "nav.teachingScheduleHistory",
                 icon: <AiOutlineCalendar />,
                 role: ["lecturer"],
-                path: "/teaching-schedule-request/view",
+                path: "/teaching-request-history",
             },
             {
                 id: 30,

@@ -151,7 +151,8 @@
         "createdAt": "Ngày tạo",
         "detail": "Xem chi tiết",
         "edit": "Chỉnh sửa",
-        "viewSubmissions": "Xem bài nộp"
+        "viewSubmissions": "Xem bài nộp",
+        "description": "Miêu tả"
     },
     "submission": {
         "title": "Danh sách sinh viên đã nộp \"{{title}}\"",

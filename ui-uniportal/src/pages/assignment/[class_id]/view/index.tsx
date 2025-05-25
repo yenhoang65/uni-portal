@@ -6,6 +6,9 @@ import { IoIosArrowBack } from "react-icons/io";
 import { AiFillEdit } from "react-icons/ai";
 import AuthGuard from "@/components/AuthGuard";
 import styles from "./styles.module.css";
+import { AppDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { getExerciseDetail } from "@/store/reducer/pointReducer";
 
 // Mock data for grade_event
 type GradeEvent = {
@@ -33,14 +36,21 @@ const mockGradeEvent: GradeEvent = {
 };
 
 const GradeEventDetail = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { exercise, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.point
+    );
+
     const router = useRouter();
     const { id } = router.query;
 
-    const [gradeEvent, setGradeEvent] = useState<GradeEvent | null>(null);
+    const [gradeEvent, setGradeEvent] = useState<GradeEvent | null>(
+        mockGradeEvent
+    );
 
     useEffect(() => {
         if (id) {
-            setGradeEvent(mockGradeEvent); // Thay thế bằng fetch thực tế nếu cần
+            dispatch(getExerciseDetail(id));
         }
     }, [id]);
 
@@ -60,7 +70,7 @@ const GradeEventDetail = () => {
                         theme="lg"
                         className={styles.assignmentTitle}
                     >
-                        {gradeEvent.title}
+                        {exercise.title}
                     </TypographyBody>
                     <button
                         className={styles.editButton}
@@ -87,7 +97,7 @@ const GradeEventDetail = () => {
                             theme="md"
                             className={styles.detailValue}
                         >
-                            {gradeEvent.grade_event_id}
+                            {exercise.gradeEventId}
                         </TypographyBody>
                     </div>
                     <div>
@@ -103,7 +113,7 @@ const GradeEventDetail = () => {
                             theme="md"
                             className={styles.detailValue}
                         >
-                            {gradeEvent.class_subject_id}
+                            {exercise.classStudentId}
                         </TypographyBody>
                     </div>
                     <div>
@@ -119,7 +129,7 @@ const GradeEventDetail = () => {
                             theme="md"
                             className={styles.detailValue}
                         >
-                            {gradeEvent.grade_type_id}
+                            {exercise.gradeTypeId}
                         </TypographyBody>
                     </div>
                     <div>
@@ -128,14 +138,14 @@ const GradeEventDetail = () => {
                             theme="md"
                             className={styles.detailLabel}
                         >
-                            Ngày diễn ra:
+                            Hạn nộp:
                         </TypographyBody>
                         <TypographyBody
                             tag="span"
                             theme="md"
                             className={styles.detailValue}
                         >
-                            {eventDate.toLocaleString()}
+                            {exercise.eventDate}
                         </TypographyBody>
                     </div>
                     <div>
@@ -151,7 +161,7 @@ const GradeEventDetail = () => {
                             theme="md"
                             className={styles.detailValue}
                         >
-                            {gradeEvent.max_score}
+                            {exercise.maxScore}
                         </TypographyBody>
                     </div>
                     <div>
@@ -184,9 +194,10 @@ const GradeEventDetail = () => {
                             tag="span"
                             theme="md"
                             className={styles.detailValue}
-                        >
-                            {gradeEvent.description}
-                        </TypographyBody>
+                            dangerouslySetInnerHTML={{
+                                __html: exercise.description,
+                            }}
+                        />
                     </div>
                     <div>
                         <TypographyBody
@@ -201,7 +212,7 @@ const GradeEventDetail = () => {
                             theme="md"
                             className={styles.detailValue}
                         >
-                            {createdDate.toLocaleString()}
+                            {exercise.createdAt}
                         </TypographyBody>
                     </div>
                 </div>

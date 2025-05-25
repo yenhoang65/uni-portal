@@ -79,11 +79,9 @@ const RegisteredCreditClasses = () => {
                                     <th style={{ minWidth: "100px" }}>
                                         Mã lớp
                                     </th>
-
                                     <th style={{ minWidth: "250px" }}>
                                         Tên môn học
                                     </th>
-
                                     <th style={{ minWidth: "180px" }}>
                                         Thời gian bắt đầu
                                     </th>

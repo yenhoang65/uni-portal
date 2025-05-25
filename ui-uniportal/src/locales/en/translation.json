@@ -151,7 +151,8 @@
         "createdAt": "Created At",
         "detail": "View Details",
         "edit": "Edit",
-        "viewSubmissions": "View Submissions"
+        "viewSubmissions": "View Submissions",
+        "description": "Description"
     },
     "submission": {
         "title": "List of submitted students for \"{{title}}\"",

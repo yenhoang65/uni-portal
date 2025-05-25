@@ -75,8 +75,6 @@ const CreateEditTeachingAssignment = () => {
         }
     }, [query.id]);
 
-    console.log("teachingAssignment:", teachingAssignment);
-
     useEffect(() => {
         if (teachingAssignment && query.id) {
             setMode("edit");
@@ -119,7 +117,7 @@ const CreateEditTeachingAssignment = () => {
         if (successMessage) {
             toast.success(successMessage);
             dispatch(messageClear());
-
+            dispatch(getClassTermUnAssign());
             setState({
                 assignmentId: 0,
                 lecturerId: 0,

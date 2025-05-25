@@ -91,8 +91,8 @@ const TeachingAssignmentWithDetails = () => {
     }, [teachingAssignments]);
 
     return (
-        <AuthGuard allowedRoles={["admin", "lecturer"]}>
-            <BorderBox title="Quản lý phân công giảng dạy">
+        <AuthGuard allowedRoles={["lecturer"]}>
+            <BorderBox title="Danh sách lớp đã được phân công cho giảng viên">
                 <div className={styles.box}>
                     <div className={styles.add}>
                         <Search
@@ -100,12 +100,12 @@ const TeachingAssignmentWithDetails = () => {
                             setSearchValue={setSearchValue}
                             searchValue={searchValue}
                         />
-                        <Link
+                        {/* <Link
                             href={"/teaching-assignment/create-edit"}
                             className={styles.buttonAdd}
                         >
                             <IoMdAddCircle /> Thêm mới
-                        </Link>
+                        </Link> */}
                     </div>
 
                     <div className={styles.tableWrapper}>

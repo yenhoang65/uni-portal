@@ -1,66 +1,85 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import BorderBox from "@/components/BorderBox";
 import { IoIosArrowBack } from "react-icons/io";
 import AuthGuard from "@/components/AuthGuard";
 import { Button } from "@/components/Button";
 import styles from "./styles.module.css";
-
-type Assignment = {
-    exercise_id: number;
-    title: string;
-    description: string;
-    deadline: string;
-    file_url: string;
-    created_at: string;
-    class_subject_id: number;
-};
-
-const mockAssignment: Assignment = {
-    exercise_id: 123,
-    title: "Bài tập về nhà số 1",
-    description: "Giải các bài toán từ trang 20 đến 25 trong sách giáo trình.",
-    deadline: "2025-05-15T23:59:00Z",
-    file_url: "https://example.com/assignment1.pdf",
-    created_at: "2025-05-01T10:00:00Z",
-    class_subject_id: 101,
-};
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import {
+    getExerciseDetail,
+    messageClear,
+    submitExercise,
+} from "@/store/reducer/pointReducer";
+import toast from "react-hot-toast";
 
 const AssignmentDetail = () => {
-    const router = useRouter();
-    const assignment = mockAssignment;
+    const dispatch = useDispatch<AppDispatch>();
+    const { exercise, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.point
+    );
 
-    const [submitLink, setSubmitLink] = useState<string>("");
-    const [submitted, setSubmitted] = useState<boolean>(false);
+    const router = useRouter();
+    const { exercise_id } = router.query;
+
+    useEffect(() => {
+        if (exercise_id) {
+            dispatch(getExerciseDetail(exercise_id));
+        }
+    }, [exercise_id, dispatch]);
+
+    const [fileUrl, setFileUrl] = useState<string>("");
+
+    useEffect(() => {
+        if (exercise && exercise_id) {
+            setFileUrl(exercise.fileUrl);
+        }
+    }, [exercise, exercise_id]);
 
     const handleSubmit = () => {
-        if (!submitLink.trim()) return;
-        setSubmitted(true);
-        alert(`Đã nộp bài tập với link: ${submitLink}`);
+        dispatch(
+            submitExercise({
+                request: {
+                    classStudentId: exercise.classStudentId,
+                    gradeEventId: exercise_id,
+                    fileUrl: fileUrl,
+                },
+            })
+        );
     };
 
-    const deadlineDate = new Date(assignment.deadline);
-    const createdDate = new Date(assignment.created_at);
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+            router.push("/submit-assignment");
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin", "lecturer", "student"]}>
-            <BorderBox title={`Chi tiết bài tập: ${assignment.title}`}>
+            <BorderBox title={`Chi tiết bài tập: ${exercise.title}`}>
                 <div className={styles.gridContainer}>
                     {/* LEFT COLUMN */}
                     <div className={styles.leftColumn}>
                         <div className={styles.detailItem}>
                             <span className={styles.detailLabel}>Tiêu đề:</span>
-                            <span>{assignment.title}</span>
+                            <span>{exercise.title}</span>
                         </div>
                         <div className={styles.detailItem}>
                             <span className={styles.detailLabel}>Mô tả:</span>
-                            <span>{assignment.description}</span>
+                            <span>{exercise.description}</span>
                         </div>
                         <div className={styles.detailItem}>
                             <span className={styles.detailLabel}>Hạn nộp:</span>
-                            <span>{deadlineDate.toLocaleString()}</span>
+                            <span>{exercise.eventDate}</span>
                         </div>
-                        <div className={styles.detailItem}>
+                        {/* <div className={styles.detailItem}>
                             <span className={styles.detailLabel}>File:</span>
                             {assignment.file_url ? (
                                 <a
@@ -74,18 +93,18 @@ const AssignmentDetail = () => {
                             ) : (
                                 <span>Không có file</span>
                             )}
-                        </div>
+                        </div> */}
                         <div className={styles.detailItem}>
                             <span className={styles.detailLabel}>
                                 Ngày tạo:
                             </span>
-                            <span>{createdDate.toLocaleString()}</span>
+                            <span>{exercise.createdAt}</span>
                         </div>
                         <div className={styles.detailItem}>
                             <span className={styles.detailLabel}>
                                 Mã lớp học:
                             </span>
-                            <span>{assignment.class_subject_id}</span>
+                            <span>{exercise.classStudentId}</span>
                         </div>
                         <div className={styles.buttonGroup}>
                             <div
@@ -105,16 +124,14 @@ const AssignmentDetail = () => {
                             type="text"
                             placeholder="Dán link bài tập của bạn"
                             className={styles.inputBox}
-                            value={submitLink}
-                            onChange={(e) => setSubmitLink(e.target.value)}
-                            disabled={submitted}
+                            value={fileUrl}
+                            onChange={(e) => setFileUrl(e.target.value)}
                         />
                         <Button
                             onClick={handleSubmit}
                             className={styles.submitButton}
-                            disabled={submitted}
                         >
-                            {submitted ? "Đã nộp" : "Nộp bài"}
+                            Nộp bài
                         </Button>
                     </div>
                 </div>

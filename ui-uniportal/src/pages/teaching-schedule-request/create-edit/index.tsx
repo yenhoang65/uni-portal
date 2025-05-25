@@ -327,7 +327,7 @@ const CreateEditTeachingScheduleRequest = () => {
     }, [successMessage, errorMessage]);
 
     return (
-        <AuthGuard allowedRoles={["admin", "lecturer"]}>
+        <AuthGuard allowedRoles={["lecturer"]}>
             <BorderBox
                 title={
                     mode === "create"
