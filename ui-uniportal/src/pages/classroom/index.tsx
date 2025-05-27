@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -14,7 +14,12 @@ import { TypographyBody } from "@/components/TypographyBody";
 import AuthGuard from "@/components/AuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { getListClassroom } from "@/store/reducer/classroomReducer";
+import {
+    deleteClassroom,
+    getListClassroom,
+    messageClear,
+} from "@/store/reducer/classroomReducer";
+import toast from "react-hot-toast";
 
 const Classroom = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -32,7 +37,7 @@ const Classroom = () => {
 
     const handleDelete = () => {
         if (deleteClassroomId) {
-            // dispatch(delete_classroom(deleteClassroomId));
+            dispatch(deleteClassroom(deleteClassroomId));
             setIsModalOpen(false);
             setDeleteClassroomId(null);
         }
@@ -46,6 +51,34 @@ const Classroom = () => {
     useEffect(() => {
         dispatch(getListClassroom());
     }, []);
+
+    const totalItem = classrooms.length;
+    const totalPages = Math.ceil(totalItem / parPage);
+
+    const paginatedclassrooms = useMemo(() => {
+        const start = (currentPage - 1) * parPage;
+        const end = start + parPage;
+        return classrooms.slice(start, end);
+    }, [classrooms, currentPage, parPage]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(1);
+        }
+    }, [totalPages, currentPage]);
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+            dispatch(getListClassroom());
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
+
     return (
         <AuthGuard allowedRoles={["admin", "employee"]}>
             <BorderBox title="Quản lý phòng học">
@@ -86,7 +119,7 @@ const Classroom = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {classrooms.map((classroom, index) => (
+                                {paginatedclassrooms.map((classroom, index) => (
                                     <tr key={classroom.classroomId}>
                                         <td>
                                             {(currentPage - 1) * parPage +
@@ -166,15 +199,17 @@ const Classroom = () => {
                         </table>
                     </div>
 
-                    <div className={styles.paginationWrapper}>
-                        <Pagination
-                            pageNumber={currentPage}
-                            setPageNumber={setCurrentPage}
-                            totalItem={classrooms.length}
-                            parPage={parPage}
-                            showItem={3}
-                        />
-                    </div>
+                    {totalItem > parPage && (
+                        <div className={styles.paginationWrapper}>
+                            <Pagination
+                                pageNumber={currentPage}
+                                setPageNumber={setCurrentPage}
+                                totalItem={totalItem}
+                                parPage={parPage}
+                                showItem={3}
+                            />
+                        </div>
+                    )}
                 </div>
             </BorderBox>
         </AuthGuard>

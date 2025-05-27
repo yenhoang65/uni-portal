@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -18,36 +18,6 @@ import toast from "react-hot-toast";
 import { messageClear } from "@/store/reducer/specializationReducer";
 import { deleteSpec, getListSpec } from "@/store/reducer/specializationReducer";
 
-const specialization = [
-    {
-        id: "SPE001",
-        majorId: "MAJ001", // Mã ngành
-        majorName: "Công nghệ phần mềm", // Tên ngành
-        facultyName: "Khoa CNTT", // Tên khoa
-        name: "Phát triển ứng dụng Web",
-        description: "Chuyên sâu về phát triển các ứng dụng web hiện đại.",
-        establishDate: "2012-05-20",
-    },
-    {
-        id: "SPE002",
-        majorId: "MAJ002",
-        majorName: "Kỹ thuật cơ khí",
-        facultyName: "Khoa Cơ khí",
-        name: "Thiết kế CAD/CAM",
-        description: "Đào tạo chuyên sâu về thiết kế và sản xuất cơ khí.",
-        establishDate: "2010-11-10",
-    },
-    {
-        id: "SPE003",
-        majorId: "MAJ001",
-        majorName: "Công nghệ phần mềm",
-        facultyName: "Khoa CNTT",
-        name: "Phát triển ứng dụng di động",
-        description: "Chuyên về xây dựng ứng dụng cho nền tảng iOS và Android.",
-        establishDate: "2015-03-01",
-    },
-];
-
 const Specialization = () => {
     const dispatch = useDispatch<AppDispatch>();
 
@@ -57,7 +27,7 @@ const Specialization = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
-    const [parPage, setParPage] = useState(5);
+    const [parPage, setParPage] = useState(10);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteSpecializationId, setDeleteSpecializationId] = useState<
         string | null
@@ -96,6 +66,21 @@ const Specialization = () => {
             dispatch(messageClear());
         }
     }, [successMessage, errorMessage]);
+
+    const totalItem = specializations.length;
+    const totalPages = Math.ceil(totalItem / parPage);
+
+    const paginatedSpecializations = useMemo(() => {
+        const start = (currentPage - 1) * parPage;
+        const end = start + parPage;
+        return specializations.slice(start, end);
+    }, [specializations, currentPage, parPage]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(1);
+        }
+    }, [currentPage, totalPages]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -140,7 +125,7 @@ const Specialization = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {specializations.map(
+                                {paginatedSpecializations.map(
                                     (specialization, index) => (
                                         <tr
                                             key={
@@ -226,15 +211,17 @@ const Specialization = () => {
                         </table>
                     </div>
 
-                    <div className={styles.paginationWrapper}>
-                        <Pagination
-                            pageNumber={currentPage}
-                            setPageNumber={setCurrentPage}
-                            totalItem={specializations.length}
-                            parPage={parPage}
-                            showItem={3}
-                        />
-                    </div>
+                    {totalItem > parPage && (
+                        <div className={styles.paginationWrapper}>
+                            <Pagination
+                                pageNumber={currentPage}
+                                setPageNumber={setCurrentPage}
+                                totalItem={totalItem}
+                                parPage={parPage}
+                                showItem={3}
+                            />
+                        </div>
+                    )}
                 </div>
             </BorderBox>
         </AuthGuard>

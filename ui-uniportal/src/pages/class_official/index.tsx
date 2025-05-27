@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -70,6 +70,20 @@ const ClassOffical = () => {
         }
     }, [successMessage, errorMessage]);
 
+    const totalItem = classOfficals.length;
+    const totalPages = Math.ceil(totalItem / parPage);
+
+    const paginatedclassOfficals = useMemo(() => {
+        const start = (currentPage - 1) * parPage;
+        const end = start + parPage;
+        return classOfficals.slice(start, end);
+    }, [classOfficals, currentPage, parPage]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(1);
+        }
+    }, [totalPages, currentPage]);
     return (
         <AuthGuard allowedRoles={["admin"]}>
             <BorderBox title={t("classOfficial.title")}>
@@ -114,7 +128,7 @@ const ClassOffical = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {classOfficals.map((term, index) => (
+                                {paginatedclassOfficals.map((term, index) => (
                                     <tr key={term.classId}>
                                         <td>{index + 1}</td>
                                         <td>{term.classId}</td>
@@ -162,7 +176,7 @@ const ClassOffical = () => {
                                         </td>
                                     </tr>
                                 ))}
-                                {classOfficals.length === 0 && (
+                                {paginatedclassOfficals.length === 0 && (
                                     <tr>
                                         <td
                                             colSpan={6}
@@ -176,15 +190,17 @@ const ClassOffical = () => {
                         </table>
                     </div>
 
-                    <div className={styles.paginationWrapper}>
-                        <Pagination
-                            pageNumber={currentPage}
-                            setPageNumber={setCurrentPage}
-                            totalItem={classOfficals.length}
-                            parPage={parPage}
-                            showItem={3}
-                        />
-                    </div>
+                    {totalItem > parPage && (
+                        <div className={styles.paginationWrapper}>
+                            <Pagination
+                                pageNumber={currentPage}
+                                setPageNumber={setCurrentPage}
+                                totalItem={totalItem}
+                                parPage={parPage}
+                                showItem={3}
+                            />
+                        </div>
+                    )}
                 </div>
             </BorderBox>
         </AuthGuard>

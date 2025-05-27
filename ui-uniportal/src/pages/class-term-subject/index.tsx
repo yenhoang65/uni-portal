@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -65,6 +65,21 @@ const ClassTermSubject = () => {
         }
     }, [successMessage, errorMessage]);
 
+    const totalItem = classTerms.length;
+    const totalPages = Math.ceil(totalItem / parPage);
+
+    const paginatedclassTerms = useMemo(() => {
+        const start = (currentPage - 1) * parPage;
+        const end = start + parPage;
+        return classTerms.slice(start, end);
+    }, [classTerms, currentPage, parPage]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(1);
+        }
+    }, [totalPages, currentPage]);
+
     return (
         <AuthGuard allowedRoles={["admin"]}>
             <BorderBox title="Class Term Management">
@@ -105,7 +120,7 @@ const ClassTermSubject = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {classTerms.map((term, index) => (
+                                {paginatedclassTerms.map((term, index) => (
                                     <tr key={term.termclassId}>
                                         <td>{term.termclassId}</td>
                                         <td>{term.classname}</td>
@@ -159,7 +174,7 @@ const ClassTermSubject = () => {
                                         </td>
                                     </tr>
                                 ))}
-                                {classTerms.length === 0 && (
+                                {paginatedclassTerms.length === 0 && (
                                     <tr>
                                         <td
                                             colSpan={6}
@@ -173,15 +188,17 @@ const ClassTermSubject = () => {
                         </table>
                     </div>
 
-                    <div className={styles.paginationWrapper}>
-                        <Pagination
-                            pageNumber={currentPage}
-                            setPageNumber={setCurrentPage}
-                            totalItem={classTerms.length}
-                            parPage={parPage}
-                            showItem={3}
-                        />
-                    </div>
+                    {totalItem > parPage && (
+                        <div className={styles.paginationWrapper}>
+                            <Pagination
+                                pageNumber={currentPage}
+                                setPageNumber={setCurrentPage}
+                                totalItem={classTerms.length}
+                                parPage={parPage}
+                                showItem={3}
+                            />
+                        </div>
+                    )}
                 </div>
             </BorderBox>
         </AuthGuard>

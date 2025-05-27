@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -53,26 +53,27 @@ const Major = () => {
             dispatch(messageClear());
 
             dispatch(getListMajor());
-            // const obj = {
-            //     parPage: parseInt(parPage),
-            //     currentPage: parseInt(currentPage),
-            //     searchValue,
-            //     typeCate,
-            // };
-            // dispatch(get_category(obj));
-
-            // setState({
-            //     name: "",
-            //     image: "",
-            //     type: "",
-            // });
-            // setImageShow("");
         }
         if (errorMessage) {
             toast.error(errorMessage);
             dispatch(messageClear());
         }
     }, [successMessage, errorMessage]);
+
+    const totalItem = majors.length;
+    const totalPages = Math.ceil(totalItem / parPage);
+
+    const paginatedMajors = useMemo(() => {
+        const start = (currentPage - 1) * parPage;
+        const end = start + parPage;
+        return majors.slice(start, end);
+    }, [majors, currentPage, parPage]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(1);
+        }
+    }, [totalPages, currentPage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -109,7 +110,7 @@ const Major = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {majors.map((major, index) => (
+                                {paginatedMajors.map((major, index) => (
                                     <tr key={major.majorId}>
                                         <td>{index + 1}</td>
                                         <td>{major.majorId}</td>
@@ -168,15 +169,17 @@ const Major = () => {
                         </table>
                     </div>
 
-                    <div className={styles.paginationWrapper}>
-                        <Pagination
-                            pageNumber={currentPage}
-                            setPageNumber={setCurrentPage}
-                            totalItem={majors?.length || 0}
-                            parPage={parPage}
-                            showItem={3}
-                        />
-                    </div>
+                    {totalItem > parPage && (
+                        <div className={styles.paginationWrapper}>
+                            <Pagination
+                                pageNumber={currentPage}
+                                setPageNumber={setCurrentPage}
+                                totalItem={totalItem}
+                                parPage={parPage}
+                                showItem={3}
+                            />
+                        </div>
+                    )}
                 </div>
             </BorderBox>
         </AuthGuard>

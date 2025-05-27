@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -62,6 +62,21 @@ const SubjectManagement = () => {
         }
     }, [successMessage, errorMessage]);
 
+    const totalItem = subjects.length;
+    const totalPages = Math.ceil(totalItem / parPage);
+
+    const paginatedSubjects = useMemo(() => {
+        const start = (currentPage - 1) * parPage;
+        const end = start + parPage;
+        return subjects.slice(start, end);
+    }, [subjects, currentPage, parPage]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(1);
+        }
+    }, [totalPages, currentPage]);
+
     return (
         <AuthGuard allowedRoles={["admin"]}>
             <BorderBox title="Quản lý môn học">
@@ -98,7 +113,7 @@ const SubjectManagement = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {subjects.map((subject) => (
+                                {paginatedSubjects.map((subject) => (
                                     <tr key={subject.subjectId}>
                                         <td>{subject.subjectId}</td>
                                         <td>{subject.subjectName}</td>
@@ -161,7 +176,7 @@ const SubjectManagement = () => {
                                         </td>
                                     </tr>
                                 ))}
-                                {subjects.length === 0 && (
+                                {paginatedSubjects.length === 0 && (
                                     <tr>
                                         <td
                                             colSpan={5}
@@ -175,15 +190,17 @@ const SubjectManagement = () => {
                         </table>
                     </div>
 
-                    <div className={styles.paginationWrapper}>
-                        <Pagination
-                            pageNumber={currentPage}
-                            setPageNumber={setCurrentPage}
-                            totalItem={subjects.length}
-                            parPage={parPage}
-                            showItem={3}
-                        />
-                    </div>
+                    {totalItem > parPage && (
+                        <div className={styles.paginationWrapper}>
+                            <Pagination
+                                pageNumber={currentPage}
+                                setPageNumber={setCurrentPage}
+                                totalItem={totalItem}
+                                parPage={parPage}
+                                showItem={3}
+                            />
+                        </div>
+                    )}
                 </div>
             </BorderBox>
         </AuthGuard>

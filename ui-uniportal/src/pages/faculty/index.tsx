@@ -1,7 +1,7 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -24,7 +24,7 @@ const Faculty = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
-    const [parPage, setParPage] = useState(5);
+    const [parPage, setParPage] = useState(20);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteFacultyId, setDeleteFacultyId] = useState<string | null>(null);
 
@@ -44,6 +44,21 @@ const Faculty = () => {
     useEffect(() => {
         dispatch(getListFaculty());
     }, []);
+
+    const totalItem = faculties.length;
+    const totalPages = Math.ceil(totalItem / parPage);
+
+    const paginatedFaculties = useMemo(() => {
+        const start = (currentPage - 1) * parPage;
+        const end = start + parPage;
+        return faculties.slice(start, end);
+    }, [faculties, currentPage, parPage]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(1);
+        }
+    }, [totalPages, currentPage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -92,7 +107,7 @@ const Faculty = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {faculties.map((faculty, index) => (
+                                {paginatedFaculties.map((faculty, index) => (
                                     <tr key={faculty.facultyId}>
                                         <td>{index + 1}</td>
                                         <td>{faculty.facultyName}</td>
@@ -169,15 +184,17 @@ const Faculty = () => {
                         </table>
                     </div>
 
-                    <div className={styles.paginationWrapper}>
-                        <Pagination
-                            pageNumber={currentPage}
-                            setPageNumber={setCurrentPage}
-                            totalItem={50}
-                            parPage={parPage}
-                            showItem={3}
-                        />
-                    </div>
+                    {totalItem >= parPage && (
+                        <div className={styles.paginationWrapper}>
+                            <Pagination
+                                pageNumber={currentPage}
+                                setPageNumber={setCurrentPage}
+                                totalItem={totalItem}
+                                parPage={parPage}
+                                showItem={3}
+                            />
+                        </div>
+                    )}
                 </div>
             </BorderBox>
         </AuthGuard>

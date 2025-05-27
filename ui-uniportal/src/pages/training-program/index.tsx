@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -67,6 +67,21 @@ const TrainingProgram = () => {
         }
     }, [successMessage, errorMessage]);
 
+    const totalItem = trainingPrograms.length;
+    const totalPages = Math.ceil(totalItem / parPage);
+
+    const paginatedtrainingPrograms = useMemo(() => {
+        const start = (currentPage - 1) * parPage;
+        const end = start + parPage;
+        return trainingPrograms.slice(start, end);
+    }, [trainingPrograms, currentPage, parPage]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(1);
+        }
+    }, [totalPages, currentPage]);
+
     return (
         <AuthGuard allowedRoles={["admin"]}>
             <BorderBox title="Quản lý Chương trình Đào tạo">
@@ -127,73 +142,83 @@ const TrainingProgram = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {trainingPrograms.map((program, index) => (
-                                    <tr key={program.trainingProgramId}>
-                                        <td>1</td>
-                                        <td>{program.trainingProgramId}</td>
-                                        <td>{program.specializationName}</td>
-                                        <td>{program.trainingCode}</td>
+                                {paginatedtrainingPrograms.map(
+                                    (program, index) => (
+                                        <tr key={program.trainingProgramId}>
+                                            <td>1</td>
+                                            <td>{program.trainingProgramId}</td>
+                                            <td>
+                                                {program.specializationName}
+                                            </td>
+                                            <td>{program.trainingCode}</td>
 
-                                        <td className={styles.buttonAction}>
-                                            <Link
-                                                href={`/training-program/view?id=${program.trainingProgramId}`}
-                                                className={clsx(
-                                                    styles.viewButton
-                                                )}
-                                            >
-                                                <FaEye />
-                                            </Link>
-                                            <Link
-                                                href={`/training-program/create-edit?id=${program.trainingProgramId}&mode=edit`}
-                                                className={clsx(
-                                                    styles.viewButton,
-                                                    styles.viewButtonUpdate
-                                                )}
-                                            >
-                                                <AiFillEdit />
-                                            </Link>
-                                            <Link
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setIsModalOpen(true);
-                                                    setDeleteProgramId(
-                                                        program.trainingProgramId
-                                                    );
-                                                }}
-                                                href="#"
-                                                className={clsx(
-                                                    styles.viewButton,
-                                                    styles.viewButtonDelete
-                                                )}
-                                            >
-                                                <MdDeleteForever />
-                                            </Link>
+                                            <td className={styles.buttonAction}>
+                                                <Link
+                                                    href={`/training-program/view?id=${program.trainingProgramId}`}
+                                                    className={clsx(
+                                                        styles.viewButton
+                                                    )}
+                                                >
+                                                    <FaEye />
+                                                </Link>
+                                                <Link
+                                                    href={`/training-program/create-edit?id=${program.trainingProgramId}&mode=edit`}
+                                                    className={clsx(
+                                                        styles.viewButton,
+                                                        styles.viewButtonUpdate
+                                                    )}
+                                                >
+                                                    <AiFillEdit />
+                                                </Link>
+                                                <Link
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setIsModalOpen(true);
+                                                        setDeleteProgramId(
+                                                            program.trainingProgramId
+                                                        );
+                                                    }}
+                                                    href="#"
+                                                    className={clsx(
+                                                        styles.viewButton,
+                                                        styles.viewButtonDelete
+                                                    )}
+                                                >
+                                                    <MdDeleteForever />
+                                                </Link>
 
-                                            {isModalOpen &&
-                                                deleteProgramId ===
-                                                    program.trainingProgramId && (
-                                                    <ModalConfirm
-                                                        message="Are you sure you want to delete?"
-                                                        onConfirm={handleDelete}
-                                                        onCancel={handleCancel}
-                                                    />
-                                                )}
-                                        </td>
-                                    </tr>
-                                ))}
+                                                {isModalOpen &&
+                                                    deleteProgramId ===
+                                                        program.trainingProgramId && (
+                                                        <ModalConfirm
+                                                            message="Are you sure you want to delete?"
+                                                            onConfirm={
+                                                                handleDelete
+                                                            }
+                                                            onCancel={
+                                                                handleCancel
+                                                            }
+                                                        />
+                                                    )}
+                                            </td>
+                                        </tr>
+                                    )
+                                )}
                             </tbody>
                         </table>
                     </div>
 
-                    <div className={styles.paginationWrapper}>
-                        <Pagination
-                            pageNumber={currentPage}
-                            setPageNumber={setCurrentPage}
-                            totalItem={trainingPrograms.length}
-                            parPage={parPage}
-                            showItem={3}
-                        />
-                    </div>
+                    {totalItem > parPage && (
+                        <div className={styles.paginationWrapper}>
+                            <Pagination
+                                pageNumber={currentPage}
+                                setPageNumber={setCurrentPage}
+                                totalItem={totalItem}
+                                parPage={parPage}
+                                showItem={3}
+                            />
+                        </div>
+                    )}
                 </div>
             </BorderBox>
         </AuthGuard>
