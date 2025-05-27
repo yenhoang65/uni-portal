@@ -2,6 +2,12 @@
 
 import api from "@/service/api";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { jwtDecode, JwtPayload } from "jwt-decode";
+
+interface CustomJwtPayload extends JwtPayload {
+    role?: string | string[];
+    user_id?: string;
+}
 
 //grade type
 export const getPoint = createAsyncThunk(
@@ -246,6 +252,28 @@ export const gradeSubmission = createAsyncThunk(
     }
 );
 
+//kết quả học tập
+export const getLearningResult = createAsyncThunk(
+    "exercise/getLearningResult",
+    async (_, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const token = window.localStorage.getItem("accessToken");
+            if (!token) throw new Error("No access token found");
+            const decodedToken: CustomJwtPayload = jwtDecode(token);
+
+            const { data } = await api.get(
+                `/transcript/student/${decodedToken.user_id}`
+            );
+
+            console.log(data);
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
 export const pointReducer = createSlice({
     name: "point",
     initialState: {
@@ -259,6 +287,8 @@ export const pointReducer = createSlice({
         exerciseByStudent: [] as any,
 
         viewSubmissions: [] as any,
+
+        learningResult: {} as any,
     },
     reducers: {
         messageClear: (state) => {
@@ -422,6 +452,10 @@ export const pointReducer = createSlice({
             })
             .addCase(gradeSubmission.fulfilled, (state, { payload }) => {
                 state.successMessage = "Chấm điểm thành công";
+            })
+
+            .addCase(getLearningResult.fulfilled, (state, { payload }) => {
+                state.learningResult = payload;
             });
     },
 });

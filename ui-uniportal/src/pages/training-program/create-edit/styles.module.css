@@ -11,5 +11,6 @@
 }
 
 .buttonAction {
+    cursor: pointer;
     padding: 0 15px !important;
 }

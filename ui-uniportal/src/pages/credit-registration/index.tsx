@@ -10,6 +10,8 @@ import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { getSubjectsFollowUser } from "@/store/reducer/creditRegistrationReducer";
+import { getListActiveTimeLecturer } from "@/store/reducer/activateTimeReducer";
+import { TypographyBody } from "@/components/TypographyBody";
 
 const ClassRegistration = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -17,73 +19,89 @@ const ClassRegistration = () => {
         (state: RootState) => state.creditRegistration
     );
 
+    const { activeTimeStudents } = useSelector(
+        (state: RootState) => state.activateTime
+    );
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(5);
 
     useEffect(() => {
         dispatch(getSubjectsFollowUser());
+        dispatch(getListActiveTimeLecturer());
     }, []);
+
+    const checkTimes = activeTimeStudents.find(
+        (item) => item.status === "active"
+    );
+    let isInActiveTime = false;
+    if (checkTimes) {
+        const now = new Date();
+        const start = new Date(checkTimes.startDate);
+        const end = new Date(checkTimes.endDate);
+        isInActiveTime = now >= start && now <= end;
+    }
 
     return (
         <AuthGuard allowedRoles={["student"]}>
             <BorderBox title="Đăng ký tín chỉ - Các lớp đang mở">
-                <div className={styles.box}>
-                    <div className={styles.add}>
-                        <Search
-                            setParPage={setParPage}
-                            setSearchValue={setSearchValue}
-                            searchValue={searchValue}
-                        />
-                    </div>
+                {isInActiveTime ? (
+                    <div className={styles.box}>
+                        <div className={styles.add}>
+                            <Search
+                                setParPage={setParPage}
+                                setSearchValue={setSearchValue}
+                                searchValue={searchValue}
+                            />
+                        </div>
 
-                    <div className={styles.tableWrapper}>
-                        <table className={styles.table}>
-                            <thead className={styles.thead}>
-                                <tr>
-                                    <th>STT</th>
-                                    <th>Mã môn học</th>
-                                    <th>Môn học</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {subjects.map((cls, index) => (
-                                    <tr key={index}>
-                                        <td className={styles.tableCell}>
-                                            {index + 1}
-                                        </td>
-                                        <td className={styles.tableCell}>
-                                            {cls.subject?.subjectId}
-                                        </td>
-
-                                        <td className={styles.tableCell}>
-                                            {cls.subject?.subjectName} (
-                                            {cls.subject?.ltCredits}
-                                            {cls.subject?.thCredits > 0 &&
-                                                ` + ${cls.subject.thCredits}*`}
-                                            )
-                                        </td>
-
-                                        <td
-                                            className={clsx(
-                                                styles.tableCell,
-                                                styles.action
-                                            )}
-                                        >
-                                            <Link
-                                                href={`/credit-registration/${cls.subject?.subjectId}`}
-                                            >
-                                                <FcViewDetails />
-                                            </Link>
-                                        </td>
+                        <div className={styles.tableWrapper}>
+                            <table className={styles.table}>
+                                <thead className={styles.thead}>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Mã môn học</th>
+                                        <th>Môn học</th>
+                                        <th></th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    {subjects.map((cls, index) => (
+                                        <tr key={index}>
+                                            <td className={styles.tableCell}>
+                                                {index + 1}
+                                            </td>
+                                            <td className={styles.tableCell}>
+                                                {cls.subject?.subjectId}
+                                            </td>
 
-                    {/* <div className={styles.paginationWrapper}>
+                                            <td className={styles.tableCell}>
+                                                {cls.subject?.subjectName} (
+                                                {cls.subject?.ltCredits}
+                                                {cls.subject?.thCredits > 0 &&
+                                                    ` + ${cls.subject.thCredits}*`}
+                                                )
+                                            </td>
+
+                                            <td
+                                                className={clsx(
+                                                    styles.tableCell,
+                                                    styles.action
+                                                )}
+                                            >
+                                                <Link
+                                                    href={`/credit-registration/${cls.subject?.subjectId}`}
+                                                >
+                                                    <FcViewDetails />
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* <div className={styles.paginationWrapper}>
                         <Pagination
                             pageNumber={currentPage}
                             setPageNumber={setCurrentPage}
@@ -92,7 +110,16 @@ const ClassRegistration = () => {
                             showItem={3}
                         />
                     </div> */}
-                </div>
+                    </div>
+                ) : (
+                    <TypographyBody
+                        tag="span"
+                        theme="lg"
+                        className={styles.error}
+                    >
+                        Không có đợt đăng ký nào được mở!
+                    </TypographyBody>
+                )}
             </BorderBox>
         </AuthGuard>
     );

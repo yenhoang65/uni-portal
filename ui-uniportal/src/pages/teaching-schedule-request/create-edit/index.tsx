@@ -21,6 +21,7 @@ import { TypographyBody } from "@/components/TypographyBody";
 import { getListClassroom } from "@/store/reducer/classroomReducer";
 import toast from "react-hot-toast";
 import moment from "moment";
+import { getListActiveTimeLecturer } from "@/store/reducer/activateTimeReducer";
 
 type scheduleDetail = {
     classroom_id: number;
@@ -254,24 +255,8 @@ const CreateEditTeachingScheduleRequest = () => {
     }, [teachingScheduleFollowAssignId]);
 
     function isValidLessonFormat(lesson: string) {
-        // phải là 2 số, phân tách bởi dấu "-"
         return /^\d+-\d+$/.test(lesson);
     }
-
-    // const handleSubmit = () => {
-    //     const obj = {
-    //         assignmentId: teachingAssignment.assignmentId,
-    //         status: "success",
-    //         scheduleDetails: state.scheduleDetails.map((d) => ({
-    //             ...d,
-    //             classroom_id: Number(d.classroom_id),
-    //             date_time: d.date_time.toISOString(),
-    //         })),
-    //         materials: state.materials,
-    //     };
-
-    //     dispatch(regisSchedule({ dto: obj }));
-    // };
 
     const handleSubmit = () => {
         const lessons = state.scheduleDetails.map((d) => d.lesson);
@@ -287,7 +272,6 @@ const CreateEditTeachingScheduleRequest = () => {
             setLessonError(null);
         }
 
-        // Lọc scheduleDetails dựa trên điều kiện LT, TH
         let filteredScheduleDetails: typeof state.scheduleDetails = [];
         const hasLT = teachingAssignment.subject?.ltCredits > 0;
         const hasTH = teachingAssignment.subject?.thCredits > 0;
@@ -310,8 +294,6 @@ const CreateEditTeachingScheduleRequest = () => {
             })),
             materials: state.materials,
         };
-
-        console.log(obj);
 
         dispatch(regisSchedule({ dto: obj }));
     };
@@ -400,239 +382,231 @@ const CreateEditTeachingScheduleRequest = () => {
                             disabled
                         />
                     </div>
-
-                    <div className={styles.regisDetail}>
-                        <TypographyHeading tag="span" theme="lg">
-                            Chi tiết đăng ký
-                        </TypographyHeading>
-
-                        {teachingAssignment.subject?.ltCredits > 0 && (
-                            <div className={styles.regisLT}>
-                                <TypographyBody tag="span" theme="md-bold">
-                                    Lý thuyết
-                                </TypographyBody>
-                                <div className={styles.container}>
-                                    <div className={styles.gridItem}>
-                                        <SelectWithLabel
-                                            label="Phòng học"
-                                            name="classroom_id"
-                                            value={
-                                                state.scheduleDetails[0]
-                                                    ?.classroom_id || ""
-                                            }
-                                            onChange={(e) =>
-                                                inputHandleSchedule(e, 0)
-                                            }
-                                            options={[
-                                                {
-                                                    value: "",
-                                                    label: "------- Tất cả ---------",
-                                                },
-                                                ...classrooms.map(
-                                                    (classroom) => ({
-                                                        value:
-                                                            classroom.classroomId ||
-                                                            "",
-                                                        label:
-                                                            `${classroom.classroomId} - ${classroom.classroomName}` ||
-                                                            "",
-                                                    })
-                                                ),
-                                            ]}
-                                            required
-                                            disabled={
-                                                teachingScheduleFollowAssignId
-                                                    .schedules?.length > 0
-                                                    ? true
-                                                    : false
-                                            }
-                                        />
-                                    </div>
-                                    <div className={styles.gridItem}>
-                                        <InputWithLabel
-                                            label="Tiết học"
-                                            name="lesson"
-                                            value={
-                                                state.scheduleDetails[0]
-                                                    ?.lesson || ""
-                                            }
-                                            onChange={(e) =>
-                                                inputHandleSchedule(e, 0)
-                                            }
-                                            type="text"
-                                            placeholder="VD: 1-3"
-                                            required
-                                            pattern="^\d+-\d+$"
-                                            disabled={
-                                                teachingScheduleFollowAssignId
-                                                    .schedules?.length > 0
-                                                    ? true
-                                                    : false
-                                            }
-                                        />
-                                        {lessonError && (
-                                            <span className={styles.errorText}>
-                                                {lessonError}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className={styles.gridItem}>
-                                        <InputWithLabel
-                                            label="Thời gian"
-                                            name="date_time"
-                                            value={
-                                                state.scheduleDetails[0]?.date_time
-                                                    .toISOString()
-                                                    .slice(0, 10) || ""
-                                            }
-                                            onChange={(e) =>
-                                                inputHandleSchedule(e, 0)
-                                            }
-                                            type="date"
-                                            required
-                                            disabled={
-                                                teachingScheduleFollowAssignId
-                                                    .schedules?.length > 0
-                                                    ? true
-                                                    : false
-                                            }
-                                        />
-                                    </div>
-                                    <div className={styles.gridItem}>
-                                        <InputWithLabel
-                                            label="Đề cương"
-                                            name="lt"
-                                            value={state.materials[0]?.lt || ""}
-                                            onChange={inputHandleMaterial}
-                                            type="text"
-                                            required
-                                            disabled={
-                                                teachingScheduleFollowAssignId
-                                                    .schedules?.length > 0
-                                                    ? true
-                                                    : false
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {teachingAssignment.subject?.thCredits > 0 && (
-                            <div className={styles.regisLT}>
-                                <TypographyBody tag="span" theme="md-bold">
-                                    Thực hành
-                                </TypographyBody>
-                                <div className={styles.container}>
-                                    <div className={styles.gridItem}>
-                                        <SelectWithLabel
-                                            label="Phòng học"
-                                            name="classroom_id"
-                                            value={
-                                                state.scheduleDetails[1]
-                                                    ?.classroom_id || ""
-                                            }
-                                            onChange={(e) =>
-                                                inputHandleSchedule(e, 1)
-                                            }
-                                            options={[
-                                                {
-                                                    value: "",
-                                                    label: "------- Tất cả ---------",
-                                                },
-                                                ...classrooms.map(
-                                                    (classroom) => ({
-                                                        value:
-                                                            classroom.classroomId ||
-                                                            "",
-                                                        label:
-                                                            `${classroom.classroomId} - ${classroom.classroomName}` ||
-                                                            "",
-                                                    })
-                                                ),
-                                            ]}
-                                            required
-                                            disabled={
-                                                teachingScheduleFollowAssignId
-                                                    .schedules?.length > 0
-                                                    ? true
-                                                    : false
-                                            }
-                                        />
-                                    </div>
-                                    <div className={styles.gridItem}>
-                                        <InputWithLabel
-                                            label="Tiết học"
-                                            name="lesson"
-                                            value={
-                                                state.scheduleDetails[1]
-                                                    ?.lesson || ""
-                                            }
-                                            onChange={(e) =>
-                                                inputHandleSchedule(e, 1)
-                                            }
-                                            type="text"
-                                            placeholder="VD: 1-3"
-                                            pattern="^\d+-\d+$"
-                                            required
-                                            disabled={
-                                                teachingScheduleFollowAssignId
-                                                    .schedules?.length > 0
-                                                    ? true
-                                                    : false
-                                            }
-                                        />
-
-                                        {lessonError && (
-                                            <span className={styles.errorText}>
-                                                {lessonError}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className={styles.gridItem}>
-                                        <InputWithLabel
-                                            label="Thời gian"
-                                            name="date_time"
-                                            value={
-                                                state.scheduleDetails[1]?.date_time
-                                                    .toISOString()
-                                                    .slice(0, 10) || ""
-                                            }
-                                            onChange={(e) =>
-                                                inputHandleSchedule(e, 1)
-                                            }
-                                            type="date"
-                                            required
-                                            disabled={
-                                                teachingScheduleFollowAssignId
-                                                    .schedules?.length > 0
-                                                    ? true
-                                                    : false
-                                            }
-                                        />
-                                    </div>
-                                    <div className={styles.gridItem}>
-                                        <InputWithLabel
-                                            label="Đề cương"
-                                            name="th"
-                                            value={state.materials[0]?.th || ""}
-                                            onChange={inputHandleMaterial}
-                                            type="text"
-                                            required
-                                            disabled={
-                                                teachingScheduleFollowAssignId
-                                                    .schedules?.length > 0
-                                                    ? true
-                                                    : false
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
                 </section>
+                <section className={styles.regisDetail}>
+                    <TypographyHeading tag="span" theme="lg">
+                        Chi tiết đăng ký
+                    </TypographyHeading>
 
+                    {teachingAssignment.subject?.ltCredits > 0 && (
+                        <>
+                            <TypographyBody tag="span" theme="md-bold">
+                                Lý thuyết
+                            </TypographyBody>
+                            <div className={styles.regisLT}>
+                                <div className={styles.formGroup}>
+                                    <SelectWithLabel
+                                        label="Phòng học"
+                                        name="classroom_id"
+                                        value={
+                                            state.scheduleDetails[0]
+                                                ?.classroom_id || ""
+                                        }
+                                        onChange={(e) =>
+                                            inputHandleSchedule(e, 0)
+                                        }
+                                        options={[
+                                            {
+                                                value: "",
+                                                label: "------- Tất cả ---------",
+                                            },
+                                            ...classrooms.map((classroom) => ({
+                                                value:
+                                                    classroom.classroomId || "",
+                                                label:
+                                                    `${classroom.classroomId} - ${classroom.classroomName}` ||
+                                                    "",
+                                            })),
+                                        ]}
+                                        required
+                                        disabled={
+                                            teachingScheduleFollowAssignId
+                                                .schedules?.length > 0
+                                                ? true
+                                                : false
+                                        }
+                                    />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <InputWithLabel
+                                        label="Tiết học"
+                                        name="lesson"
+                                        value={
+                                            state.scheduleDetails[0]?.lesson ||
+                                            ""
+                                        }
+                                        onChange={(e) =>
+                                            inputHandleSchedule(e, 0)
+                                        }
+                                        type="text"
+                                        placeholder="VD: 1-3"
+                                        required
+                                        pattern="^\d+-\d+$"
+                                        disabled={
+                                            teachingScheduleFollowAssignId
+                                                .schedules?.length > 0
+                                                ? true
+                                                : false
+                                        }
+                                    />
+                                    {lessonError && (
+                                        <span className={styles.errorText}>
+                                            {lessonError}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <InputWithLabel
+                                        label="Thời gian"
+                                        name="date_time"
+                                        value={
+                                            state.scheduleDetails[0]?.date_time
+                                                .toISOString()
+                                                .slice(0, 10) || ""
+                                        }
+                                        onChange={(e) =>
+                                            inputHandleSchedule(e, 0)
+                                        }
+                                        type="date"
+                                        required
+                                        disabled={
+                                            teachingScheduleFollowAssignId
+                                                .schedules?.length > 0
+                                                ? true
+                                                : false
+                                        }
+                                    />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <InputWithLabel
+                                        label="Đề cương"
+                                        name="lt"
+                                        value={state.materials[0]?.lt || ""}
+                                        onChange={inputHandleMaterial}
+                                        type="text"
+                                        required
+                                        disabled={
+                                            teachingScheduleFollowAssignId
+                                                .schedules?.length > 0
+                                                ? true
+                                                : false
+                                        }
+                                    />
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {teachingAssignment.subject?.thCredits > 0 && (
+                        <>
+                            <TypographyBody tag="span" theme="md-bold">
+                                Thực hành
+                            </TypographyBody>
+                            <div className={styles.regisTH}>
+                                <div className={styles.formGroup}>
+                                    <SelectWithLabel
+                                        label="Phòng học"
+                                        name="classroom_id"
+                                        value={
+                                            state.scheduleDetails[1]
+                                                ?.classroom_id || ""
+                                        }
+                                        onChange={(e) =>
+                                            inputHandleSchedule(e, 1)
+                                        }
+                                        options={[
+                                            {
+                                                value: "",
+                                                label: "------- Tất cả ---------",
+                                            },
+                                            ...classrooms.map((classroom) => ({
+                                                value:
+                                                    classroom.classroomId || "",
+                                                label:
+                                                    `${classroom.classroomId} - ${classroom.classroomName}` ||
+                                                    "",
+                                            })),
+                                        ]}
+                                        required
+                                        disabled={
+                                            teachingScheduleFollowAssignId
+                                                .schedules?.length > 0
+                                                ? true
+                                                : false
+                                        }
+                                    />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <InputWithLabel
+                                        label="Tiết học"
+                                        name="lesson"
+                                        value={
+                                            state.scheduleDetails[1]?.lesson ||
+                                            ""
+                                        }
+                                        onChange={(e) =>
+                                            inputHandleSchedule(e, 1)
+                                        }
+                                        type="text"
+                                        placeholder="VD: 1-3"
+                                        pattern="^\d+-\d+$"
+                                        required
+                                        disabled={
+                                            teachingScheduleFollowAssignId
+                                                .schedules?.length > 0
+                                                ? true
+                                                : false
+                                        }
+                                    />
+
+                                    {lessonError && (
+                                        <span className={styles.errorText}>
+                                            {lessonError}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <InputWithLabel
+                                        label="Thời gian"
+                                        name="date_time"
+                                        value={
+                                            state.scheduleDetails[1]?.date_time
+                                                .toISOString()
+                                                .slice(0, 10) || ""
+                                        }
+                                        onChange={(e) =>
+                                            inputHandleSchedule(e, 1)
+                                        }
+                                        type="date"
+                                        required
+                                        disabled={
+                                            teachingScheduleFollowAssignId
+                                                .schedules?.length > 0
+                                                ? true
+                                                : false
+                                        }
+                                    />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <InputWithLabel
+                                        label="Đề cương"
+                                        name="th"
+                                        value={state.materials[0]?.th || ""}
+                                        onChange={inputHandleMaterial}
+                                        type="text"
+                                        required
+                                        disabled={
+                                            teachingScheduleFollowAssignId
+                                                .schedules?.length > 0
+                                                ? true
+                                                : false
+                                        }
+                                    />
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </section>
                 <div className={styles.buttonContainer}>
                     <Link
                         href="/teaching-schedule-request"

@@ -15,6 +15,8 @@ import {
     getListTeachingAssignmentByLecturerId,
     getTeachingScheduleWithAssignID,
 } from "@/store/reducer/teachingAssignment";
+import { getListActiveTimeLecturer } from "@/store/reducer/activateTimeReducer";
+import { TypographyBody } from "@/components/TypographyBody";
 type TeachingScheduleDetail = {
     classroomId: number;
     lesson: string;
@@ -56,7 +58,9 @@ const TeachingAssignmentWithDetails = () => {
     const { teachingAssignments } = useSelector(
         (state: RootState) => state.teachingAssignment
     );
-
+    const { activeTimeLecturers } = useSelector(
+        (state: RootState) => state.activateTime
+    );
     const teachingScheduleFollowAssignId = useSelector(
         (state: RootState) =>
             state.teachingAssignment.teachingScheduleFollowAssignId
@@ -67,6 +71,10 @@ const TeachingAssignmentWithDetails = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(10);
+
+    useEffect(() => {
+        dispatch(getListActiveTimeLecturer());
+    }, []);
 
     useEffect(() => {
         dispatch(
@@ -90,136 +98,169 @@ const TeachingAssignmentWithDetails = () => {
         });
     }, [teachingAssignments]);
 
-    console.log(teachingAssignments);
+    const checkTimes = activeTimeLecturers.find(
+        (item) => item.status === "active"
+    );
+    let isInActiveTime = false;
+    if (checkTimes) {
+        const now = new Date();
+        const start = new Date(checkTimes.startDate);
+        const end = new Date(checkTimes.endDate);
+        isInActiveTime = now >= start && now <= end;
+    }
 
     return (
         <AuthGuard allowedRoles={["lecturer"]}>
             <BorderBox title="Danh sách lớp đã được phân công cho giảng viên">
-                <div className={styles.box}>
-                    <div className={styles.add}>
-                        <Search
-                            setParPage={setParPage}
-                            setSearchValue={setSearchValue}
-                            searchValue={searchValue}
-                        />
-                        {/* <Link
+                {isInActiveTime ? (
+                    <div className={styles.box}>
+                        <div className={styles.add}>
+                            <Search
+                                setParPage={setParPage}
+                                setSearchValue={setSearchValue}
+                                searchValue={searchValue}
+                            />
+                            {/* <Link
                             href={"/teaching-assignment/create-edit"}
                             className={styles.buttonAdd}
                         >
                             <IoMdAddCircle /> Thêm mới
                         </Link> */}
-                    </div>
-
-                    <div className={styles.tableWrapper}>
-                        <table className={styles.table}>
-                            <thead className={styles.thead}>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Mã giảng viên</th>
-                                    <th>Môn học</th>
-                                    <th>Mã lớp</th>
-                                    <th>Tiến độ</th>
-                                    <th>Kỳ</th>
-                                    <th>Trạng thái</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {teachingAssignments.map(
-                                    (assignment, index) => (
-                                        <tr key={assignment.assignmentId}>
-                                            <td className={styles.tableCell}>
-                                                {index + 1}
-                                            </td>
-                                            <td className={styles.tableCell}>
-                                                {assignment.lecturerId}
-                                            </td>
-                                            <td className={styles.tableCell}>
-                                                {assignment.subjectId} -{" "}
-                                                {assignment.subjectName}
-                                            </td>
-                                            <td className={styles.tableCell}>
-                                                {assignment.className}
-                                            </td>
-                                            <td className={styles.tableCell}>
-                                                {assignment.progress}
-                                            </td>
-                                            <td className={styles.tableCell}>
-                                                {assignment.semester} -{" "}
-                                                {assignment.schoolYears}
-                                            </td>
-                                            <td className={styles.tableCell}>
-                                                <span
-                                                    className={clsx(
-                                                        styles.status,
-                                                        teachingScheduleFollowAssignId
-                                                            .schedules?.[0]
-                                                            ?.status ===
-                                                            "pending" &&
-                                                            styles.pending,
-                                                        teachingScheduleFollowAssignId
-                                                            .schedules?.[0]
-                                                            ?.status ===
-                                                            "success" &&
-                                                            styles.registered,
-                                                        teachingScheduleFollowAssignId
-                                                            .schedules?.[0]
-                                                            ?.status ===
-                                                            "cancel" &&
-                                                            styles.cancel
-                                                    )}
-                                                >
-                                                    {
-                                                        teachingScheduleFollowAssignId
-                                                            .schedules?.[0]
-                                                            ?.status
-                                                    }
-                                                </span>
-                                            </td>
-
-                                            <td
-                                                className={clsx(
-                                                    styles.buttonAction,
-                                                    styles.tableCell
-                                                )}
-                                            >
-                                                <Link
-                                                    href={`/teaching-schedule-request/view?id=${assignment.assignmentId}`}
-                                                    className={
-                                                        styles.viewButton
-                                                    }
-                                                >
-                                                    <AiOutlineClose color="red" />
-                                                </Link>
-                                                <Link
-                                                    href={`/teaching-schedule-request/create-edit?id=${assignment.assignmentId}&mode=edit`}
-                                                    className={clsx(
-                                                        styles.viewButton,
-                                                        styles.viewButtonUpdate
-                                                    )}
-                                                >
-                                                    <FaCheck />
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                    )
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {teachingAssignments.length > parPage && (
-                        <div className={styles.paginationWrapper}>
-                            <Pagination
-                                pageNumber={currentPage}
-                                setPageNumber={setCurrentPage}
-                                totalItem={teachingAssignments.length}
-                                parPage={parPage}
-                                showItem={3}
-                            />
                         </div>
-                    )}
-                </div>
+
+                        <div className={styles.tableWrapper}>
+                            <table className={styles.table}>
+                                <thead className={styles.thead}>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Mã giảng viên</th>
+                                        <th>Môn học</th>
+                                        <th>Mã lớp</th>
+                                        <th>Tiến độ</th>
+                                        <th>Kỳ</th>
+                                        <th>Trạng thái</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {teachingAssignments.map(
+                                        (assignment, index) => (
+                                            <tr key={assignment.assignmentId}>
+                                                <td
+                                                    className={styles.tableCell}
+                                                >
+                                                    {index + 1}
+                                                </td>
+                                                <td
+                                                    className={styles.tableCell}
+                                                >
+                                                    {assignment.lecturerId}
+                                                </td>
+                                                <td
+                                                    className={styles.tableCell}
+                                                >
+                                                    {assignment.subjectId} -{" "}
+                                                    {assignment.subjectName}
+                                                </td>
+                                                <td
+                                                    className={styles.tableCell}
+                                                >
+                                                    {assignment.className}
+                                                </td>
+                                                <td
+                                                    className={styles.tableCell}
+                                                >
+                                                    {assignment.progress}
+                                                </td>
+                                                <td
+                                                    className={styles.tableCell}
+                                                >
+                                                    {assignment.semester} -{" "}
+                                                    {assignment.schoolYears}
+                                                </td>
+                                                <td
+                                                    className={styles.tableCell}
+                                                >
+                                                    <span
+                                                        className={clsx(
+                                                            styles.status,
+                                                            teachingScheduleFollowAssignId
+                                                                .schedules?.[0]
+                                                                ?.status ===
+                                                                "pending" &&
+                                                                styles.pending,
+                                                            teachingScheduleFollowAssignId
+                                                                .schedules?.[0]
+                                                                ?.status ===
+                                                                "success" &&
+                                                                styles.registered,
+                                                            teachingScheduleFollowAssignId
+                                                                .schedules?.[0]
+                                                                ?.status ===
+                                                                "cancel" &&
+                                                                styles.cancel
+                                                        )}
+                                                    >
+                                                        {
+                                                            teachingScheduleFollowAssignId
+                                                                .schedules?.[0]
+                                                                ?.status
+                                                        }
+                                                    </span>
+                                                </td>
+
+                                                <td
+                                                    className={clsx(
+                                                        styles.buttonAction,
+                                                        styles.tableCell
+                                                    )}
+                                                >
+                                                    <Link
+                                                        href={`/teaching-schedule-request/view?id=${assignment.assignmentId}`}
+                                                        className={
+                                                            styles.viewButton
+                                                        }
+                                                    >
+                                                        <AiOutlineClose color="red" />
+                                                    </Link>
+                                                    <Link
+                                                        href={`/teaching-schedule-request/create-edit?id=${assignment.assignmentId}&mode=edit`}
+                                                        className={clsx(
+                                                            styles.viewButton,
+                                                            styles.viewButtonUpdate
+                                                        )}
+                                                    >
+                                                        <FaCheck />
+                                                    </Link>
+                                                </td>
+                                            </tr>
+                                        )
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {teachingAssignments.length > parPage && (
+                            <div className={styles.paginationWrapper}>
+                                <Pagination
+                                    pageNumber={currentPage}
+                                    setPageNumber={setCurrentPage}
+                                    totalItem={teachingAssignments.length}
+                                    parPage={parPage}
+                                    showItem={3}
+                                />
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <TypographyBody
+                        tag="span"
+                        theme="lg"
+                        className={styles.error}
+                    >
+                        Không có đợt đăng ký nào được mở!
+                    </TypographyBody>
+                )}
             </BorderBox>
         </AuthGuard>
     );

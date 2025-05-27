@@ -31,7 +31,6 @@ export default function AuthGuard({ allowedRoles, children }: Props) {
                 }
 
                 setAuthorized(true);
-                dispatch(getUserInfo(token));
                 return;
             }
 
@@ -44,6 +43,12 @@ export default function AuthGuard({ allowedRoles, children }: Props) {
 
         checkAuth();
     }, [router, allowedRoles, role, token]);
+
+    useEffect(() => {
+        if (token) {
+            dispatch(getUserInfo(token));
+        }
+    }, [token]);
 
     if (!authorized) {
         return null;

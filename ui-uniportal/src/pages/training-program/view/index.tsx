@@ -13,11 +13,14 @@ import AuthGuard from "@/components/AuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import {
+    addSubjectForTP,
+    deleteAllSubjectForTP,
     deleteSubjectFollowTrainingProgram,
     getSubjectFollowTrainingProgram,
     messageClear,
 } from "@/store/reducer/trainingProgramReducer";
 import toast from "react-hot-toast";
+import { getListSubject } from "@/store/reducer/subjectReducer";
 
 const ViewTrainingProgram = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -25,13 +28,21 @@ const ViewTrainingProgram = () => {
     const { subjectFollowTrainingProgram, successMessage, errorMessage } =
         useSelector((state: RootState) => state.trainingProgram);
 
+    const { subjects } = useSelector((state: RootState) => state.subject);
+
     const router = useRouter();
     const { id } = router.query;
 
     const [selectedSubjectsToAdd, setSelectedSubjectsToAdd] = useState<
-        string[]
+        {
+            subjectId: string;
+            schoolYear: string | null;
+            subjectType: string | null;
+        }[]
     >([]);
+
     const [isOpenModal, setIsOpenModal] = useState(false);
+    const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false);
 
     // Confirm delete modal state
     const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -39,17 +50,26 @@ const ViewTrainingProgram = () => {
         string | null
     >(null);
 
+    const [deleteAllSubjectTrainingId, setDeleteAllSubjectTrainingId] =
+        useState<string | null>(null);
+
     useEffect(() => {
         if (id) {
             dispatch(getSubjectFollowTrainingProgram(id));
         }
     }, [id, dispatch]);
 
+    useEffect(() => {
+        dispatch(getListSubject());
+    }, []);
+
     // Xác nhận xóa môn học
     const handleRemoveSubject = (subjectIdToRemove: string) => {
         setSubjectIdPendingRemove(subjectIdToRemove);
         setShowConfirmModal(true);
     };
+
+    ///xóa 1 môn học trong CTĐT
     const handleConfirmRemove = () => {
         if (!id || !subjectIdPendingRemove) return;
         dispatch(
@@ -61,47 +81,46 @@ const ViewTrainingProgram = () => {
         setShowConfirmModal(false);
         setSubjectIdPendingRemove(null);
     };
+
     const handleCancelRemove = () => {
         setShowConfirmModal(false);
         setSubjectIdPendingRemove(null);
     };
 
-    // Danh sách tất cả môn học, nên lấy qua API ở thực tế
-    const allSubjects = [
-        { subject_id: "SUB001", subject_name: "Lập trình căn bản" },
-        {
-            subject_id: "SUB002",
-            subject_name: "Cấu trúc dữ liệu và giải thuật",
-        },
-        { subject_id: "SUB003", subject_name: "Toán rời rạc" },
-        { subject_id: "SUB004", subject_name: "Thiết kế Web" },
-        { subject_id: "SUB005", subject_name: "Cơ sở dữ liệu" },
-        { subject_id: "SUB006", subject_name: "Mạng máy tính" },
-    ];
-    // Lọc những môn chưa có trong CTĐT
-    const availableSubjectsToAdd =
-        subjectFollowTrainingProgram?.subjects &&
-        Array.isArray(subjectFollowTrainingProgram.subjects)
-            ? allSubjects.filter(
-                  (subject) =>
-                      !subjectFollowTrainingProgram.subjects.some(
-                          (s: any) => s.subjectId === subject.subject_id
-                      )
-              )
-            : allSubjects;
+    const programSubjectIds = new Set(
+        (subjectFollowTrainingProgram.subjects ?? []).map((s) =>
+            String(s.subjectId)
+        )
+    );
 
+    const availableSubjectsToAdd = subjects.filter(
+        (subj) => !programSubjectIds.has(String(subj.subjectId))
+    );
+
+    // Nếu chỉ gửi 1 môn/lần:
     const handleAddSelectedSubjects = () => {
-        // Logic thêm môn học vào CTĐT
+        if (selectedSubjectsToAdd.length === 0) return;
+        const selected = selectedSubjectsToAdd[0];
+
+        dispatch(
+            addSubjectForTP({
+                dto: {
+                    trainingProgramId: Number(id),
+                    subjectId: Number(selected.subjectId),
+                    schoolYear: selected.schoolYear,
+                    subjectType: "",
+                },
+            })
+        );
         setIsOpenModal(false);
     };
 
-    const handleCheckboxChange = (subjectId: string, isChecked: boolean) => {
-        if (isChecked) {
-            setSelectedSubjectsToAdd([...selectedSubjectsToAdd, subjectId]);
-        } else {
-            setSelectedSubjectsToAdd(
-                selectedSubjectsToAdd.filter((id) => id !== subjectId)
-            );
+    const handleDeleteAll = () => {
+        if (deleteAllSubjectTrainingId) {
+            const trainingProgramId = Number(deleteAllSubjectTrainingId);
+            dispatch(deleteAllSubjectForTP(trainingProgramId));
+            setIsDeleteAllModalOpen(false);
+            setDeleteAllSubjectTrainingId(null);
         }
     };
 
@@ -148,10 +167,25 @@ const ViewTrainingProgram = () => {
                     {role !== "student" && (
                         <div
                             className={styles.buttonAdd}
-                            onClick={() => setIsOpenModal(true)}
+                            onClick={() => {
+                                setIsDeleteAllModalOpen(true);
+                                if (id) {
+                                    setDeleteAllSubjectTrainingId(
+                                        Array.isArray(id) ? id[0] : id
+                                    );
+                                }
+                            }}
                         >
-                            <IoMdAddCircle /> Chỉnh sửa
+                            <FaMinusCircle /> Xóa toàn bộ
                         </div>
+                    )}
+
+                    {isDeleteAllModalOpen && (
+                        <ModalConfirm
+                            message="Bạn có chắc chắn muốn xóa toàn bộ môn học khỏi chương trình đào tạo?"
+                            onConfirm={handleDeleteAll}
+                            onCancel={() => setIsDeleteAllModalOpen(false)}
+                        />
                     )}
                 </div>
                 <div className={styles.action}>
@@ -285,25 +319,37 @@ const ViewTrainingProgram = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {availableSubjectsToAdd.map((subject) => (
-                                    <tr key={subject.subject_id}>
+                                {availableSubjectsToAdd?.map((subject) => (
+                                    <tr key={subject.subjectId}>
                                         <td>
                                             <input
-                                                type="checkbox"
-                                                value={subject.subject_id}
-                                                checked={selectedSubjectsToAdd.includes(
-                                                    subject.subject_id
+                                                type="radio"
+                                                name="subjectId"
+                                                value={String(
+                                                    subject.subjectId
                                                 )}
-                                                onChange={(e) =>
-                                                    handleCheckboxChange(
-                                                        subject.subject_id,
-                                                        e.target.checked
-                                                    )
+                                                checked={
+                                                    selectedSubjectsToAdd[0]
+                                                        ?.subjectId ===
+                                                    String(subject.subjectId)
+                                                }
+                                                onChange={() =>
+                                                    setSelectedSubjectsToAdd([
+                                                        {
+                                                            subjectId: String(
+                                                                subject.subjectId
+                                                            ),
+                                                            schoolYear:
+                                                                subjectFollowTrainingProgram?.schoolYear ??
+                                                                null,
+                                                            subjectType: null,
+                                                        },
+                                                    ])
                                                 }
                                             />
                                         </td>
-                                        <td>{subject.subject_id}</td>
-                                        <td>{subject.subject_name}</td>
+                                        <td>{subject.subjectId}</td>
+                                        <td>{subject.subjectName}</td>
                                     </tr>
                                 ))}
                             </tbody>

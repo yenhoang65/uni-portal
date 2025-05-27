@@ -1,52 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./styles.module.css";
-import { FaBook } from "react-icons/fa";
-import { TypographyHeading } from "@/components/TypographyHeading";
 import { TypographyBody } from "@/components/TypographyBody";
 import SelectWithLabel from "@/components/SelectWithLabel";
 import AuthGuard from "@/components/AuthGuard";
 import BorderBox from "@/components/BorderBox";
-
-// Mock data
-const summary = {
-    gpa4: 3.49,
-    gpa10: 8.44,
-    gpa4Rank: "Giỏi",
-    gpa10Rank: "Giỏi",
-    creditsAccumulated: 138,
-    creditsTotal: 138,
-    creditsRegistered: 138,
-};
-
-const studyResults = [
-    {
-        subjectCode: "111125",
-        subjectName: "Đại số tuyến tính",
-        credits: 2,
-        coefficient: 1,
-        composition: "BTC : 9.5 - CC : 8.5",
-        examScore: 9,
-        avgScore: 9,
-        score: 4,
-        letter: "A+",
-        isElective: false,
-        note: "",
-    },
-    {
-        subjectCode: "921113",
-        subjectName: "Giáo dục thể chất 1",
-        credits: 1,
-        coefficient: 1,
-        composition: "D1 : 8",
-        examScore: 8,
-        avgScore: 8,
-        score: 3,
-        letter: "B+",
-        isElective: false,
-        note: "",
-    },
-    // ... (add more rows as needed)
-];
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getLearningResult } from "@/store/reducer/pointReducer";
 
 const semesterOptions = [
     { value: "", label: "--- Chọn học kỳ -" },
@@ -63,10 +23,19 @@ const schoolYearOptions = [
 ];
 
 const StudyResult = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { learningResult } = useSelector((state: RootState) => state.point);
+
+    useEffect(() => {
+        dispatch(getLearningResult());
+    }, [dispatch]);
+
     const [semester, setSemester] = useState("");
     const [schoolYear, setSchoolYear] = useState("");
 
-    // Bạn có thể lọc studyResults theo semester/schoolYear nếu muốn
+    console.log(learningResult);
+    // Nếu chưa có dữ liệu, trả về null hoặc loading
+    if (!learningResult) return null;
 
     return (
         <AuthGuard allowedRoles={["student"]}>
@@ -95,46 +64,40 @@ const StudyResult = () => {
                         <TypographyBody tag="span" theme="md-bold" color="#222">
                             Xếp loại học tập (Hệ 4):{" "}
                             <span className={styles.valueRed}>
-                                {summary.gpa4Rank}
+                                {learningResult.classification4}
                             </span>
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md-bold" color="#222">
                             Xếp loại học tập (Hệ 10):{" "}
                             <span className={styles.valueRed}>
-                                {summary.gpa10Rank}
+                                {learningResult.classification10}
                             </span>
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md-bold" color="#222">
                             TBC học tập (Hệ 4):{" "}
                             <span className={styles.valueRed}>
-                                {summary.gpa4}
+                                {learningResult.gpa4}
                             </span>
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md-bold" color="#222">
-                            TBC tích lũy (Hệ 10):{" "}
+                            TBC học tập (Hệ 10):{" "}
                             <span className={styles.valueRed}>
-                                {summary.gpa10}
+                                {learningResult.gpa10}
                             </span>
                         </TypographyBody>
                     </div>
                     <div className={styles.summaryRow}>
                         <TypographyBody tag="span" theme="md-bold" color="#222">
-                            TBC tích lũy (Hệ 4):{" "}
-                            <span className={styles.valueRed}>
-                                {summary.gpa4}
-                            </span>
-                        </TypographyBody>
-                        <TypographyBody tag="span" theme="md-bold" color="#222">
                             Số tín chỉ tích lũy:{" "}
                             <span className={styles.valueRed}>
-                                {summary.creditsAccumulated} /{" "}
-                                {summary.creditsTotal}
+                                {learningResult.accumulatedCredits} /{" "}
+                                {learningResult.totalCredits}
                             </span>
                         </TypographyBody>
                         <TypographyBody tag="span" theme="md-bold" color="#222">
                             Số tín chỉ học tập:{" "}
                             <span className={styles.valueRed}>
-                                {summary.creditsRegistered}
+                                {learningResult.accumulatedCredits}
                             </span>
                         </TypographyBody>
                     </div>
@@ -156,68 +119,81 @@ const StudyResult = () => {
                                     <th className={styles.center}>TBCHP</th>
                                     <th className={styles.center}>Điểm số</th>
                                     <th className={styles.center}>Điểm chữ</th>
-                                    <th className={styles.center}>
+                                    {/* <th className={styles.center}>
                                         Môn tự chọn
-                                    </th>
+                                    </th> */}
                                     <th>Ghi chú</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {studyResults.map((r, idx) => (
-                                    <tr
-                                        key={r.subjectCode}
-                                        className={
-                                            idx % 2 === 1
-                                                ? styles.rowAlt
-                                                : undefined
-                                        }
-                                    >
-                                        <td className={styles.center}>
-                                            {idx + 1}
-                                        </td>
-                                        <td className={styles.center}>
-                                            {r.subjectCode}
-                                        </td>
-                                        <td>{r.subjectName}</td>
-                                        <td className={styles.center}>
-                                            {r.credits}
-                                        </td>
-                                        <td className={styles.center}>
-                                            {r.coefficient}
-                                        </td>
-                                        <td>{r.composition}</td>
-                                        <td className={styles.center}>
-                                            {r.examScore}
-                                        </td>
-                                        <td className={styles.center}>
-                                            {r.avgScore}
-                                        </td>
-                                        <td className={styles.center}>
-                                            {r.score}
-                                        </td>
-                                        <td className={styles.center}>
-                                            {r.letter}
-                                        </td>
-                                        <td className={styles.center}>
-                                            {r.isElective ? (
-                                                <span
-                                                    className={
-                                                        styles.electiveCheck
-                                                    }
-                                                >
-                                                    ✔
-                                                </span>
-                                            ) : (
-                                                ""
-                                            )}
-                                        </td>
-                                        <td>{r.note}</td>
-                                    </tr>
-                                ))}
+                                {learningResult.subjects?.map(
+                                    (r: any, idx: any) => (
+                                        <tr
+                                            key={r.subjectId}
+                                            className={
+                                                idx % 2 === 1
+                                                    ? styles.rowAlt
+                                                    : undefined
+                                            }
+                                        >
+                                            <td className={styles.center}>
+                                                {idx + 1}
+                                            </td>
+                                            <td className={styles.center}>
+                                                {r.subjectId}
+                                            </td>
+                                            <td>{r.subjectName}</td>
+                                            <td className={styles.center}>
+                                                {r.ltCredits + r.thCredits}
+                                            </td>
+                                            <td className={styles.center}>
+                                                {r.subjectCoefficient}
+                                            </td>
+
+                                            <td>
+                                                {r.componentScores &&
+                                                    Object.entries(
+                                                        r.componentScores
+                                                    )
+                                                        .map(
+                                                            ([key, value]) =>
+                                                                `${key}: ${value}`
+                                                        )
+                                                        .join(" | ")}
+                                            </td>
+                                            <td className={styles.center}>
+                                                {r.finalScore}
+                                            </td>
+                                            <td className={styles.center}>
+                                                {r.gpa4}
+                                            </td>
+                                            <td className={styles.center}>
+                                                {r.averageScore}
+                                            </td>
+                                            <td className={styles.center}>
+                                                {r.letter}
+                                            </td>
+                                            <td className={styles.center}>
+                                                {r.letter !== "F" ? (
+                                                    <span
+                                                        className={
+                                                            styles.electiveCheck
+                                                        }
+                                                    >
+                                                        ✔
+                                                    </span>
+                                                ) : (
+                                                    ""
+                                                )}
+                                            </td>
+                                            {/* <td>{r.note}</td> */}
+                                        </tr>
+                                    )
+                                )}
                             </tbody>
                         </table>
                     </div>
-                </div>{" "}
+                </div>
             </BorderBox>
         </AuthGuard>
     );

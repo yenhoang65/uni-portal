@@ -120,6 +120,40 @@ export const deleteTrainingProgram = createAsyncThunk(
     }
 );
 
+//thêm môn học vào CTĐT
+export const addSubjectForTP = createAsyncThunk(
+    "trainingProgram/addSubjectForTP",
+    async ({ dto }: { dto: any }, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.post(`/intermediaries`, dto, {
+                withCredentials: true,
+            });
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
+//xóa toàn bộ môn học trong chương trình đào tạo
+export const deleteAllSubjectForTP = createAsyncThunk(
+    "trainingProgram/deleteAllSubjectForTP",
+    async (trainingProgramId: any, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.delete(
+                `/intermediaries/program/${trainingProgramId}`
+            );
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
 //lấy danh sách các môn học theo mã CTĐT
 export const getSubjectFollowTrainingProgram = createAsyncThunk(
     "trainingProgram/getSubjectFollowTrainingProgram",
@@ -261,9 +295,67 @@ export const trainingProgramReducer = createSlice({
             .addCase(
                 deleteSubjectFollowTrainingProgram.fulfilled,
                 (state, { payload }) => {
-                    state.successMessage = "Xóa môn học thành công";
+                    state.successMessage = "Xóa thành công";
                 }
-            );
+            )
+            .addCase(updateTrainingProgram.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+            .addCase(updateTrainingProgram.fulfilled, (state, { payload }) => {
+                state.successMessage = "Update thành công";
+            })
+            .addCase(deleteAllSubjectForTP.pending, (state, { payload }) => {
+                state.successMessage = "Đang xóa";
+            })
+            .addCase(deleteAllSubjectForTP.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+            .addCase(deleteAllSubjectForTP.fulfilled, (state, { payload }) => {
+                state.successMessage = "Xóa thành công";
+            })
+            .addCase(addSubjectForTP.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+
+            .addCase(addSubjectForTP.fulfilled, (state, { payload }) => {
+                state.successMessage = "Thêm môn học vào CTĐT thành công";
+            });
     },
 });
 
