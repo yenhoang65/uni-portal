@@ -61,8 +61,15 @@ export const getListTeachingAssignment = createAsyncThunk(
             });
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // return rejectWithValue(error.response.data);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -124,9 +131,15 @@ export const getListTeachingAssignmentByLecturerId = createAsyncThunk(
                 },
             });
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -142,8 +155,15 @@ export const getTeachingAssignmentDetail = createAsyncThunk(
             console.log(data);
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // return rejectWithValue(error.response.data);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -161,9 +181,15 @@ export const updateTeachingAssignment = createAsyncThunk(
             });
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // Xử lý lỗi nếu có
-            // return rejectWithValue(error.response?.data || error.message);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -177,9 +203,15 @@ export const createTeachingAssignment = createAsyncThunk(
             });
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // Xử lý lỗi nếu có
-            return rejectWithValue("Đã có lỗi xảy ra, vui lòng thử");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -191,9 +223,15 @@ export const deleteTeachingAssignment = createAsyncThunk(
             const { data } = await api.delete(`/teaching-assignment/${id}`);
 
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -207,8 +245,15 @@ export const getClassTermUnAssign = createAsyncThunk(
             );
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // return rejectWithValue(error.response.data);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -251,8 +296,15 @@ export const getTeachingScheduleWithAssignID = createAsyncThunk(
             );
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // return rejectWithValue(error.response.data);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -277,12 +329,16 @@ export const getListScheduleRequestFollowStatus = createAsyncThunk(
                 },
             });
 
-            console.log("getListScheduleRequestFollowStatus: ", data);
-
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -325,7 +381,20 @@ export const teachingAssignmentReducer = createSlice({
             .addCase(
                 getListTeachingAssignmentByLecturerId.rejected,
                 (state, { payload }) => {
-                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                    if (typeof payload === "string") {
+                        state.errorMessage = payload;
+                    } else if (
+                        payload &&
+                        typeof payload === "object" &&
+                        "message" in payload
+                    ) {
+                        state.errorMessage = (
+                            payload as { message: string }
+                        ).message;
+                    } else {
+                        state.errorMessage =
+                            "Đã có lỗi xảy ra, vui lòng thử lại";
+                    }
                 }
             )
             .addCase(
@@ -347,7 +416,20 @@ export const teachingAssignmentReducer = createSlice({
             .addCase(
                 updateTeachingAssignment.rejected,
                 (state, { payload }) => {
-                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                    if (typeof payload === "string") {
+                        state.errorMessage = payload;
+                    } else if (
+                        payload &&
+                        typeof payload === "object" &&
+                        "message" in payload
+                    ) {
+                        state.errorMessage = (
+                            payload as { message: string }
+                        ).message;
+                    } else {
+                        state.errorMessage =
+                            "Đã có lỗi xảy ra, vui lòng thử lại";
+                    }
                 }
             )
             .addCase(
@@ -360,7 +442,20 @@ export const teachingAssignmentReducer = createSlice({
             .addCase(
                 createTeachingAssignment.rejected,
                 (state, { payload }) => {
-                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                    if (typeof payload === "string") {
+                        state.errorMessage = payload;
+                    } else if (
+                        payload &&
+                        typeof payload === "object" &&
+                        "message" in payload
+                    ) {
+                        state.errorMessage = (
+                            payload as { message: string }
+                        ).message;
+                    } else {
+                        state.errorMessage =
+                            "Đã có lỗi xảy ra, vui lòng thử lại";
+                    }
                 }
             )
             .addCase(

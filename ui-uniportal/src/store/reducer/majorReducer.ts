@@ -28,8 +28,15 @@ export const getListMajor = createAsyncThunk(
             });
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // return rejectWithValue(error.response.data);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -43,8 +50,15 @@ export const getMajorDetail = createAsyncThunk(
             });
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // return rejectWithValue(error.response.data);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -62,9 +76,15 @@ export const updateMajor = createAsyncThunk(
             });
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // Xử lý lỗi nếu có
-            // return rejectWithValue(error.response?.data || error.message);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -78,9 +98,15 @@ export const createMajor = createAsyncThunk(
             });
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // Xử lý lỗi nếu có
-            return rejectWithValue("Đã có lỗi xảy ra, vui lòng thử");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -92,8 +118,15 @@ export const deleteMajor = createAsyncThunk(
             const { data } = await api.delete(`/majors/${id}`);
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // return rejectWithValue(error.response.data);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -127,19 +160,55 @@ export const majorReducer = createSlice({
                 state.major = payload.data;
             })
             .addCase(updateMajor.rejected, (state, { payload }) => {
-                state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
             })
             .addCase(updateMajor.fulfilled, (state, { payload }) => {
                 state.successMessage = "Update major thành công";
             })
             .addCase(createMajor.rejected, (state, { payload }) => {
-                state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
             })
             .addCase(createMajor.fulfilled, (state, { payload }) => {
                 state.successMessage = "Thêm major thành công";
             })
             .addCase(deleteMajor.rejected, (state, { payload }) => {
-                state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
             })
             .addCase(deleteMajor.fulfilled, (state, { payload }) => {
                 state.successMessage = "Xóa major thành công";

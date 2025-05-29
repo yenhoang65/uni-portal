@@ -72,7 +72,7 @@ const Login = () => {
             </div>
 
             <div className={styles.right}>
-                <span className={styles.title}>CỔNG THÔNG TIN SINH VIÊN</span>
+                <span className={styles.title}>ĐĂNG NHẬP HỆ THỐNG</span>
 
                 <form className={styles.form} onSubmit={submit}>
                     <div className={styles.inputGroup}>

@@ -26,8 +26,15 @@ export const getListClassroom = createAsyncThunk(
             });
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // return rejectWithValue(error.response.data);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -41,8 +48,15 @@ export const getClassroomDetail = createAsyncThunk(
             });
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // return rejectWithValue(error.response.data);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -60,9 +74,15 @@ export const updateClassroom = createAsyncThunk(
             });
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // Xử lý lỗi nếu có
-            // return rejectWithValue(error.response?.data || error.message);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -76,9 +96,15 @@ export const createClassroom = createAsyncThunk(
             });
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // Xử lý lỗi nếu có
-            return rejectWithValue("Đã có lỗi xảy ra, vui lòng thử");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -90,8 +116,15 @@ export const deleteClassroom = createAsyncThunk(
             const { data } = await api.delete(`/classrooms/${id}`);
 
             return fulfillWithValue(data);
-        } catch (error) {
-            // return rejectWithValue(error.response.data);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -125,19 +158,55 @@ export const classroomReducer = createSlice({
                 state.classroom = payload.data;
             })
             .addCase(updateClassroom.rejected, (state, { payload }) => {
-                state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
             })
             .addCase(updateClassroom.fulfilled, (state, { payload }) => {
                 state.successMessage = "Update classroom thành công";
             })
             .addCase(createClassroom.rejected, (state, { payload }) => {
-                state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
             })
             .addCase(createClassroom.fulfilled, (state, { payload }) => {
                 state.successMessage = "Thêm classroom thành công";
             })
             .addCase(deleteClassroom.rejected, (state, { payload }) => {
-                state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
             })
             .addCase(deleteClassroom.fulfilled, (state, { payload }) => {
                 state.successMessage = "Xóa classroom thành công";

@@ -51,9 +51,15 @@ export const login = createAsyncThunk(
             }
 
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -73,9 +79,15 @@ export const getUserInfo = createAsyncThunk(
             });
 
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -96,9 +108,15 @@ export const updateUserInfo = createAsyncThunk(
             });
 
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -179,6 +197,21 @@ export const authReducer = createSlice({
             })
             .addCase(getUserInfo.fulfilled, (state, { payload }) => {
                 state.userInfo = payload.data;
+            })
+            .addCase(updateUserInfo.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
             })
             .addCase(updateUserInfo.fulfilled, (state, { payload }) => {
                 state.successMessage = "Update profile thành công";

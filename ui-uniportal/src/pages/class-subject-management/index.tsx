@@ -13,6 +13,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { TypographyBody } from "@/components/TypographyBody";
 import { getClassSubjectFollowLecturer } from "@/store/reducer/classReducer";
+import { getCurrentSemesterAndSchoolYear } from "../credit-registration/[subject_id]/constants";
+import SelectWithLabel from "@/components/SelectWithLabel";
 
 const ClassSubjectManagement = () => {
     const { t } = useTranslation();
@@ -26,11 +28,18 @@ const ClassSubjectManagement = () => {
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(10);
 
-    useEffect(() => {
-        dispatch(getClassSubjectFollowLecturer());
-    }, [dispatch]);
+    const [semester, setSemester] = useState<number>(1);
+    const [schoolyear, setSchoolyear] = useState<number>(2026);
 
-    // Tính toán dữ liệu hiển thị theo trang (khi phân trang trên client)
+    useEffect(() => {
+        dispatch(
+            getClassSubjectFollowLecturer({
+                semester: semester || undefined,
+                schoolyear: schoolyear || undefined,
+            })
+        );
+    }, [dispatch, schoolyear, semester]);
+
     const paginatedData = useMemo(() => {
         const start = (currentPage - 1) * parPage;
         const end = start + parPage;
@@ -48,6 +57,43 @@ const ClassSubjectManagement = () => {
                                 setSearchValue={setSearchValue}
                                 searchValue={searchValue}
                             />
+
+                            <div className={styles.filterRow}>
+                                <SelectWithLabel
+                                    label=""
+                                    value={semester}
+                                    onChange={(e) =>
+                                        setSemester(Number(e.target.value))
+                                    }
+                                    options={[
+                                        { value: "", label: "Tất cả" },
+                                        { value: 1, label: "Kỳ 1" },
+                                        { value: 2, label: "Kỳ 2" },
+                                    ]}
+                                    className={styles.selectFilter}
+                                />
+                                <SelectWithLabel
+                                    label=""
+                                    value={schoolyear}
+                                    onChange={(e) =>
+                                        setSchoolyear(Number(e.target.value))
+                                    }
+                                    options={[
+                                        { value: "", label: "Tất cả" },
+                                        ...Array.from({ length: 6 }, (_, i) => {
+                                            const year =
+                                                new Date().getFullYear() +
+                                                1 -
+                                                i;
+                                            return {
+                                                value: year,
+                                                label: `${year} - ${year + 1}`,
+                                            };
+                                        }),
+                                    ]}
+                                    className={styles.selectFilter}
+                                />
+                            </div>
                         </div>
 
                         <div className={styles.tableWrapper}>

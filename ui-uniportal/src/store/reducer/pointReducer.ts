@@ -17,9 +17,15 @@ export const getPoint = createAsyncThunk(
             const { data } = await api.get(`/grade-types`);
 
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -31,9 +37,15 @@ export const getPointDetail = createAsyncThunk(
             const { data } = await api.get(`/grade-types/${id}`);
 
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -45,9 +57,15 @@ export const createPoint = createAsyncThunk(
             const { data } = await api.post(`/grade-types`, dto);
 
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -62,9 +80,15 @@ export const updatePoint = createAsyncThunk(
             const { data } = await api.put(`/grade-types/${id}`, dto);
 
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -76,9 +100,15 @@ export const deletePoint = createAsyncThunk(
             const { data } = await api.delete(`/grade-types/${id}`);
 
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -100,9 +130,15 @@ export const getExerciseByClass = createAsyncThunk(
 
             console.log("exercise: ", data);
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -119,9 +155,15 @@ export const createExercice = createAsyncThunk(
 
             console.log("exercise: ", data);
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -140,9 +182,15 @@ export const updateExercice = createAsyncThunk(
 
             console.log("exercise: ", data);
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -156,9 +204,15 @@ export const getExerciseDetail = createAsyncThunk(
 
             console.log("exercise: ", data);
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -177,9 +231,15 @@ export const getExerciseByStudent = createAsyncThunk(
 
             console.log("exercises: ", data);
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -199,9 +259,15 @@ export const submitExercise = createAsyncThunk(
                 },
             });
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -219,9 +285,15 @@ export const getViewSubmissions = createAsyncThunk(
             );
 
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -245,9 +317,40 @@ export const gradeSubmission = createAsyncThunk(
 
             return fulfillWithValue(data);
         } catch (error: any) {
-            return rejectWithValue(
-                error?.response?.data?.message || error.message
-            );
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
+//chấm 1 list điểm
+export const gradeListSubmission = createAsyncThunk(
+    "exercise/gradeListSubmission",
+    async (
+        grades: { studentGradeId: number; score: number; feedback: string }[],
+        { rejectWithValue, fulfillWithValue }
+    ) => {
+        try {
+            const { data } = await api.post(`/student-grade/grade/batch`, {
+                grades,
+            });
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -267,9 +370,15 @@ export const getLearningResult = createAsyncThunk(
 
             console.log(data);
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -456,6 +565,25 @@ export const pointReducer = createSlice({
 
             .addCase(getLearningResult.fulfilled, (state, { payload }) => {
                 state.learningResult = payload;
+            })
+            .addCase(gradeListSubmission.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+
+            .addCase(gradeListSubmission.fulfilled, (state, { payload }) => {
+                state.successMessage = "Đã thêm bài tập thành công";
             });
     },
 });

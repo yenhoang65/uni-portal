@@ -3,9 +3,8 @@
 import api from "@/service/api";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-//grade type
-export const getPoint = createAsyncThunk(
-    "point/getPoint",
+export const getExamAll = createAsyncThunk(
+    "point/getExamAll",
     async (_, { rejectWithValue, fulfillWithValue }) => {
         try {
             const { data } = await api.get(`/grade-types`);
@@ -18,25 +17,11 @@ export const getPoint = createAsyncThunk(
     }
 );
 
-export const getPointDetail = createAsyncThunk(
-    "point/getPointDetail",
+export const getExamDetail = createAsyncThunk(
+    "point/getExamDetail",
     async (id: any, { rejectWithValue, fulfillWithValue }) => {
         try {
             const { data } = await api.get(`/grade-types/${id}`);
-
-            return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
-        }
-    }
-);
-
-export const createExam = createAsyncThunk(
-    "exam/createExam",
-    async ({ dto }: { dto: any }, { rejectWithValue, fulfillWithValue }) => {
-        try {
-            const { data } = await api.post(`/grade-types`, dto);
 
             return fulfillWithValue(data);
         } catch (error) {
@@ -77,11 +62,29 @@ export const deletePoint = createAsyncThunk(
     }
 );
 
+export const createExam = createAsyncThunk(
+    "exam/createExam",
+    async ({ dto }: { dto: any }, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.post(`/grade-types`, dto);
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
 export const examReducer = createSlice({
     name: "exam",
     initialState: {
         successMessage: "",
         errorMessage: "",
+
+        allExams: [] as any,
+        examsForStu: [] as any,
+        examDetail: {} as any,
     },
     reducers: {
         messageClear: (state) => {

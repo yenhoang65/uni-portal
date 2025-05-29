@@ -97,7 +97,7 @@ const AssignmentList = () => {
                                                 {t("assignmentList.edit")}
                                             </Link>
                                             <Link
-                                                href={`/assignment/${class_id}/view_submissions/?id=${assignment.gradeEventId}`}
+                                                href={`/assignment/${class_id}/view_submissions/?id=${assignment.gradeEventId}&&coefficient=0.25&&code=MID`}
                                                 className={
                                                     styles.viewSubmissions
                                                 }
