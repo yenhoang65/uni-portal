@@ -17,6 +17,7 @@ import {
     registerTC,
 } from "@/store/reducer/creditRegistrationReducer";
 import toast from "react-hot-toast";
+import { getCurrentSemesterAndSchoolYear } from "./constants";
 
 moment.updateLocale("en", {
     week: {
@@ -280,10 +281,17 @@ const ListClassSubject = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-        if (router.isReady && subject_id) {
-            dispatch(getClassFollowSubject(subject_id));
+        if (subject_id) {
+            const { semester, schoolyear } = getCurrentSemesterAndSchoolYear();
+            dispatch(
+                getClassFollowSubject({
+                    subjectId: subject_id,
+                    semester,
+                    schoolyear,
+                })
+            );
         }
-    }, [router.isReady, subject_id, dispatch]);
+    }, [subject_id, dispatch]);
 
     const events = useMemo(
         () => generateEventsFromAPI(classOpenFollowSubject),

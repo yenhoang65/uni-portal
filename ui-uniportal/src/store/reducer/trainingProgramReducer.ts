@@ -194,6 +194,44 @@ export const deleteSubjectFollowTrainingProgram = createAsyncThunk(
     }
 );
 
+//ctđt theo sinh viên
+export const getTrainingProgramByStu = createAsyncThunk(
+    "trainingProgram/getTrainingProgramByStu",
+    async (_, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const token = window.localStorage.getItem("accessToken");
+            const { data } = await api.get(`/training-programs/all-subjects`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            console.log(data);
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
+export const getTrainingProgramBySpec = createAsyncThunk(
+    "trainingProgram/getTrainingProgramBySpec",
+    async (specializationId: any, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get(
+                `/training-programs/specialization?specializationId=${specializationId}`
+            );
+
+            return fulfillWithValue(data);
+        } catch (error) {
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
 export const trainingProgramReducer = createSlice({
     name: "trainingProgram",
     initialState: {
@@ -220,6 +258,12 @@ export const trainingProgramReducer = createSlice({
             .addCase(getListTrainingProgram.fulfilled, (state, { payload }) => {
                 state.trainingPrograms = payload.data;
             })
+            .addCase(
+                getTrainingProgramBySpec.fulfilled,
+                (state, { payload }) => {
+                    state.trainingPrograms = payload.data;
+                }
+            )
             .addCase(
                 getTrainingProgramDetail.fulfilled,
                 (state, { payload }) => {
@@ -355,7 +399,28 @@ export const trainingProgramReducer = createSlice({
 
             .addCase(addSubjectForTP.fulfilled, (state, { payload }) => {
                 state.successMessage = "Thêm môn học vào CTĐT thành công";
-            });
+            })
+            .addCase(getTrainingProgramByStu.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+            .addCase(
+                getTrainingProgramByStu.fulfilled,
+                (state, { payload }) => {
+                    state.subjectFollowTrainingProgram = payload.data;
+                }
+            );
     },
 });
 

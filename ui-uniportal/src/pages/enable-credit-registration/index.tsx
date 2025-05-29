@@ -77,7 +77,7 @@ const RegistrationTimeActivation = () => {
             semester: state.semester,
             startDate: state.startDate,
             endDate: state.endDate,
-            status: "inactive",
+            status: "active",
         };
         dispatch(createActiveTimeRegisStu({ dto: obj }));
     };

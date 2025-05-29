@@ -10,7 +10,7 @@ import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { getSubjectsFollowUser } from "@/store/reducer/creditRegistrationReducer";
-import { getListActiveTimeLecturer } from "@/store/reducer/activateTimeReducer";
+import { getListActiveTimeStudent } from "@/store/reducer/activateTimeReducer";
 import { TypographyBody } from "@/components/TypographyBody";
 
 const ClassRegistration = () => {
@@ -28,7 +28,7 @@ const ClassRegistration = () => {
 
     useEffect(() => {
         dispatch(getSubjectsFollowUser());
-        dispatch(getListActiveTimeLecturer());
+        dispatch(getListActiveTimeStudent());
     }, []);
 
     const checkTimes = activeTimeStudents.find(

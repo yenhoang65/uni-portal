@@ -36,16 +36,20 @@ const TeachingAssignment = () => {
         null
     );
 
+    const [semester, setSemester] = useState<number | "">("");
+    const [schoolyear, setSchoolyear] = useState<number | "">("");
+
     useEffect(() => {
         dispatch(
             getListTeachingAssignmentByLecturerId({
                 currentPage: currentPage,
-                parPage: parPage,
+                perPage: parPage,
                 searchValue: searchValue,
-                token: window.localStorage.getItem("accessToken"),
+                semester: semester || undefined,
+                schoolyear: schoolyear || undefined,
             })
         );
-    }, [currentPage, parPage, searchValue]);
+    }, [currentPage, parPage, searchValue, semester, schoolyear]);
 
     const handleDelete = () => {
         if (deleteAssignmentId) {
@@ -65,29 +69,74 @@ const TeachingAssignment = () => {
             toast.success(successMessage);
             dispatch(messageClear());
 
-            getListTeachingAssignmentByLecturerId({
-                currentPage: currentPage,
-                parPage: parPage,
-                searchValue: searchValue,
-                token: window.localStorage.getItem("accessToken"),
-            });
+            dispatch(
+                getListTeachingAssignmentByLecturerId({
+                    currentPage: currentPage,
+                    perPage: parPage,
+                    searchValue: searchValue,
+                    semester: semester || undefined,
+                    schoolyear: schoolyear || undefined,
+                })
+            );
         }
         if (errorMessage) {
             toast.error(errorMessage);
             dispatch(messageClear());
         }
-    }, [successMessage, errorMessage]);
+    }, [
+        successMessage,
+        errorMessage,
+        semester,
+        schoolyear,
+        currentPage,
+        parPage,
+        searchValue,
+    ]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
             <BorderBox title="Quản lý Phân công Giảng dạy">
                 <div className={styles.box}>
                     <div className={styles.add}>
-                        <Search
-                            setParPage={setParPage}
-                            setSearchValue={setSearchValue}
-                            searchValue={searchValue}
-                        />
+                        <div className={styles.filterRow}>
+                            <Search
+                                setParPage={setParPage}
+                                setSearchValue={setSearchValue}
+                                searchValue={searchValue}
+                            />
+                            <SelectWithLabel
+                                label=""
+                                value={semester}
+                                onChange={(e) =>
+                                    setSemester(Number(e.target.value))
+                                }
+                                options={[
+                                    { value: "", label: "Tất cả" },
+                                    { value: 1, label: "Kỳ 1" },
+                                    { value: 2, label: "Kỳ 2" },
+                                ]}
+                                className={styles.selectFilter}
+                            />
+                            <SelectWithLabel
+                                label=""
+                                value={schoolyear}
+                                onChange={(e) =>
+                                    setSchoolyear(Number(e.target.value))
+                                }
+                                options={[
+                                    { value: "", label: "Tất cả" },
+                                    ...Array.from({ length: 6 }, (_, i) => {
+                                        const year =
+                                            new Date().getFullYear() + 1 - i;
+                                        return {
+                                            value: year,
+                                            label: `${year} - ${year + 1}`,
+                                        };
+                                    }),
+                                ]}
+                                className={styles.selectFilter}
+                            />
+                        </div>
 
                         <Link
                             href={"/teaching-assignment/create-edit"}

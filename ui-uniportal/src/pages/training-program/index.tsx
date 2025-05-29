@@ -18,6 +18,7 @@ import { getListSpec } from "@/store/reducer/specializationReducer";
 import {
     deleteTrainingProgram,
     getListTrainingProgram,
+    getTrainingProgramBySpec,
     messageClear,
 } from "@/store/reducer/trainingProgramReducer";
 import toast from "react-hot-toast";
@@ -36,7 +37,7 @@ const TrainingProgram = () => {
     const [parPage, setParPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteProgramId, setDeleteProgramId] = useState<number | null>(null);
-
+    const [selectedSpec, setSelectedSpec] = useState("");
     useEffect(() => {
         dispatch(getListSpec());
         dispatch(getListTrainingProgram());
@@ -67,6 +68,18 @@ const TrainingProgram = () => {
         }
     }, [successMessage, errorMessage]);
 
+    const handleSpecializationChange = (
+        e: React.ChangeEvent<HTMLSelectElement>
+    ) => {
+        const value = e.target.value;
+        setSelectedSpec(value);
+        if (value === "") {
+            dispatch(getListTrainingProgram());
+        } else {
+            dispatch(getTrainingProgramBySpec(value));
+        }
+    };
+
     const totalItem = trainingPrograms.length;
     const totalPages = Math.ceil(totalItem / parPage);
 
@@ -96,8 +109,8 @@ const TrainingProgram = () => {
                             <div className={styles.filter}>
                                 <SelectWithLabel
                                     name="filterSpecialization"
-                                    value={""}
-                                    onChange={() => {}}
+                                    value={selectedSpec}
+                                    onChange={handleSpecializationChange}
                                     options={[
                                         { value: "", label: "Tất cả" },
                                         ...specializations.map(
@@ -130,7 +143,7 @@ const TrainingProgram = () => {
                                     <th style={{ width: "80px" }}>STT</th>
                                     <th style={{ width: "200px" }}>Mã CTĐT</th>
                                     <th style={{ minWidth: "250px" }}>
-                                        Chuyên ngành
+                                        Tên CTĐT
                                     </th>
                                     <th style={{ minWidth: "150px" }}>
                                         Khóa học
@@ -148,7 +161,7 @@ const TrainingProgram = () => {
                                             <td>1</td>
                                             <td>{program.trainingProgramId}</td>
                                             <td>
-                                                {program.specializationName}
+                                                {program.trainingProgramName}
                                             </td>
                                             <td>{program.trainingCode}</td>
 

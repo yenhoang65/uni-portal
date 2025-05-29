@@ -24,7 +24,6 @@ import { getListSubject } from "@/store/reducer/subjectReducer";
 
 const ViewTrainingProgram = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const { role } = useSelector((state: RootState) => state.auth);
     const { subjectFollowTrainingProgram, successMessage, errorMessage } =
         useSelector((state: RootState) => state.trainingProgram);
 
@@ -137,7 +136,7 @@ const ViewTrainingProgram = () => {
     }, [successMessage, errorMessage, id, dispatch]);
 
     return (
-        <AuthGuard allowedRoles={["admin", "student"]}>
+        <AuthGuard allowedRoles={["admin"]}>
             <BorderBox
                 title={`Chương trình Đào tạo: ${
                     subjectFollowTrainingProgram?.trainingProgramId || ""
@@ -164,21 +163,19 @@ const ViewTrainingProgram = () => {
                             {subjectFollowTrainingProgram?.schoolYear}
                         </div>
                     </div>
-                    {role !== "student" && (
-                        <div
-                            className={styles.buttonAdd}
-                            onClick={() => {
-                                setIsDeleteAllModalOpen(true);
-                                if (id) {
-                                    setDeleteAllSubjectTrainingId(
-                                        Array.isArray(id) ? id[0] : id
-                                    );
-                                }
-                            }}
-                        >
-                            <FaMinusCircle /> Xóa toàn bộ
-                        </div>
-                    )}
+                    <div
+                        className={styles.buttonAdd}
+                        onClick={() => {
+                            setIsDeleteAllModalOpen(true);
+                            if (id) {
+                                setDeleteAllSubjectTrainingId(
+                                    Array.isArray(id) ? id[0] : id
+                                );
+                            }
+                        }}
+                    >
+                        <FaMinusCircle /> Xóa toàn bộ
+                    </div>
 
                     {isDeleteAllModalOpen && (
                         <ModalConfirm
@@ -197,14 +194,12 @@ const ViewTrainingProgram = () => {
                     >
                         Các môn học trong chương trình
                     </TypographyHeading>
-                    {role !== "student" && (
-                        <div
-                            className={styles.buttonAddSubject}
-                            onClick={() => setIsOpenModal(true)}
-                        >
-                            Thêm môn học
-                        </div>
-                    )}
+                    <div
+                        className={styles.buttonAddSubject}
+                        onClick={() => setIsOpenModal(true)}
+                    >
+                        Thêm môn học
+                    </div>
                 </div>
                 {subjectFollowTrainingProgram?.subjects?.length > 0 ? (
                     <div className={styles.tableWrapper}>
@@ -218,11 +213,9 @@ const ViewTrainingProgram = () => {
                                     <th style={{ textAlign: "center" }}>
                                         Môn học phụ thuộc
                                     </th>
-                                    {role !== "student" && (
-                                        <th style={{ textAlign: "center" }}>
-                                            Hành động
-                                        </th>
-                                    )}
+                                    <th style={{ textAlign: "center" }}>
+                                        Hành động
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -261,26 +254,24 @@ const ViewTrainingProgram = () => {
                                                       )
                                                     : "—"}
                                             </td>
-                                            {role !== "student" && (
-                                                <td
-                                                    style={{
-                                                        textAlign: "center",
-                                                    }}
+                                            <td
+                                                style={{
+                                                    textAlign: "center",
+                                                }}
+                                            >
+                                                <Button
+                                                    className={
+                                                        styles.actionButton
+                                                    }
+                                                    onClick={() =>
+                                                        handleRemoveSubject(
+                                                            subject.subjectId
+                                                        )
+                                                    }
                                                 >
-                                                    <Button
-                                                        className={
-                                                            styles.actionButton
-                                                        }
-                                                        onClick={() =>
-                                                            handleRemoveSubject(
-                                                                subject.subjectId
-                                                            )
-                                                        }
-                                                    >
-                                                        <FaMinusCircle />
-                                                    </Button>
-                                                </td>
-                                            )}
+                                                    <FaMinusCircle />
+                                                </Button>
+                                            </td>
                                         </tr>
                                     )
                                 )}

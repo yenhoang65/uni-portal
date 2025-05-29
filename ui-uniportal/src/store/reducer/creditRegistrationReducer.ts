@@ -140,17 +140,49 @@ export const getSubjectsFollowUser = createAsyncThunk(
     }
 );
 
+// export const getClassFollowSubject = createAsyncThunk(
+//     "regis/getClassFollowSubject",
+//     async (subjectId: any, { rejectWithValue, fulfillWithValue }) => {
+//         try {
+//             const { data } = await api.get(
+//                 `/class-student/opened-classes/${subjectId}`
+//             );
+
+//             return fulfillWithValue(data);
+//         } catch (error) {
+//             // return rejectWithValue(error.response.data);
+//         }
+//     }
+// );
+
 export const getClassFollowSubject = createAsyncThunk(
     "regis/getClassFollowSubject",
-    async (subjectId: any, { rejectWithValue, fulfillWithValue }) => {
+    // Thêm params vào hàm, ví dụ: { subjectId, semester, schoolyear }
+    async (
+        {
+            subjectId,
+            semester,
+            schoolyear,
+        }: { subjectId: any; semester: any; schoolyear: any },
+        { rejectWithValue, fulfillWithValue }
+    ) => {
         try {
             const { data } = await api.get(
-                `/class-student/opened-classes/${subjectId}`
+                `/class-student/opened-classes/${subjectId}`,
+                {
+                    params: {
+                        semester: 1,
+                        schoolyear: 2026,
+                    },
+                }
             );
+
+            console.log(data);
 
             return fulfillWithValue(data);
         } catch (error) {
-            // return rejectWithValue(error.response.data);
+            const e = error as Error;
+            return rejectWithValue(e.message || "An unknown error occurred");
         }
     }
 );

@@ -10,6 +10,17 @@
     margin-bottom: 20px;
 }
 
+.filterRow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.selectFilter {
+    width: 150px !important;
+}
+
 .buttonAdd {
     display: flex;
     align-items: center;

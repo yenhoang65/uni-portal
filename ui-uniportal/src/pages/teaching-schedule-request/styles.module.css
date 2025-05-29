@@ -6,7 +6,20 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     margin-bottom: 20px;
+    gap: 20px;
+}
+
+.selectFilter {
+    width: 150px !important;
+}
+
+.filterRow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
 }
 
 .buttonAdd {

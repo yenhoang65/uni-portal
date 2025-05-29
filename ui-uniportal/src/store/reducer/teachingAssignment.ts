@@ -67,22 +67,62 @@ export const getListTeachingAssignment = createAsyncThunk(
     }
 );
 
+// export const getListTeachingAssignmentByLecturerId = createAsyncThunk(
+//     "teachingAssignment/getListTeachingAssignmentByLecturerId",
+//     async (
+//         { token, currentPage, parPage, searchValue }: GetParam,
+//         { getState, rejectWithValue, fulfillWithValue }
+//     ) => {
+//         try {
+//             const { data } = await api.get(
+//                 `/teaching-assignment/paging?currentPage=${currentPage}&perPage=${parPage}&searchValue=${searchValue}`,
+//                 {
+//                     headers: {
+//                         Authorization: `Bearer ${token}`,
+//                     },
+//                 }
+//             );
+
+//             return fulfillWithValue(data);
+//         } catch (error) {
+//             const e = error as Error;
+//             return rejectWithValue(e.message || "An unknown error occurred");
+//         }
+//     }
+// );
+
 export const getListTeachingAssignmentByLecturerId = createAsyncThunk(
     "teachingAssignment/getListTeachingAssignmentByLecturerId",
     async (
-        { token, currentPage, parPage, searchValue }: GetParam,
-        { getState, rejectWithValue, fulfillWithValue }
+        {
+            currentPage,
+            perPage,
+            searchValue,
+            semester,
+            schoolyear,
+        }: {
+            currentPage: any;
+            perPage: any;
+            searchValue?: any;
+            semester: any;
+            schoolyear: any;
+        },
+        { rejectWithValue, fulfillWithValue }
     ) => {
         try {
-            const { data } = await api.get(
-                `/teaching-assignment/paging?currentPage=${currentPage}&perPage=${parPage}&searchValue=${searchValue}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
+            const token = window.localStorage.getItem("accessToken");
+            const { data } = await api.get(`/teaching-assignment/paging`, {
+                params: {
+                    currentPage,
+                    perPage,
+                    searchValue,
+                    semester,
+                    schoolyear,
+                },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             return fulfillWithValue(data);
         } catch (error) {
             const e = error as Error;

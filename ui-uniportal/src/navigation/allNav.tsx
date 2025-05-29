@@ -59,7 +59,7 @@ export const allNav = [
                 title: "nav.trainingProgramView",
                 icon: <AiOutlineFile />,
                 role: ["student"],
-                path: "/training-program/view",
+                path: "/training-program-by-student",
             },
             {
                 id: 18,

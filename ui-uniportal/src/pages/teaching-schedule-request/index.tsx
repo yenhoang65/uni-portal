@@ -17,6 +17,7 @@ import {
 } from "@/store/reducer/teachingAssignment";
 import { getListActiveTimeLecturer } from "@/store/reducer/activateTimeReducer";
 import { TypographyBody } from "@/components/TypographyBody";
+import SelectWithLabel from "@/components/SelectWithLabel";
 type TeachingScheduleDetail = {
     classroomId: number;
     lesson: string;
@@ -72,6 +73,9 @@ const TeachingAssignmentWithDetails = () => {
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(10);
 
+    const [semester, setSemester] = useState<number | "">("");
+    const [schoolyear, setSchoolyear] = useState<number | "">("");
+
     useEffect(() => {
         dispatch(getListActiveTimeLecturer());
     }, []);
@@ -80,12 +84,13 @@ const TeachingAssignmentWithDetails = () => {
         dispatch(
             getListTeachingAssignmentByLecturerId({
                 currentPage: currentPage,
-                parPage: parPage,
+                perPage: parPage,
                 searchValue: searchValue,
-                token: window.localStorage.getItem("accessToken"),
+                semester: semester || undefined,
+                schoolyear: schoolyear || undefined,
             })
         );
-    }, [currentPage, parPage, searchValue]);
+    }, [currentPage, parPage, searchValue, semester, schoolyear]);
 
     useEffect(() => {
         teachingAssignments.forEach((assignment) => {
@@ -112,7 +117,7 @@ const TeachingAssignmentWithDetails = () => {
     return (
         <AuthGuard allowedRoles={["lecturer"]}>
             <BorderBox title="Danh sách lớp đã được phân công cho giảng viên">
-                {isInActiveTime ? (
+                {!isInActiveTime ? (
                     <div className={styles.box}>
                         <div className={styles.add}>
                             <Search
@@ -120,6 +125,44 @@ const TeachingAssignmentWithDetails = () => {
                                 setSearchValue={setSearchValue}
                                 searchValue={searchValue}
                             />
+
+                            <div className={styles.filterRow}>
+                                <SelectWithLabel
+                                    label=""
+                                    value={semester}
+                                    onChange={(e) =>
+                                        setSemester(Number(e.target.value))
+                                    }
+                                    options={[
+                                        { value: "", label: "Tất cả" },
+                                        { value: 1, label: "Kỳ 1" },
+                                        { value: 2, label: "Kỳ 2" },
+                                    ]}
+                                    className={styles.selectFilter}
+                                />
+                                <SelectWithLabel
+                                    label=""
+                                    value={schoolyear}
+                                    onChange={(e) =>
+                                        setSchoolyear(Number(e.target.value))
+                                    }
+                                    options={[
+                                        { value: "", label: "Tất cả" },
+                                        ...Array.from({ length: 6 }, (_, i) => {
+                                            const year =
+                                                new Date().getFullYear() +
+                                                1 -
+                                                i;
+                                            return {
+                                                value: year,
+                                                label: `${year} - ${year + 1}`,
+                                            };
+                                        }),
+                                    ]}
+                                    className={styles.selectFilter}
+                                />
+                            </div>
+
                             {/* <Link
                             href={"/teaching-assignment/create-edit"}
                             className={styles.buttonAdd}
