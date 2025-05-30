@@ -166,9 +166,6 @@ const ViewSubmissions = () => {
     }, [viewSubmissions]);
 
     const handleSubmitListGrade = () => {
-        console.log("Editable Scores:", editableScores);
-        console.log("View Submissions:", viewSubmissions);
-
         const grades = editableScores
             .filter((e) => e.score !== "")
             .map((e) => {
@@ -183,10 +180,6 @@ const ViewSubmissions = () => {
                 };
             })
             .filter((g) => g.studentGradeId !== undefined);
-
-        console.log("Grades to submit:", grades);
-
-        // dispatch(gradeListSubmission(grades));
     };
 
     useEffect(() => {

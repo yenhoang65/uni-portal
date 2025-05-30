@@ -171,13 +171,11 @@ const Attendance = () => {
         if (record.attendanceId) {
             // Gọi update nếu đã có attendanceId
 
-            console.log("call cũ");
             await dispatch(
                 updateMarkAttendance({ attendanceId: record.attendanceId, dto })
             );
         } else {
             // Gọi tạo mới nếu chưa có attendanceId
-            console.log("call mới");
             await dispatch(markAttendance({ dto }));
         }
     };
@@ -208,8 +206,6 @@ const Attendance = () => {
             dispatch(getListAttendanceAfterMark(selectedSessionId));
         }
     }, [selectedSessionId, dispatch]);
-
-    console.log(listAttendanceAfterMark);
 
     useEffect(() => {
         if (successMessage) {

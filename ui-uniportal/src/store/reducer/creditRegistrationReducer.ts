@@ -298,8 +298,6 @@ export const lecturerTimeline = createAsyncThunk(
                 }
             );
 
-            console.log("success: ", data);
-
             return fulfillWithValue(data);
         } catch (error: any) {
             // const e = error as Error;

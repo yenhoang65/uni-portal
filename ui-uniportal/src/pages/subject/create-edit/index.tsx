@@ -158,7 +158,6 @@ const CreateEditSubject = () => {
 
     const handleProcessImport = () => {
         if (selectedFile) {
-            console.log("Processing file:", selectedFile);
             // Implement your file processing logic here for subjects
             // After processing, you might want to redirect or update the UI
         } else {

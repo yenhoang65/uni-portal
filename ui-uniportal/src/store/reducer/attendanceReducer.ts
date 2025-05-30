@@ -101,8 +101,6 @@ export const updateMarkAttendance = createAsyncThunk(
                 dto
             );
 
-            console.log("/attendance/update/${attendanceId}", data);
-
             return fulfillWithValue(data);
         } catch (error: any) {
             // const e = error as Error;

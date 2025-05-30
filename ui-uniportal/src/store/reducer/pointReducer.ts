@@ -128,7 +128,6 @@ export const getExerciseByClass = createAsyncThunk(
                 }
             );
 
-            console.log("exercise: ", data);
             return fulfillWithValue(data);
         } catch (error: any) {
             // const e = error as Error;
@@ -153,7 +152,6 @@ export const createExercice = createAsyncThunk(
         try {
             const { data } = await api.post(`/grade-event/midterm`, request);
 
-            console.log("exercise: ", data);
             return fulfillWithValue(data);
         } catch (error: any) {
             // const e = error as Error;
@@ -180,7 +178,6 @@ export const updateExercice = createAsyncThunk(
                 request
             );
 
-            console.log("exercise: ", data);
             return fulfillWithValue(data);
         } catch (error: any) {
             // const e = error as Error;
@@ -202,7 +199,6 @@ export const getExerciseDetail = createAsyncThunk(
         try {
             const { data } = await api.get(`/grade-event/${gradeEventId}`);
 
-            console.log("exercise: ", data);
             return fulfillWithValue(data);
         } catch (error: any) {
             // const e = error as Error;
@@ -229,7 +225,6 @@ export const getExerciseByStudent = createAsyncThunk(
                 },
             });
 
-            console.log("exercises: ", data);
             return fulfillWithValue(data);
         } catch (error: any) {
             // const e = error as Error;
@@ -368,7 +363,6 @@ export const getLearningResult = createAsyncThunk(
                 `/transcript/student/${decodedToken.user_id}`
             );
 
-            console.log(data);
             return fulfillWithValue(data);
         } catch (error: any) {
             // const e = error as Error;

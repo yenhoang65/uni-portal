@@ -361,8 +361,6 @@ const TimeLine = () => {
         dispatch(getRegisteredCreditClasses());
     }, [dispatch]);
 
-    console.log(creditClasses);
-
     return (
         <AuthGuard allowedRoles={["student"]}>
             <BorderBox title="Thời khóa biểu">

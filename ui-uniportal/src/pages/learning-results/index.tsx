@@ -33,7 +33,6 @@ const StudyResult = () => {
     const [semester, setSemester] = useState("");
     const [schoolYear, setSchoolYear] = useState("");
 
-    console.log(learningResult);
     // Nếu chưa có dữ liệu, trả về null hoặc loading
     if (!learningResult) return null;
 

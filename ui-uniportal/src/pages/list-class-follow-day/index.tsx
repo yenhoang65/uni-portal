@@ -66,12 +66,6 @@ const ClassScheduleToday = () => {
         alert(
             `Chức năng in danh sách ngày ${selectedDate} sẽ được triển khai tại đây!`
         );
-        console.log(
-            "Danh sách lớp học ngày",
-            selectedDate,
-            ":",
-            filteredByDate
-        );
     };
 
     const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {

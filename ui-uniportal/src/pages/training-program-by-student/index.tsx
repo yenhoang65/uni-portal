@@ -57,8 +57,6 @@ const TrainingProgramByStudent = () => {
         dispatch(getTrainingProgramByStu());
     }, []);
 
-    console.log(subjectFollowTrainingProgram);
-
     return (
         <AuthGuard allowedRoles={["student"]}>
             <BorderBox

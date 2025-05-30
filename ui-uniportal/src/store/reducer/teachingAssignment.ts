@@ -152,7 +152,6 @@ export const getTeachingAssignmentDetail = createAsyncThunk(
                 withCredentials: true,
             });
 
-            console.log(data);
 
             return fulfillWithValue(data);
         } catch (error: any) {
