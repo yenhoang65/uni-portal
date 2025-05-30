@@ -36,7 +36,7 @@ const ViewSubmissions = () => {
     } = useSelector((state: RootState) => state.point);
 
     const router = useRouter();
-    const { id, class_id, coefficient, code } = router.query;
+    const { id, class_id, coefficient, code, exam_form } = router.query;
     const [state, setState] = useState({
         score: "",
         feedback: "",
@@ -96,11 +96,11 @@ const ViewSubmissions = () => {
         });
     };
 
-    const submittedList = viewSubmissions.filter(
+    const submittedList = (viewSubmissions || []).filter(
         (s: any) =>
             s.submissionStatus === "ON_TIME" || s.submissionStatus === "LATE"
     );
-    const notSubmittedList = viewSubmissions.filter(
+    const notSubmittedList = (viewSubmissions || []).filter(
         (s: any) => s.submissionStatus === "NOT_SUBMITTED"
     );
 
@@ -155,7 +155,11 @@ const ViewSubmissions = () => {
     };
 
     useEffect(() => {
-        if (viewSubmissions.length > 0 && importedScores.length === 0) {
+        if (
+            viewSubmissions &&
+            viewSubmissions.length > 0 &&
+            importedScores.length === 0
+        ) {
             setEditableScores(
                 viewSubmissions.map((v: any) => ({
                     studentId: v.studentId,
@@ -174,12 +178,15 @@ const ViewSubmissions = () => {
                 );
 
                 return {
-                    studentGradeId: submission?.studentId,
+                    classSubjectStudentId: submission?.classSubjectStudentId,
+                    gradeEventId: submission?.gradeEventId,
                     score: Number(e.score),
-                    feedback: "", // sau này có thể thêm input
+                    feedback: "",
                 };
-            })
-            .filter((g) => g.studentGradeId !== undefined);
+            });
+
+        const gradesArray = Array.isArray(grades) ? grades : [grades];
+        dispatch(gradeListSubmission(gradesArray));
     };
 
     useEffect(() => {
@@ -201,6 +208,8 @@ const ViewSubmissions = () => {
             dispatch(messageClear());
         }
     }, [successMessage, errorMessage, id, class_id]);
+
+    console.log("viewSubmissions: ", viewSubmissions);
 
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
@@ -239,35 +248,36 @@ const ViewSubmissions = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {viewSubmissions.map(
-                                    (item: any, index: any) => (
-                                        <tr key={item.studentId}>
-                                            <td>{index + 1}</td>
-                                            <td>{item.studentId}</td>
-                                            <td>{item.studentName}</td>
-                                            <td>
-                                                <InputWithLabel
-                                                    placeholder="Điểm"
-                                                    name="score"
-                                                    type="number"
-                                                    value={
-                                                        editableScores.find(
-                                                            (s) =>
-                                                                s.studentId ===
-                                                                item.studentId
-                                                        )?.score ?? ""
-                                                    }
-                                                    onChange={(e) =>
-                                                        handleEditableScoreChange(
-                                                            item.studentId,
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                />
-                                            </td>
-                                        </tr>
-                                    )
-                                )}
+                                {viewSubmissions &&
+                                    viewSubmissions.map(
+                                        (item: any, index: any) => (
+                                            <tr key={item.studentId}>
+                                                <td>{index + 1}</td>
+                                                <td>{item.studentId}</td>
+                                                <td>{item.studentName}</td>
+                                                <td>
+                                                    <InputWithLabel
+                                                        placeholder="Điểm"
+                                                        name="score"
+                                                        type="number"
+                                                        value={
+                                                            editableScores.find(
+                                                                (s) =>
+                                                                    s.studentId ===
+                                                                    item.studentId
+                                                            )?.score ?? ""
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleEditableScoreChange(
+                                                                item.studentId,
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                    />
+                                                </td>
+                                            </tr>
+                                        )
+                                    )}
                             </tbody>
                         </table>
 

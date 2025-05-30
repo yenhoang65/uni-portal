@@ -324,22 +324,25 @@ export const gradeSubmission = createAsyncThunk(
     }
 );
 
-//chấm 1 list điểm
+//chấm 1 list điểm offline
 export const gradeListSubmission = createAsyncThunk(
     "exercise/gradeListSubmission",
     async (
-        grades: { studentGradeId: number; score: number; feedback: string }[],
+        grades: {
+            classSubjectStudentId: any;
+            gradeEventId: any;
+            score: number;
+            feedback: string;
+        }[],
         { rejectWithValue, fulfillWithValue }
     ) => {
         try {
-            const { data } = await api.post(`/student-grade/grade/batch`, {
-                grades,
-            });
-
+            const { data } = await api.post(
+                `/student-grade/grade/offline`,
+                grades
+            );
             return fulfillWithValue(data);
         } catch (error: any) {
-            // const e = error as Error;
-            // return rejectWithValue(e.message);
             if (error.response && error.response.data) {
                 return rejectWithValue(error.response.data);
             }

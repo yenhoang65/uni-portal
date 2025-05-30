@@ -29,6 +29,8 @@ const AssignmentList = () => {
         }
     }, [class_id]);
 
+    console.log("exercises: ", exercises);
+
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
             <BorderBox
@@ -96,8 +98,29 @@ const AssignmentList = () => {
                                             >
                                                 {t("assignmentList.edit")}
                                             </Link>
+                                            {/* <Link
+                                                href={`/assignment/${class_id}/view_submissions/?id=${assignment.gradeEventId}&&coefficient=${assignment.gradeType.coefficient}&&code=${assignment.gradeType.code}&&exam_form=${assignment.examSchedule?.examForm}`}
+                                                className={
+                                                    styles.viewSubmissions
+                                                }
+                                            >
+                                                {t(
+                                                    "assignmentList.viewSubmissions"
+                                                )}
+                                            </Link> */}
                                             <Link
-                                                href={`/assignment/${class_id}/view_submissions/?id=${assignment.gradeEventId}&&coefficient=0.25&&code=MID`}
+                                                href={`/assignment/${class_id}/view_submissions/?id=${
+                                                    assignment.gradeEventId
+                                                }&coefficient=${
+                                                    assignment.gradeType
+                                                        .coefficient
+                                                }&code=${
+                                                    assignment.gradeType.code
+                                                }${
+                                                    assignment.examSchedule
+                                                        ? `&exam_form=${assignment.examSchedule.examForm}`
+                                                        : ""
+                                                }`}
                                                 className={
                                                     styles.viewSubmissions
                                                 }

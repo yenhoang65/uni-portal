@@ -11,6 +11,7 @@ import clsx from "clsx";
 import { IoMdAddCircle } from "react-icons/io";
 import ModalConfirm from "@/components/ModalConfirm";
 import AuthGuard from "@/components/AuthGuard";
+import SelectWithLabel from "@/components/SelectWithLabel";
 
 // Mock data với tên môn học (subject_name)
 const mockExamSchedules = [
@@ -56,6 +57,9 @@ const ExamScheduleManagement = () => {
         string | null
     >(null);
 
+    const [semester, setSemester] = useState<number>(1);
+    const [schoolyear, setSchoolyear] = useState<number>(2026);
+
     const handleDelete = () => {
         if (deleteExamScheduleId) {
             setExamSchedules((prev) =>
@@ -81,6 +85,42 @@ const ExamScheduleManagement = () => {
                             setSearchValue={setSearchValue}
                             searchValue={searchValue}
                         />
+
+                        <div className={styles.filterRow}>
+                            <SelectWithLabel
+                                label=""
+                                value={semester}
+                                onChange={(e) =>
+                                    setSemester(Number(e.target.value))
+                                }
+                                options={[
+                                    { value: "", label: "Tất cả" },
+                                    { value: 1, label: "Kỳ 1" },
+                                    { value: 2, label: "Kỳ 2" },
+                                ]}
+                                className={styles.selectFilter}
+                            />
+                            <SelectWithLabel
+                                label=""
+                                value={schoolyear}
+                                onChange={(e) =>
+                                    setSchoolyear(Number(e.target.value))
+                                }
+                                options={[
+                                    { value: "", label: "Tất cả" },
+                                    ...Array.from({ length: 6 }, (_, i) => {
+                                        const year =
+                                            new Date().getFullYear() + 1 - i;
+                                        return {
+                                            value: year,
+                                            label: `${year} - ${year + 1}`,
+                                        };
+                                    }),
+                                ]}
+                                className={styles.selectFilter}
+                            />
+                        </div>
+
                         <Link
                             href="/exam-schedule-management/create-edit"
                             className={styles.buttonAdd}

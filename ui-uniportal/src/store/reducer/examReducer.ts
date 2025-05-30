@@ -5,14 +5,23 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const getExamAll = createAsyncThunk(
     "point/getExamAll",
-    async (_, { rejectWithValue, fulfillWithValue }) => {
+    async (
+        { semester, schoolyear }: { semester: any; schoolyear: any },
+        { rejectWithValue, fulfillWithValue }
+    ) => {
         try {
-            const { data } = await api.get(`/grade-types`);
+            const { data } = await api.get(
+                `/exam-schedule/all?semester=${semester}&schoolyear=${schoolyear}`
+            );
 
             return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -94,7 +103,7 @@ export const examReducer = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(createExam.rejected, (state, { payload }) => {
+            .addCase(getExamAll.rejected, (state, { payload }) => {
                 if (typeof payload === "string") {
                     state.errorMessage = payload;
                 } else if (
@@ -109,8 +118,8 @@ export const examReducer = createSlice({
                     state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
                 }
             })
-            .addCase(createExam.fulfilled, (state, { payload }) => {
-                state.successMessage = "Thêm lịch thi thành công";
+            .addCase(getExamAll.fulfilled, (state, { payload }) => {
+                state.allExams = payload.data;
             });
     },
 });
