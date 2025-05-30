@@ -34,7 +34,6 @@ const ImportExcelFile = () => {
 
     const handleImport = () => {
         if (excelFile) {
-            console.log("Đang xử lý file:", excelFile);
             // Gửi file này lên backend để xử lý import dữ liệu
             // ...
             alert(`Đã gửi file "${excelFile.name}" lên server.`);

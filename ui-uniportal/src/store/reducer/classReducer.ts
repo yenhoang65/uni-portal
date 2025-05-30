@@ -312,8 +312,6 @@ export const getClassByStatusLecturer = createAsyncThunk(
                 }
             );
 
-            console.log(data);
-
             return fulfillWithValue(data);
         } catch (error: any) {
             // const e = error as Error;
