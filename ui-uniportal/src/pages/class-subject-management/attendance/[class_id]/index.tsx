@@ -39,7 +39,7 @@ const Attendance = () => {
         errorMessage,
     } = useSelector((state: RootState) => state.attendance);
     const router = useRouter();
-    const { class_id } = router.query;
+    const { class_id, classname } = router.query;
 
     const [selectedSessionId, setSelectedSessionId] = useState<string>("");
 
@@ -127,57 +127,27 @@ const Attendance = () => {
         );
     };
 
-    // const handleMarkAttendance = async (
-    //     studentId: string,
-    //     sessionId: string,
-    //     status: "" | "present" | "absent" | "excused",
-    //     note?: string
-    // ) => {
-    //     const student = listStudent.find(
-    //         (stu: any) => stu.userId === studentId
-    //     );
-    //     if (!student) return;
-
-    //     if (!status) return;
-
-    //     const dto = {
-    //         sessionId: sessionId,
-    //         classSubjectStudentId: student.classSubjectStudentId,
-    //         status,
-    //         note: note || "",
-    //     };
-
-    //     await dispatch(markAttendance({ dto }));
-    // };
-
     const handleMarkAttendance = async (
         studentId: string,
         sessionId: string,
         status: "" | "present" | "absent" | "excused",
         note?: string
     ) => {
-        const record = attendanceRecords.find(
-            (r) => r.studentId === studentId && r.sessionId === sessionId
+        const student = listStudent.find(
+            (stu: any) => stu.userId === studentId
         );
-        if (!record) return;
+        if (!student) return;
+
+        if (!status) return;
 
         const dto = {
-            sessionId,
-            classSubjectStudentId: record.classSubjectStudentId,
+            sessionId: sessionId,
+            classSubjectStudentId: student.classSubjectStudentId,
             status,
             note: note || "",
         };
 
-        if (record.attendanceId) {
-            // Gọi update nếu đã có attendanceId
-
-            await dispatch(
-                updateMarkAttendance({ attendanceId: record.attendanceId, dto })
-            );
-        } else {
-            // Gọi tạo mới nếu chưa có attendanceId
-            await dispatch(markAttendance({ dto }));
-        }
+        await dispatch(markAttendance({ dto }));
     };
 
     const handleAttendanceChange = (
@@ -222,9 +192,11 @@ const Attendance = () => {
         }
     }, [successMessage, errorMessage, selectedSessionId, dispatch]);
 
+    console.log(listAttendanceAfterMark);
+
     return (
         <AuthGuard allowedRoles={["lecturer"]}>
-            <BorderBox title={`Điểm danh`}>
+            <BorderBox title={`Điểm danh lớp ${classname}`}>
                 <div
                     className={styles.attendanceHeader}
                     style={{

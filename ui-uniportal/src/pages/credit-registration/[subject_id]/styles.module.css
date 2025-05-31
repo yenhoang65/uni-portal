@@ -1,4 +1,4 @@
-:global(.rbc-toolbar .rbc-btn-group) {
+/* :global(.rbc-toolbar .rbc-btn-group) {
     display: none;
 }
 
@@ -15,7 +15,7 @@
 
 :global(.rbc-time-header .rbc-header > span:not(:first-child)) {
     display: none;
-}
+} */
 
 .backButton {
     text-decoration: none;

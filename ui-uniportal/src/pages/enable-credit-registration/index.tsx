@@ -124,7 +124,7 @@ const RegistrationTimeActivation = () => {
             if (timeUntilNearestEndDate > 0) {
                 const timer = setTimeout(() => {
                     dispatch(getListActiveTimeStudent());
-                }, timeUntilNearestEndDate + 1000); // Add a small buffer
+                }, timeUntilNearestEndDate + 1000);
 
                 return () => clearTimeout(timer);
             }

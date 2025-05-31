@@ -87,6 +87,8 @@ const ExamScheduleManagement = () => {
         }
     }, [totalPages, currentPage]);
 
+    console.log(examsForStu);
+
     return (
         <AuthGuard allowedRoles={["student"]}>
             <BorderBox title="Lịch thi">
@@ -142,7 +144,7 @@ const ExamScheduleManagement = () => {
                                         <th style={{ width: "70px" }}>STT</th>
                                         <th>Mã lớp học phần</th>
                                         <th>Tên môn học</th>
-                                        {/* <th>Mã phòng</th> */}
+                                        <th>Bài thi</th>
                                         <th>Ngày thi</th>
                                         <th>Giờ bắt đầu</th>
                                         <th>Giờ kết thúc</th>
@@ -156,7 +158,7 @@ const ExamScheduleManagement = () => {
                                                 <td>{index + 1}</td>
                                                 <td>{item.className}</td>
                                                 <td>{item.subjectName}</td>
-                                                {/* <td>{item.classroom_id}</td> */}
+                                                <td>{item.gradeType}</td>
                                                 <td>{item.startDate}</td>
                                                 <td>{item.startTime}</td>
                                                 <td>{item.endTime}</td>

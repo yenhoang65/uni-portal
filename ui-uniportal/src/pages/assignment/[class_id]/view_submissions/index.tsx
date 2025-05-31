@@ -221,7 +221,10 @@ const ViewSubmissions = () => {
                         <TypographyHeading tag="span" theme="xl">
                             Chấm điểm cho bài tập {code}
                         </TypographyHeading>
-                        <div style={{ marginBottom: "16px" }}>
+                        <div
+                            className={styles.title}
+                            style={{ marginBottom: "16px" }}
+                        >
                             <label htmlFor="importFile">
                                 Import điểm từ file Excel:
                             </label>

@@ -34,8 +34,8 @@ const ClassSubjectManagement = () => {
     useEffect(() => {
         dispatch(
             getClassSubjectFollowLecturer({
-                semester: semester || undefined,
-                schoolyear: schoolyear || undefined,
+                semester: semester,
+                schoolyear: schoolyear,
             })
         );
     }, [dispatch, schoolyear, semester]);
@@ -144,7 +144,7 @@ const ClassSubjectManagement = () => {
                                                     }
                                                 >
                                                     <Link
-                                                        href={`class-subject-management/attendance/${classSubject.classStudentId}`}
+                                                        href={`class-subject-management/attendance/${classSubject.classStudentId}?classname=${classSubject.className}`}
                                                         className={clsx(
                                                             styles.viewButton,
                                                             styles.attendanceButton
