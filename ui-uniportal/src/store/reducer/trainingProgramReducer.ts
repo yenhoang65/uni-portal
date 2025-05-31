@@ -305,7 +305,7 @@ export const trainingProgramReducer = createSlice({
         errorMessage: "",
         trainingPrograms: [] as TrainingProgram[],
         trainingProgram: {} as TrainingProgram,
-        subjectFollowTrainingProgram: {} as TrainingProgramWithSubjects,
+        subjectFollowTrainingProgram: {} as any,
     },
     reducers: {
         messageClear: (state) => {

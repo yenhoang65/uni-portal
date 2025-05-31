@@ -49,54 +49,52 @@ const ClassSubjectManagement = () => {
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
             <BorderBox title={t("classSubject.title")}>
-                {classSubjectFollowLecturer.length > 0 ? (
-                    <div className={styles.box}>
-                        <div className={styles.add}>
-                            <Search
-                                setParPage={setParPage}
-                                setSearchValue={setSearchValue}
-                                searchValue={searchValue}
+                <div className={styles.box}>
+                    <div className={styles.add}>
+                        <Search
+                            setParPage={setParPage}
+                            setSearchValue={setSearchValue}
+                            searchValue={searchValue}
+                        />
+
+                        <div className={styles.filterRow}>
+                            <SelectWithLabel
+                                label=""
+                                value={semester}
+                                onChange={(e) =>
+                                    setSemester(Number(e.target.value))
+                                }
+                                options={[
+                                    { value: "", label: "Tất cả" },
+                                    { value: 1, label: "Kỳ 1" },
+                                    { value: 2, label: "Kỳ 2" },
+                                ]}
+                                className={styles.selectFilter}
                             />
-
-                            <div className={styles.filterRow}>
-                                <SelectWithLabel
-                                    label=""
-                                    value={semester}
-                                    onChange={(e) =>
-                                        setSemester(Number(e.target.value))
-                                    }
-                                    options={[
-                                        { value: "", label: "Tất cả" },
-                                        { value: 1, label: "Kỳ 1" },
-                                        { value: 2, label: "Kỳ 2" },
-                                    ]}
-                                    className={styles.selectFilter}
-                                />
-                                <SelectWithLabel
-                                    label=""
-                                    value={schoolyear}
-                                    onChange={(e) =>
-                                        setSchoolyear(Number(e.target.value))
-                                    }
-                                    options={[
-                                        { value: "", label: "Tất cả" },
-                                        ...Array.from({ length: 6 }, (_, i) => {
-                                            const year =
-                                                new Date().getFullYear() +
-                                                1 -
-                                                i;
-                                            return {
-                                                value: year,
-                                                label: `${year} - ${year + 1}`,
-                                            };
-                                        }),
-                                    ]}
-                                    className={styles.selectFilter}
-                                />
-                            </div>
+                            <SelectWithLabel
+                                label=""
+                                value={schoolyear}
+                                onChange={(e) =>
+                                    setSchoolyear(Number(e.target.value))
+                                }
+                                options={[
+                                    { value: "", label: "Tất cả" },
+                                    ...Array.from({ length: 6 }, (_, i) => {
+                                        const year =
+                                            new Date().getFullYear() + 1 - i;
+                                        return {
+                                            value: year,
+                                            label: `${year} - ${year + 1}`,
+                                        };
+                                    }),
+                                ]}
+                                className={styles.selectFilter}
+                            />
                         </div>
+                    </div>
 
-                        <div className={styles.tableWrapper}>
+                    <div className={styles.tableWrapper}>
+                        {classSubjectFollowLecturer.length > 0 ? (
                             <table className={styles.table}>
                                 <thead className={styles.thead}>
                                     <tr>
@@ -187,23 +185,23 @@ const ClassSubjectManagement = () => {
                                     )}
                                 </tbody>
                             </table>
-                        </div>
-
-                        <div className={styles.paginationWrapper}>
-                            <Pagination
-                                pageNumber={currentPage}
-                                setPageNumber={setCurrentPage}
-                                totalItem={classSubjectFollowLecturer.length}
-                                parPage={parPage}
-                                showItem={3}
-                            />
-                        </div>
+                        ) : (
+                            <TypographyBody tag="span" theme="lg">
+                                Không có bản ghi
+                            </TypographyBody>
+                        )}
                     </div>
-                ) : (
-                    <TypographyBody tag="span" theme="lg">
-                        Không có bản ghi
-                    </TypographyBody>
-                )}
+
+                    <div className={styles.paginationWrapper}>
+                        <Pagination
+                            pageNumber={currentPage}
+                            setPageNumber={setCurrentPage}
+                            totalItem={classSubjectFollowLecturer.length}
+                            parPage={parPage}
+                            showItem={3}
+                        />
+                    </div>
+                </div>
             </BorderBox>
         </AuthGuard>
     );

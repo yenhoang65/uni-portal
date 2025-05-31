@@ -8,54 +8,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { getTrainingProgramByStu } from "@/store/reducer/trainingProgramReducer";
 
-const mockTrainingProgram = {
-    trainingProgramId: 101,
-    trainingProgramName: "Công nghệ thông tin",
-    schoolYear: "2024-2025",
-    subjects: [
-        {
-            subjectId: 1,
-            subjectName: "Lập trình C++ cơ bản",
-            prerequisiteFor: [
-                { subjectId: 2, subjectName: "Lập trình C++ nâng cao" },
-            ],
-        },
-        {
-            subjectId: 2,
-            subjectName: "Lập trình C++ nâng cao",
-            prerequisiteFor: [],
-        },
-        {
-            subjectId: 3,
-            subjectName: "Cấu trúc dữ liệu & Giải thuật",
-            prerequisiteFor: [{ subjectId: 4, subjectName: "Cơ sở dữ liệu" }],
-        },
-        {
-            subjectId: 4,
-            subjectName: "Cơ sở dữ liệu",
-            prerequisiteFor: [],
-        },
-    ],
-};
-// --------- END MOCK DATA ---------
-
 const TrainingProgramByStudent = () => {
-    // Nếu muốn fetch từ API, dùng useEffect, ở đây dùng mockData
-    const [trainingProgram, setTrainingProgram] =
-        useState<typeof mockTrainingProgram>(mockTrainingProgram);
-
-    useEffect(() => {
-        // Giả lập load dữ liệu
-        setTrainingProgram(mockTrainingProgram);
-    }, []);
-
     const dispatch = useDispatch<AppDispatch>();
     const { subjectFollowTrainingProgram, successMessage, errorMessage } =
         useSelector((state: RootState) => state.trainingProgram);
 
     useEffect(() => {
         dispatch(getTrainingProgramByStu());
-    }, []);
+    }, [dispatch]);
+
+    console.log(subjectFollowTrainingProgram);
+
+    const trainingProgram = subjectFollowTrainingProgram?.length
+        ? subjectFollowTrainingProgram[0].trainingProgram
+        : null;
 
     return (
         <AuthGuard allowedRoles={["student"]}>
@@ -82,7 +48,7 @@ const TrainingProgramByStudent = () => {
                             <TypographyHeading tag="span" theme="lg">
                                 Năm học:
                             </TypographyHeading>{" "}
-                            {trainingProgram?.schoolYear}
+                            {trainingProgram?.trainingCode}
                         </div>
                     </div>
                 </div>
@@ -96,7 +62,7 @@ const TrainingProgramByStudent = () => {
                         Các môn học trong chương trình
                     </TypographyHeading>
                 </div>
-                {trainingProgram?.subjects?.length > 0 ? (
+                {subjectFollowTrainingProgram.length > 0 ? (
                     <div className={styles.tableWrapper}>
                         <table className={styles.table}>
                             <thead className={styles.thead}>
@@ -111,36 +77,44 @@ const TrainingProgramByStudent = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {trainingProgram.subjects.map((subject) => (
-                                    <tr key={subject.subjectId}>
-                                        <td style={{ textAlign: "center" }}>
-                                            {subject.subjectId}
-                                        </td>
-                                        <td>{subject.subjectName}</td>
-                                        <td style={{ textAlign: "center" }}>
-                                            {subject.prerequisiteFor?.length > 0
-                                                ? subject.prerequisiteFor.map(
-                                                      (pre, idx) => (
-                                                          <span
-                                                              key={
-                                                                  pre.subjectId
-                                                              }
-                                                          >
-                                                              {pre.subjectName}
-                                                              {idx <
-                                                              subject
-                                                                  .prerequisiteFor
-                                                                  .length -
-                                                                  1
-                                                                  ? ", "
-                                                                  : ""}
-                                                          </span>
+                                {subjectFollowTrainingProgram.map(
+                                    (item: any) => (
+                                        <tr key={item.subject.subjectId}>
+                                            <td style={{ textAlign: "center" }}>
+                                                {item.subject.subjectId}
+                                            </td>
+                                            <td>{item.subject.subjectName}</td>
+                                            <td style={{ textAlign: "center" }}>
+                                                {item.subject.prerequisiteFor
+                                                    ?.length > 0
+                                                    ? item.subject.prerequisiteFor?.map(
+                                                          (
+                                                              pre: any,
+                                                              idx: any
+                                                          ) => (
+                                                              <span
+                                                                  key={
+                                                                      pre.subjectId
+                                                                  }
+                                                              >
+                                                                  {
+                                                                      pre.subjectName
+                                                                  }
+                                                                  {idx <
+                                                                  item.subject
+                                                                      .prerequisiteFor
+                                                                      .length -
+                                                                      1
+                                                                      ? ", "
+                                                                      : ""}
+                                                              </span>
+                                                          )
                                                       )
-                                                  )
-                                                : "—"}
-                                        </td>
-                                    </tr>
-                                ))}
+                                                    : "—"}
+                                            </td>
+                                        </tr>
+                                    )
+                                )}
                             </tbody>
                         </table>
                     </div>

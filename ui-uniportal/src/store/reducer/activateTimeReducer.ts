@@ -29,8 +29,6 @@ export const getListActiveTimeStudent = createAsyncThunk(
 
             return fulfillWithValue(data);
         } catch (error: any) {
-            // const e = error as Error;
-            // return rejectWithValue(e.message);
             if (error.response && error.response.data) {
                 return rejectWithValue(error.response.data);
             }

@@ -108,6 +108,29 @@ const RegistrationTimeActivation = () => {
         }
     }, [successMessage, errorMessage]);
 
+    useEffect(() => {
+        const now = new Date();
+        const activeEntries = activeTimeStudents.filter(
+            (time) => time.status === "active" && new Date(time.endDate) > now
+        );
+
+        if (activeEntries.length > 0) {
+            const nearestEndDate = Math.min(
+                ...activeEntries.map((time) => new Date(time.endDate).getTime())
+            );
+
+            const timeUntilNearestEndDate = nearestEndDate - now.getTime();
+
+            if (timeUntilNearestEndDate > 0) {
+                const timer = setTimeout(() => {
+                    dispatch(getListActiveTimeStudent());
+                }, timeUntilNearestEndDate + 1000); // Add a small buffer
+
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [activeTimeStudents, dispatch]);
+
     return (
         <AuthGuard allowedRoles={["admin"]}>
             <BorderBox title={t("registration.title")}>

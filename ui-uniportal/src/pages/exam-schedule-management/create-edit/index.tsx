@@ -2,73 +2,105 @@ import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
 import InputWithLabel from "@/components/InputWithLabel";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SelectWithLabel from "@/components/SelectWithLabel";
 import { TypographyBody } from "@/components/TypographyBody";
 import { Button } from "@/components/Button";
 import AuthGuard from "@/components/AuthGuard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getListClassroom } from "@/store/reducer/classroomReducer";
+import { getPoint } from "@/store/reducer/pointReducer";
+import {
+    createExam,
+    getAllClassStudent,
+    getExamAll,
+    getExamByIds,
+    messageClear,
+    updateExam,
+} from "@/store/reducer/examReducer";
+import { stat } from "fs";
+import toast from "react-hot-toast";
 
-// Mock data cho select options
-const mockClassSubjects = [
-    { value: "CS001", label: "Công nghệ phần mềm (CS001)" },
-    { value: "CS002", label: "Cơ sở dữ liệu (CS002)" },
-    { value: "CS003", label: "Lập trình Web (CS003)" },
-];
-const mockGradeEvents = [
-    { value: "GE001", label: "Giữa kỳ (GE001)" },
-    { value: "GE002", label: "Cuối kỳ (GE002)" },
-    { value: "GE003", label: "Kiểm tra 15p (GE003)" },
-];
-const mockClassrooms = [
-    { value: "A101", label: "A101" },
-    { value: "B202", label: "B202" },
-    { value: "C303", label: "C303" },
-];
 const examForms = [
-    { value: "Tự luận", label: "Tự luận" },
-    { value: "Trắc nghiệm", label: "Trắc nghiệm" },
-    { value: "Vấn đáp", label: "Vấn đáp" },
+    { value: "offline", label: "Offline" },
+    { value: "online", label: "Online" },
 ];
 
-type State = {
-    id: string;
-    class_subject_id: string;
-    grade_event_id: string;
-    classroom_id: string;
-    exam_date: string;
-    start_time: string;
-    end_time: string;
-    exam_form: string;
-};
-
-const defaultState: State = {
-    id: "",
-    class_subject_id: "",
-    grade_event_id: "",
-    classroom_id: "",
-    exam_date: "",
-    start_time: "",
-    end_time: "",
-    exam_form: "",
+type ExamScheduleState = {
+    classStudentId: number | "";
+    classroomId: number | "";
+    startDate: string;
+    endDate: string;
+    startTime: string;
+    endTime: string;
+    examForm: string;
+    gradeTypeId: number | "";
 };
 
 const CreateEditExamSchedule = () => {
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { allExams, examDetail, classStudent, successMessage, errorMessage } =
+        useSelector((state: RootState) => state.exam);
+    const { classrooms } = useSelector((state: RootState) => state.classroom);
+    const { listPoint } = useSelector((state: RootState) => state.point);
+
     const router = useRouter();
+    const { id } = router.query;
     const { query } = router;
     const [mode, setMode] = useState<"create" | "edit">("create");
-    const [state, setState] = useState<State>(defaultState);
+    const [state, setState] = useState<ExamScheduleState>({
+        classStudentId: "",
+        classroomId: "",
+        startDate: "",
+        endDate: "",
+        startTime: "",
+        endTime: "",
+        examForm: "",
+        gradeTypeId: "",
+    });
 
-    // Nếu có logic lấy dữ liệu cũ, đưa vào đây
+    useEffect(() => {
+        dispatch(getListClassroom());
+        dispatch(getPoint());
+        dispatch(getAllClassStudent());
+    }, []);
+
     useEffect(() => {
         if (query.id) {
-            setMode("edit");
-            // Lấy dữ liệu detail bằng id, mock thử:
-            // setState({ ...dataFromAPI });
-        } else {
-            setMode("create");
-            setState(defaultState);
+            dispatch(getExamByIds(id));
         }
     }, [query.id]);
+
+    useEffect(() => {
+        if (query.id && examDetail) {
+            setMode("edit");
+            setState({
+                classStudentId: examDetail.classStudentId ?? "",
+                classroomId: examDetail.classroomId ?? "",
+                startDate: examDetail.startDate ?? "",
+                endDate: examDetail.endDate ?? "",
+                startTime: examDetail.startTime ?? "",
+                endTime: examDetail.endTime ?? "",
+                examForm: examDetail.examForm ?? "",
+                gradeTypeId: examDetail.gradeTypeId ?? "",
+            });
+        } else {
+            setMode("create");
+
+            setState({
+                classStudentId: "",
+                classroomId: "",
+                startDate: "",
+                endDate: "",
+                startTime: "",
+                endTime: "",
+                examForm: "",
+                gradeTypeId: "",
+            });
+        }
+    }, [query.id, examDetail]);
 
     const inputHandle = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -80,11 +112,35 @@ const CreateEditExamSchedule = () => {
     };
 
     const handleSubmit = () => {
-        // Submit dữ liệu, tùy theo mode
-        // Gọi API tạo/sửa ở đây
-        alert(`${mode === "create" ? "Tạo" : "Cập nhật"} thành công!`);
-        router.push("/exam-schedule");
+        const obj = {
+            classStudentId: Number(state.classStudentId),
+            classroomId: Number(state.classroomId),
+            startDate: state.startDate,
+            endDate: state.endDate,
+            startTime: state.startTime,
+            endTime: state.endTime,
+            examForm: state.examForm,
+            gradeTypeId: Number(state.gradeTypeId),
+        };
+        if (mode === "create") {
+            console.log(obj);
+            dispatch(createExam({ dto: obj }));
+        } else {
+            dispatch(updateExam({ id: examDetail.examScheduleId, dto: obj }));
+        }
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+            router.push("/exam-schedule-management");
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["admin"]}>
@@ -95,57 +151,78 @@ const CreateEditExamSchedule = () => {
             >
                 <section className={styles.container}>
                     <div className={styles.gridItem}>
-                        <InputWithLabel
-                            label="Mã lịch thi"
-                            name="id"
-                            value={state.id}
-                            onChange={inputHandle}
-                            type="text"
-                            required
-                            disabled={mode === "edit"}
-                        />
-                    </div>
-                    <div className={styles.gridItem}>
                         <SelectWithLabel
                             label="Lớp học phần"
-                            name="class_subject_id"
-                            value={state.class_subject_id}
+                            name="classStudentId"
+                            value={state.classStudentId || ""}
                             onChange={
                                 inputHandle as React.ChangeEventHandler<HTMLSelectElement>
                             }
-                            options={mockClassSubjects}
+                            options={[
+                                { value: "", label: "-----------------" },
+                                ...classStudent.map((point: any) => ({
+                                    value: point.classStudentId || "",
+                                    label:
+                                        `${point.termClass.classname} - ${point.subject.subjectName}` ||
+                                        "",
+                                })),
+                            ]}
                             required
                         />
                     </div>
                     <div className={styles.gridItem}>
                         <SelectWithLabel
-                            label="Sự kiện điểm"
-                            name="grade_event_id"
-                            value={state.grade_event_id}
+                            label="Loại thi"
+                            name="gradeTypeId"
+                            value={state.gradeTypeId || ""}
                             onChange={
                                 inputHandle as React.ChangeEventHandler<HTMLSelectElement>
                             }
-                            options={mockGradeEvents}
+                            options={[
+                                { value: "", label: "-----------------" },
+                                ...listPoint.map((point: any) => ({
+                                    value: point.gradeTypeId || "",
+                                    label:
+                                        `${point.code} - ${point.name}` || "",
+                                })),
+                            ]}
                             required
                         />
                     </div>
                     <div className={styles.gridItem}>
                         <SelectWithLabel
                             label="Phòng thi"
-                            name="classroom_id"
-                            value={state.classroom_id}
+                            name="classroomId"
+                            value={state.classroomId || ""}
                             onChange={
                                 inputHandle as React.ChangeEventHandler<HTMLSelectElement>
                             }
-                            options={mockClassrooms}
+                            options={[
+                                { value: "", label: "-----------------" },
+                                ...classrooms.map((classroom) => ({
+                                    value: classroom.classroomId || "",
+                                    label: `DH${classroom.classroomId}` || "",
+                                })),
+                            ]}
+                            required
+                        />
+                    </div>
+
+                    <div className={styles.gridItem}>
+                        <InputWithLabel
+                            label="Ngày thi"
+                            name="startDate"
+                            value={state.startDate || ""}
+                            onChange={inputHandle}
+                            type="date"
                             required
                         />
                     </div>
                     <div className={styles.gridItem}>
                         <InputWithLabel
-                            label="Ngày thi"
-                            name="exam_date"
-                            value={state.exam_date}
+                            label="Ngày hoàn thành"
+                            name="endDate"
+                            value={state.endDate}
                             onChange={inputHandle}
                             type="date"
                             required
@@ -154,8 +231,8 @@ const CreateEditExamSchedule = () => {
                     <div className={styles.gridItem}>
                         <InputWithLabel
                             label="Giờ bắt đầu"
-                            name="start_time"
-                            value={state.start_time}
+                            name="startTime"
+                            value={state.startTime || ""}
                             onChange={inputHandle}
                             type="time"
                             required
@@ -164,8 +241,8 @@ const CreateEditExamSchedule = () => {
                     <div className={styles.gridItem}>
                         <InputWithLabel
                             label="Giờ kết thúc"
-                            name="end_time"
-                            value={state.end_time}
+                            name="endTime"
+                            value={state.endTime || ""}
                             onChange={inputHandle}
                             type="time"
                             required
@@ -174,12 +251,15 @@ const CreateEditExamSchedule = () => {
                     <div className={styles.gridItem}>
                         <SelectWithLabel
                             label="Hình thức thi"
-                            name="exam_form"
-                            value={state.exam_form}
+                            name="examForm"
+                            value={state.examForm || ""}
                             onChange={
                                 inputHandle as React.ChangeEventHandler<HTMLSelectElement>
                             }
-                            options={examForms}
+                            options={[
+                                { value: "", label: "Chọn hình thức" },
+                                ...examForms,
+                            ]}
                             required
                         />
                     </div>

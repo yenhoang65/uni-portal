@@ -26,11 +26,14 @@ export const getExamAll = createAsyncThunk(
     }
 );
 
-export const getExamDetail = createAsyncThunk(
-    "point/getExamDetail",
-    async (id: any, { rejectWithValue, fulfillWithValue }) => {
+//lấy danh sách lớp thành công
+export const getAllClassStudent = createAsyncThunk(
+    "point/getAllClassStudent",
+    async (_, { rejectWithValue, fulfillWithValue }) => {
         try {
-            const { data } = await api.get(`/grade-types/${id}`);
+            const { data } = await api.get(
+                `/class-student/success-classes-subject`
+            );
 
             return fulfillWithValue(data);
         } catch (error) {
@@ -40,19 +43,92 @@ export const getExamDetail = createAsyncThunk(
     }
 );
 
-export const updatePoint = createAsyncThunk(
-    "point/updatePoint",
-    async (
-        { id, dto }: { id: any; dto: any },
-        { rejectWithValue, fulfillWithValue }
-    ) => {
+//tạo lịch thi
+export const createExam = createAsyncThunk(
+    "exam/createExam",
+    async ({ dto }: { dto: any }, { rejectWithValue, fulfillWithValue }) => {
         try {
-            const { data } = await api.put(`/grade-types/${id}`, dto);
+            const { data } = await api.post(`/exam-schedule/midterm`, dto);
 
             return fulfillWithValue(data);
         } catch (error) {
             const e = error as Error;
             return rejectWithValue(e.message || "An unknown error occurred");
+        }
+    }
+);
+
+//get lịch thi theo id
+//http://localhost:8080/api/exam-schedule/7
+export const getExamByIds = createAsyncThunk(
+    "point/getExamByIds",
+    async (id: any, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get(`/exam-schedule/${id}`);
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
+//lịch thi theo sinh viên
+export const getExamForStu = createAsyncThunk(
+    "point/getExamForStu",
+    async (
+        { semester, schoolyear }: { semester: any; schoolyear: any },
+        { rejectWithValue, fulfillWithValue }
+    ) => {
+        try {
+            const token = window.localStorage.getItem("accessToken");
+            const { data } = await api.get(
+                `/exam-schedule/student/all?semester=${semester}&schoolyear=${schoolyear}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log(data);
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
+export const updateExam = createAsyncThunk(
+    "exam/updateExam",
+    async (
+        { id, dto }: { id: any; dto: any },
+        { rejectWithValue, fulfillWithValue }
+    ) => {
+        try {
+            const { data } = await api.put(`/exam-schedule/${id}`, dto, {
+                withCredentials: true,
+            });
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
         }
     }
 );
@@ -71,20 +147,6 @@ export const deletePoint = createAsyncThunk(
     }
 );
 
-export const createExam = createAsyncThunk(
-    "exam/createExam",
-    async ({ dto }: { dto: any }, { rejectWithValue, fulfillWithValue }) => {
-        try {
-            const { data } = await api.post(`/grade-types`, dto);
-
-            return fulfillWithValue(data);
-        } catch (error) {
-            const e = error as Error;
-            return rejectWithValue(e.message || "An unknown error occurred");
-        }
-    }
-);
-
 export const examReducer = createSlice({
     name: "exam",
     initialState: {
@@ -94,6 +156,8 @@ export const examReducer = createSlice({
         allExams: [] as any,
         examsForStu: [] as any,
         examDetail: {} as any,
+
+        classStudent: [] as any,
     },
     reducers: {
         messageClear: (state) => {
@@ -120,6 +184,76 @@ export const examReducer = createSlice({
             })
             .addCase(getExamAll.fulfilled, (state, { payload }) => {
                 state.allExams = payload.data;
+            })
+
+            .addCase(createExam.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+            .addCase(createExam.fulfilled, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.successMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.successMessage = (
+                        payload as { message: string }
+                    ).message;
+                }
+            })
+
+            .addCase(updateExam.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+            .addCase(updateExam.fulfilled, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.successMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.successMessage = (
+                        payload as { message: string }
+                    ).message;
+                }
+            })
+
+            .addCase(getAllClassStudent.fulfilled, (state, { payload }) => {
+                state.classStudent = payload.data;
+            })
+
+            .addCase(getExamForStu.fulfilled, (state, { payload }) => {
+                state.examsForStu = payload.data;
+            })
+
+            .addCase(getExamByIds.fulfilled, (state, { payload }) => {
+                state.examDetail = payload.data;
             });
     },
 });

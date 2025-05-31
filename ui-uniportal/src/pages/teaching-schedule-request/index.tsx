@@ -117,7 +117,7 @@ const TeachingAssignmentWithDetails = () => {
     return (
         <AuthGuard allowedRoles={["lecturer"]}>
             <BorderBox title="Danh sách lớp đã được phân công cho giảng viên">
-                {!isInActiveTime ? (
+                {isInActiveTime ? (
                     <div className={styles.box}>
                         <div className={styles.add}>
                             <Search

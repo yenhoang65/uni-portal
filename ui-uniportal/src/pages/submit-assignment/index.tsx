@@ -5,17 +5,34 @@ import styles from "./styles.module.css";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { getExerciseByStudent } from "@/store/reducer/pointReducer";
+import {
+    getExerciseByStudent,
+    messageClear,
+} from "@/store/reducer/pointReducer";
+import toast from "react-hot-toast";
 
 const AssignmentList = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const { exerciseByStudent } = useSelector(
+    const { exerciseByStudent, successMessage, errorMessage } = useSelector(
         (state: RootState) => state.point
     );
 
     useEffect(() => {
         dispatch(getExerciseByStudent());
     }, [dispatch]);
+
+    console.log(exerciseByStudent);
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["student"]}>
@@ -35,7 +52,8 @@ const AssignmentList = () => {
                                     className={`${styles.assignmentItem} ${statusClass}`}
                                 >
                                     <h3 className={styles.assignmentTitle}>
-                                        {assignment.title}
+                                        {assignment.title} -{" "}
+                                        {assignment.classname}
                                     </h3>
                                     <div
                                         className={styles.description}

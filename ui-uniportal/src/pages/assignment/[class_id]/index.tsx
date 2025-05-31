@@ -9,8 +9,9 @@ import BorderBox from "@/components/BorderBox";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { getExerciseByClass } from "@/store/reducer/pointReducer";
+import { getExerciseByClass, messageClear } from "@/store/reducer/pointReducer";
 import { TypographyBody } from "@/components/TypographyBody";
+import toast from "react-hot-toast";
 
 const AssignmentList = () => {
     const { t } = useTranslation();
@@ -29,12 +30,12 @@ const AssignmentList = () => {
         }
     }, [class_id]);
 
-    console.log("exercises: ", exercises);
-
     return (
         <AuthGuard allowedRoles={["admin", "lecturer"]}>
             <BorderBox
-                title={t("assignmentList.title", { className: "125213" })}
+                title={t("assignmentList.title", {
+                    className: exercises[0]?.className || "",
+                })}
             >
                 <div className={styles.assignmentList}>
                     <Link

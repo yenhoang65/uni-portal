@@ -227,8 +227,6 @@ export const getExerciseByStudent = createAsyncThunk(
 
             return fulfillWithValue(data);
         } catch (error: any) {
-            // const e = error as Error;
-            // return rejectWithValue(e.message);
             if (error.response && error.response.data) {
                 return rejectWithValue(error.response.data);
             }
@@ -281,8 +279,6 @@ export const getViewSubmissions = createAsyncThunk(
 
             return fulfillWithValue(data);
         } catch (error: any) {
-            // const e = error as Error;
-            // return rejectWithValue(e.message);
             if (error.response && error.response.data) {
                 return rejectWithValue(error.response.data);
             }
@@ -531,7 +527,35 @@ export const pointReducer = createSlice({
             .addCase(getExerciseByClass.fulfilled, (state, { payload }) => {
                 state.exercises = payload;
             })
+            .addCase(getExerciseByStudent.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
             .addCase(getExerciseByStudent.fulfilled, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.successMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.successMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.successMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
                 state.exerciseByStudent = payload.data;
             })
             .addCase(getExerciseDetail.fulfilled, (state, { payload }) => {
@@ -580,7 +604,17 @@ export const pointReducer = createSlice({
             })
 
             .addCase(gradeListSubmission.fulfilled, (state, { payload }) => {
-                state.successMessage = "Đã thêm bài tập thành công";
+                if (typeof payload === "string") {
+                    state.successMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.successMessage = (
+                        payload as { message: string }
+                    ).message;
+                }
             });
     },
 });

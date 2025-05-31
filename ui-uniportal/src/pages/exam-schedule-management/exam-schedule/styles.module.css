@@ -10,6 +10,23 @@
     display: flex;
     justify-content: flex-start;
     margin-bottom: 22px;
+    gap: 20px;
+}
+
+.filterRow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.selectFilter {
+    width: 150px !important;
+}
+
+.noData {
+    display: flex;
+    justify-content: center;
 }
 
 .tableWrapper {
