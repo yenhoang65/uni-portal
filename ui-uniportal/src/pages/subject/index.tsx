@@ -17,6 +17,7 @@ import {
     deleteSubject,
     getListSubject,
     messageClear,
+    searchSubject,
 } from "@/store/reducer/subjectReducer";
 import toast from "react-hot-toast";
 
@@ -48,6 +49,18 @@ const SubjectManagement = () => {
     useEffect(() => {
         dispatch(getListSubject());
     }, []);
+
+    useEffect(() => {
+        const delayDebounce = setTimeout(() => {
+            if (searchValue.trim() !== "") {
+                dispatch(searchSubject(searchValue));
+            } else {
+                dispatch(getListSubject());
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounce);
+    }, [searchValue]);
 
     useEffect(() => {
         if (successMessage) {

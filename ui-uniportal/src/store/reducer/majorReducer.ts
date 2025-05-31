@@ -131,6 +131,26 @@ export const deleteMajor = createAsyncThunk(
     }
 );
 
+export const searchMajor = createAsyncThunk(
+    "major/searchFaculty",
+    async (name: string, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get(`/majors/search?name=${name}`, {
+                withCredentials: true,
+            });
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
 export const majorReducer = createSlice({
     name: "auth",
     initialState: {
@@ -154,6 +174,9 @@ export const majorReducer = createSlice({
             //     state.loader = false;
             // })
             .addCase(getListMajor.fulfilled, (state, { payload }) => {
+                state.majors = payload.data;
+            })
+            .addCase(searchMajor.fulfilled, (state, { payload }) => {
                 state.majors = payload.data;
             })
             .addCase(getMajorDetail.fulfilled, (state, { payload }) => {

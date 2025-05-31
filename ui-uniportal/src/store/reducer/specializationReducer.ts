@@ -49,11 +49,33 @@ export const getSpecDetail = createAsyncThunk(
                 withCredentials: true,
             });
 
-
             return fulfillWithValue(data);
         } catch (error: any) {
             // const e = error as Error;
             // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
+export const searchSpec = createAsyncThunk(
+    "spec/searchSpec",
+    async (name: string, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get(
+                `/specializations/search?name=${name}`,
+                {
+                    withCredentials: true,
+                }
+            );
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
             if (error.response && error.response.data) {
                 return rejectWithValue(error.response.data);
             }
@@ -155,6 +177,9 @@ export const specializationReducer = createSlice({
             //     state.loader = false;
             // })
             .addCase(getListSpec.fulfilled, (state, { payload }) => {
+                state.specializations = payload.data;
+            })
+            .addCase(searchSpec.fulfilled, (state, { payload }) => {
                 state.specializations = payload.data;
             })
             .addCase(getSpecDetail.fulfilled, (state, { payload }) => {

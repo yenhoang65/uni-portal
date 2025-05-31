@@ -298,6 +298,29 @@ export const getTrainingProgramBySpec = createAsyncThunk(
     }
 );
 
+export const searchTP = createAsyncThunk(
+    "trainingProgram/searchTP",
+    async (name: string, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get(
+                `/training-programs/search?code=${name}`,
+                {
+                    withCredentials: true,
+                }
+            );
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
 export const trainingProgramReducer = createSlice({
     name: "trainingProgram",
     initialState: {
@@ -322,6 +345,9 @@ export const trainingProgramReducer = createSlice({
             //     state.loader = false;
             // })
             .addCase(getListTrainingProgram.fulfilled, (state, { payload }) => {
+                state.trainingPrograms = payload.data;
+            })
+            .addCase(searchTP.fulfilled, (state, { payload }) => {
                 state.trainingPrograms = payload.data;
             })
             .addCase(

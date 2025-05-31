@@ -62,6 +62,29 @@ export const getSubjectDetail = createAsyncThunk(
     }
 );
 
+export const searchSubject = createAsyncThunk(
+    "subject/searchSubject",
+    async (keyword: string, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get(
+                `/subjects/search?keyword=${keyword}`,
+                {
+                    withCredentials: true,
+                }
+            );
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
 export const updateSubject = createAsyncThunk(
     "subject/updateSubject",
     async (
@@ -153,6 +176,9 @@ export const subjectReducer = createSlice({
             //     state.loader = false;
             // })
             .addCase(getListSubject.fulfilled, (state, { payload }) => {
+                state.subjects = payload.data;
+            })
+            .addCase(searchSubject.fulfilled, (state, { payload }) => {
                 state.subjects = payload.data;
             })
             .addCase(getSubjectDetail.fulfilled, (state, { payload }) => {

@@ -14,7 +14,11 @@ import ModalConfirm from "@/components/ModalConfirm";
 import AuthGuard from "@/components/AuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { deleteFaculty, getListFaculty } from "@/store/reducer/facultyReducer";
+import {
+    deleteFaculty,
+    getListFaculty,
+    searchFaculty,
+} from "@/store/reducer/facultyReducer";
 
 const Faculty = () => {
     const { t } = useTranslation();
@@ -44,6 +48,18 @@ const Faculty = () => {
     useEffect(() => {
         dispatch(getListFaculty());
     }, []);
+
+    useEffect(() => {
+        const delayDebounce = setTimeout(() => {
+            if (searchValue.trim() !== "") {
+                dispatch(searchFaculty(searchValue));
+            } else {
+                dispatch(getListFaculty());
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounce);
+    }, [searchValue]);
 
     const totalItem = faculties.length;
     const totalPages = Math.ceil(totalItem / parPage);
@@ -93,9 +109,7 @@ const Faculty = () => {
                                     <th style={{ width: "180px" }}>
                                         {t("common.established-date")}
                                     </th>
-                                    {/* <th style={{ width: "200px" }}>
-                                        {t("common.website")}
-                                    </th> */}
+
                                     <th
                                         style={{
                                             width: "200px",

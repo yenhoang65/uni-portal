@@ -15,7 +15,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { getListMajor } from "@/store/reducer/majorReducer";
 import toast from "react-hot-toast";
-import { messageClear } from "@/store/reducer/specializationReducer";
+import {
+    messageClear,
+    searchSpec,
+} from "@/store/reducer/specializationReducer";
 import { deleteSpec, getListSpec } from "@/store/reducer/specializationReducer";
 
 const Specialization = () => {
@@ -53,6 +56,18 @@ const Specialization = () => {
     useEffect(() => {
         dispatch(getListMajor());
     }, []);
+
+    useEffect(() => {
+        const delayDebounce = setTimeout(() => {
+            if (searchValue.trim() !== "") {
+                dispatch(searchSpec(searchValue));
+            } else {
+                dispatch(getListMajor());
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounce);
+    }, [searchValue]);
 
     useEffect(() => {
         if (successMessage) {
@@ -115,10 +130,7 @@ const Specialization = () => {
                                     <th style={{ minWidth: "180px" }}>
                                         Tên ngành
                                     </th>
-                                    <th style={{ minWidth: "320px" }}>Mô tả</th>
-                                    <th style={{ minWidth: "160px" }}>
-                                        Ngày thành lập
-                                    </th>
+
                                     <th style={{ minWidth: "80px" }}>
                                         Thao tác
                                     </th>
@@ -145,16 +157,7 @@ const Specialization = () => {
                                             </td>
 
                                             <td>{specialization.majorName}</td>
-                                            <td>
-                                                {
-                                                    specialization.specializationDescription
-                                                }
-                                            </td>
-                                            <td>
-                                                {
-                                                    specialization.specializationDescription
-                                                }
-                                            </td>
+
                                             <td className={styles.buttonAction}>
                                                 <Link
                                                     href={`/specialization/view?id=${specialization.specializationId}`}

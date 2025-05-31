@@ -13,7 +13,11 @@ import ModalConfirm from "@/components/ModalConfirm";
 import AuthGuard from "@/components/AuthGuard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { deleteMajor, getListMajor } from "@/store/reducer/majorReducer";
+import {
+    deleteMajor,
+    getListMajor,
+    searchMajor,
+} from "@/store/reducer/majorReducer";
 import toast from "react-hot-toast";
 import { messageClear } from "@/store/reducer/majorReducer";
 
@@ -46,6 +50,18 @@ const Major = () => {
     useEffect(() => {
         dispatch(getListMajor());
     }, []);
+
+    useEffect(() => {
+        const delayDebounce = setTimeout(() => {
+            if (searchValue.trim() !== "") {
+                dispatch(searchMajor(searchValue));
+            } else {
+                dispatch(getListMajor());
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounce);
+    }, [searchValue]);
 
     useEffect(() => {
         if (successMessage) {

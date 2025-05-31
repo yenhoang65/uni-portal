@@ -66,6 +66,26 @@ export const getFacultyDetail = createAsyncThunk(
     }
 );
 
+export const searchFaculty = createAsyncThunk(
+    "faculty/searchFaculty",
+    async (name: string, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get(`/faculties/search?name=${name}`, {
+                withCredentials: true,
+            });
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
 export const updateFaculty = createAsyncThunk(
     "faculty/updateFaculty",
     async (
@@ -164,6 +184,9 @@ export const facultyReducer = createSlice({
             //     state.loader = false;
             // })
             .addCase(getListFaculty.fulfilled, (state, { payload }) => {
+                state.faculties = payload.data;
+            })
+            .addCase(searchFaculty.fulfilled, (state, { payload }) => {
                 state.faculties = payload.data;
             })
             .addCase(getFacultyDetail.fulfilled, (state, { payload }) => {

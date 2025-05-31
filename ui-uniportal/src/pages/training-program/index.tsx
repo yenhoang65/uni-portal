@@ -20,6 +20,7 @@ import {
     getListTrainingProgram,
     getTrainingProgramBySpec,
     messageClear,
+    searchTP,
 } from "@/store/reducer/trainingProgramReducer";
 import toast from "react-hot-toast";
 
@@ -79,6 +80,18 @@ const TrainingProgram = () => {
             dispatch(getTrainingProgramBySpec(value));
         }
     };
+
+    useEffect(() => {
+        const delayDebounce = setTimeout(() => {
+            if (searchValue.trim() !== "") {
+                dispatch(searchTP(searchValue));
+            } else {
+                dispatch(getListTrainingProgram());
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounce);
+    }, [searchValue]);
 
     const totalItem = trainingPrograms.length;
     const totalPages = Math.ceil(totalItem / parPage);
