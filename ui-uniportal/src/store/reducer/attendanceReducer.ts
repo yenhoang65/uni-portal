@@ -141,9 +141,6 @@ export const attendanceReducer = createSlice({
                 }
             )
 
-            .addCase(markAttendance.pending, (state) => {
-                state.successMessage = "Saving";
-            })
             .addCase(markAttendance.rejected, (state, { payload }) => {
                 if (typeof payload === "string") {
                     state.errorMessage = payload;
@@ -190,10 +187,6 @@ export const attendanceReducer = createSlice({
                     state.listAttendanceAfterMark = payload.data;
                 }
             )
-
-            .addCase(updateMarkAttendance.pending, (state) => {
-                state.successMessage = "Saving";
-            })
 
             .addCase(updateMarkAttendance.rejected, (state, { payload }) => {
                 if (typeof payload === "string") {

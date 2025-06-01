@@ -75,25 +75,6 @@ const Attendance = () => {
         }
     }, [attendanceSession]);
 
-    // useEffect(() => {
-    //     if (listAttendanceAfterMark && listStudent.length > 0) {
-    //         setAttendanceRecords(
-    //             listStudent.map((stu: any) => {
-    //                 const found = listAttendanceAfterMark.find(
-    //                     (d: any) => d.userId === stu.userId
-    //                 );
-    //                 return {
-    //                     studentId: stu.userId,
-    //                     sessionId: selectedSessionId,
-    //                     status: found ? found.status : "absent",
-    //                     note: "",
-    //                     classSubjectStudentId: stu.classSubjectStudentId,
-    //                 };
-    //             })
-    //         );
-    //     }
-    // }, [listAttendanceAfterMark, listStudent, selectedSessionId]);
-
     useEffect(() => {
         if (listAttendanceAfterMark && listStudent.length > 0) {
             setAttendanceRecords(
@@ -127,6 +108,29 @@ const Attendance = () => {
         );
     };
 
+    // const handleMarkAttendance = async (
+    //     studentId: string,
+    //     sessionId: string,
+    //     status: "" | "present" | "absent" | "excused",
+    //     note?: string
+    // ) => {
+    //     const student = listStudent.find(
+    //         (stu: any) => stu.userId === studentId
+    //     );
+    //     if (!student) return;
+
+    //     if (!status) return;
+
+    //     const dto = {
+    //         sessionId: sessionId,
+    //         classSubjectStudentId: student.classSubjectStudentId,
+    //         status,
+    //         note: note || "",
+    //     };
+
+    //     await dispatch(markAttendance({ dto }));
+    // };
+
     const handleMarkAttendance = async (
         studentId: string,
         sessionId: string,
@@ -136,9 +140,11 @@ const Attendance = () => {
         const student = listStudent.find(
             (stu: any) => stu.userId === studentId
         );
-        if (!student) return;
+        if (!student || !status) return;
 
-        if (!status) return;
+        const record = attendanceRecords.find(
+            (r) => r.studentId === studentId && r.sessionId === sessionId
+        );
 
         const dto = {
             sessionId: sessionId,
@@ -147,7 +153,15 @@ const Attendance = () => {
             note: note || "",
         };
 
-        await dispatch(markAttendance({ dto }));
+        if (record?.attendanceId) {
+            // Gọi API update
+            await dispatch(
+                updateMarkAttendance({ attendanceId: record.attendanceId, dto })
+            );
+        } else {
+            // Gọi API tạo mới
+            await dispatch(markAttendance({ dto }));
+        }
     };
 
     const handleAttendanceChange = (
@@ -191,8 +205,6 @@ const Attendance = () => {
             dispatch(messageClear());
         }
     }, [successMessage, errorMessage, selectedSessionId, dispatch]);
-
-    console.log(listAttendanceAfterMark);
 
     return (
         <AuthGuard allowedRoles={["lecturer"]}>

@@ -27,6 +27,14 @@ type ActivateTime = {
     endDate: Date;
     // status: string | null;
 };
+
+const toDatetimeLocal = (date: Date) => {
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+        date.getDate()
+    )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
+
 const ActivateTeachingScheduleRegistration = () => {
     const { t } = useTranslation();
     const dispatch = useDispatch<AppDispatch>();
@@ -55,15 +63,22 @@ const ActivateTeachingScheduleRegistration = () => {
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) => {
         const { name, value } = e.target;
-        setState((prev) => ({
-            ...prev,
-            [name]:
-                name === "startDate" || name === "endDate"
-                    ? new Date(value)
-                    : name === "schoolYear" || name === "semester"
-                    ? Number(value)
-                    : value,
-        }));
+        if (name === "startDate" || name === "endDate") {
+            const [datePart, timePart] = value.split("T");
+            const [year, month, day] = datePart.split("-").map(Number);
+            const [hour, minute] = timePart.split(":").map(Number);
+            const localDate = new Date(year, month - 1, day, hour, minute);
+
+            setState((prev) => ({ ...prev, [name]: localDate }));
+        } else {
+            setState((prev) => ({
+                ...prev,
+                [name]:
+                    name === "schoolYear" || name === "semester"
+                        ? Number(value)
+                        : value,
+            }));
+        }
     };
 
     useEffect(() => {
@@ -115,7 +130,7 @@ const ActivateTeachingScheduleRegistration = () => {
                         label={t("activate.startDate")}
                         type="datetime-local"
                         name="startDate"
-                        value={state.startDate.toISOString().slice(0, 16)}
+                        value={toDatetimeLocal(state.startDate)}
                         onChange={inputHandle}
                         required
                     />
@@ -123,7 +138,7 @@ const ActivateTeachingScheduleRegistration = () => {
                         label={t("activate.endDate")}
                         type="datetime-local"
                         name="endDate"
-                        value={state.endDate.toISOString().slice(0, 16)}
+                        value={toDatetimeLocal(state.endDate)}
                         onChange={inputHandle}
                         required
                     />

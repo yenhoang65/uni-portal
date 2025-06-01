@@ -356,6 +356,28 @@ export const getClassSubjectFollowLecturer = createAsyncThunk(
     }
 );
 
+export const getClassFollowDay = createAsyncThunk(
+    "class/getClassFollowDay",
+    async (date: any, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get(
+                `/attendance-sessions/by-date?scheduledDate=${date}`
+            );
+
+            console.log("data: ", data);
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
 export const classReducer = createSlice({
     name: "class",
     initialState: {
@@ -370,6 +392,8 @@ export const classReducer = createSlice({
         classByStatus: [] as TeachingSchedule[],
 
         classSubjectFollowLecturer: [] as classSubjectFollowLecturer[],
+
+        classFollowDay: [] as any,
         totalClassByStatus: 0,
     },
     reducers: {
@@ -389,6 +413,10 @@ export const classReducer = createSlice({
             .addCase(getListClassOffical.fulfilled, (state, { payload }) => {
                 state.classOfficals = payload.data;
             })
+            .addCase(getClassFollowDay.fulfilled, (state, { payload }) => {
+                state.classFollowDay = payload.data;
+            })
+
             .addCase(deleteClassOffical.rejected, (state, { payload }) => {
                 if (typeof payload === "string") {
                     state.errorMessage = payload;

@@ -4,74 +4,41 @@ import { useState, useEffect } from "react";
 import { FaPrint } from "react-icons/fa";
 import AuthGuard from "@/components/AuthGuard";
 import { Button } from "@/components/Button";
-
-type ClassScheduleType = {
-    id: string;
-    maLop: string;
-    tenGiangVien: string;
-    phongHoc: string;
-    tietHoc: string;
-    ngayHoc: string; // Format: YYYY-MM-DD
-    sySo?: number; // Optional: Add sỹ số if available in your data
-};
-
-// Dữ liệu lớp học theo ngày (MOCK DATA - Replace with your API call)
-const classSchedules: ClassScheduleType[] = [
-    {
-        id: "SCH001",
-        maLop: "MH001",
-        tenGiangVien: "Nguyễn Văn A",
-        phongHoc: "P.101",
-        tietHoc: "1-3",
-        ngayHoc: "2025-05-03",
-    },
-    {
-        id: "SCH002",
-        maLop: "MH002",
-        tenGiangVien: "Trần Thị B",
-        phongHoc: "Lab.A",
-        tietHoc: "4-6",
-        ngayHoc: "2025-05-02",
-    },
-    {
-        id: "SCH003",
-        maLop: "MH001",
-        tenGiangVien: "Nguyễn Văn A",
-        phongHoc: "P.102",
-        tietHoc: "7-9",
-        ngayHoc: "2025-05-02",
-    },
-    {
-        id: "SCH004",
-        maLop: "MH003",
-        tenGiangVien: "Lê Văn C",
-        phongHoc: "H.205",
-        tietHoc: "1-3",
-        ngayHoc: "2025-05-03",
-    },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getClassFollowDay } from "@/store/reducer/classReducer";
+import { TypographyBody } from "@/components/TypographyBody";
+import { exportScheduleExcel } from "@/constants/exportTimeline";
 
 const ClassScheduleToday = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const { classFollowDay } = useSelector((state: RootState) => state.class);
+
     const [selectedDate, setSelectedDate] = useState<string>(
         new Date().toISOString().slice(0, 10)
     );
-
-    // Lọc danh sách lớp học theo ngày đã chọn
-    const filteredByDate = classSchedules.filter(
-        (schedule) => schedule.ngayHoc === selectedDate
-    );
-
-    const handlePrintList = () => {
-        // Logic để in danh sách các lớp học theo ngày đã chọn
-        alert(
-            `Chức năng in danh sách ngày ${selectedDate} sẽ được triển khai tại đây!`
-        );
-    };
 
     const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedDate(event.target.value);
     };
 
+    useEffect(() => {
+        if (selectedDate) {
+            dispatch(getClassFollowDay(selectedDate));
+        }
+    }, [selectedDate, dispatch]);
+
+    const handlePrintList = () => {
+        const formatted = classFollowDay.map((item: any, index: number) => ({
+            stt: index + 1,
+            className: item.className,
+            lecturerName: item.lecturerName,
+            room: `DH30${index + 1}`,
+            lesson: item.lesson,
+        }));
+
+        exportScheduleExcel(formatted, selectedDate);
+    };
     return (
         <AuthGuard allowedRoles={["admin", "employee"]}>
             <BorderBox title={`Lịch học ngày ${selectedDate}`}>
@@ -102,38 +69,51 @@ const ClassScheduleToday = () => {
                     </div>
 
                     <div className={styles.tableWrapper}>
-                        <table className={styles.table}>
-                            <thead className={styles.thead}>
-                                <tr>
-                                    <th style={{ minWidth: "80px" }}>No</th>
-                                    <th style={{ minWidth: "120px" }}>
-                                        Mã lớp
-                                    </th>
-                                    <th style={{ minWidth: "200px" }}>
-                                        Tên giảng viên
-                                    </th>
-                                    <th style={{ minWidth: "150px" }}>
-                                        Phòng học
-                                    </th>
-                                    <th style={{ minWidth: "150px" }}>
-                                        Tiết học
-                                    </th>
-                                    <th style={{ minWidth: "100px" }}>Sỹ số</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {classSchedules.map((schedule, index) => (
-                                    <tr key={schedule.id}>
-                                        <td>{schedule.id}</td>
-                                        <td>{schedule.maLop}</td>
-                                        <td>{schedule.tenGiangVien}</td>
-                                        <td>{schedule.phongHoc}</td>
-                                        <td>{schedule.tietHoc}</td>
-                                        <td></td>
+                        {classFollowDay.length > 0 ? (
+                            <table className={styles.table}>
+                                <thead className={styles.thead}>
+                                    <tr>
+                                        <th style={{ width: "80px" }}>No</th>
+                                        <th style={{ width: "150px" }}>
+                                            Mã lớp
+                                        </th>
+                                        <th style={{ minWidth: "200px" }}>
+                                            Tên giảng viên
+                                        </th>
+                                        <th style={{ minWidth: "150px" }}>
+                                            Phòng học
+                                        </th>
+                                        <th style={{ minWidth: "150px" }}>
+                                            Tiết học
+                                        </th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {classFollowDay.map(
+                                        (schedule: any, index: any) => (
+                                            <tr key={schedule.sessionId}>
+                                                <td>{index + 1}</td>
+                                                <td>{schedule.className}</td>
+                                                <td>{schedule.lecturerName}</td>
+                                                <td>
+                                                    DH30{index + 1} -{" "}
+                                                    {schedule.classroomName}
+                                                </td>
+                                                <td>{schedule.lesson}</td>
+                                            </tr>
+                                        )
+                                    )}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <TypographyBody
+                                tag="span"
+                                theme="lg"
+                                className={styles.noData}
+                            >
+                                Không có dữ liệu
+                            </TypographyBody>
+                        )}
                     </div>
                 </div>
             </BorderBox>

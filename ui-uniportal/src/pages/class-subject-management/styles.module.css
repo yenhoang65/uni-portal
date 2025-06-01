@@ -92,6 +92,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    text-decoration: none;
     color: var(--secondary-blue);
     transition: box-shadow 0.2s ease, transform 0.2s ease;
 }

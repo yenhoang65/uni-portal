@@ -15,6 +15,11 @@
     font-size: 1rem;
 }
 
+.noData {
+    display: flex;
+    justify-content: center;
+}
+
 .datePicker {
     padding: 10px;
     border: 1px solid #ccc;

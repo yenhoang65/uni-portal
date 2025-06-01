@@ -14,6 +14,9 @@ import { useTranslation } from "react-i18next";
 import { TypographyBody } from "@/components/TypographyBody";
 import { getClassSubjectFollowLecturer } from "@/store/reducer/classReducer";
 import SelectWithLabel from "@/components/SelectWithLabel";
+import { getCurrentSemesterAndSchoolYear } from "@/constants/constants";
+import { getListStudentFollowClassSubject } from "@/store/reducer/attendanceReducer";
+import { exportStudentListToExcel } from "@/constants/exportExel";
 
 const ClassSubjectManagement = () => {
     const { t } = useTranslation();
@@ -23,12 +26,18 @@ const ClassSubjectManagement = () => {
         (state: RootState) => state.class
     );
 
+    const { listStudent } = useSelector((state: RootState) => state.attendance);
+
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [parPage, setParPage] = useState(10);
 
-    const [semester, setSemester] = useState<number>(1);
-    const [schoolyear, setSchoolyear] = useState<number>(2026);
+    const [semester, setSemester] = useState<number>(
+        () => getCurrentSemesterAndSchoolYear().semester
+    );
+    const [schoolyear, setSchoolyear] = useState<number>(
+        () => getCurrentSemesterAndSchoolYear().schoolyear
+    );
 
     useEffect(() => {
         dispatch(
@@ -155,11 +164,41 @@ const ClassSubjectManagement = () => {
                                                         )}
                                                     </Link>
                                                     <Link
-                                                        href={`/student-list/${classSubject.classStudentId}`}
+                                                        href={`#`}
                                                         className={clsx(
                                                             styles.viewButton,
                                                             styles.listButton
                                                         )}
+                                                        onClick={async (e) => {
+                                                            e.preventDefault();
+
+                                                            await dispatch(
+                                                                getListStudentFollowClassSubject(
+                                                                    classSubject.classStudentId
+                                                                )
+                                                            );
+
+                                                            setTimeout(() => {
+                                                                if (
+                                                                    !Array.isArray(
+                                                                        listStudent
+                                                                    ) ||
+                                                                    listStudent.length ===
+                                                                        0
+                                                                ) {
+                                                                    alert(
+                                                                        "Không có sinh viên nào trong lớp."
+                                                                    );
+                                                                    return;
+                                                                }
+
+                                                                exportStudentListToExcel(
+                                                                    listStudent,
+                                                                    classSubject.className,
+                                                                    classSubject.subjectName
+                                                                );
+                                                            }, 200); // đợi redux cập nhật state
+                                                        }}
                                                     >
                                                         <BiListCheck />{" "}
                                                         {t(
