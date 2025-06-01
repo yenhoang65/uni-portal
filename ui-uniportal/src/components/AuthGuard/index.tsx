@@ -21,12 +21,12 @@ export default function AuthGuard({ allowedRoles, children }: Props) {
         async function checkAuth() {
             if (token && role) {
                 if (router.pathname === "/login") {
-                    router.push("/dashboard");
+                    window.location.href = "/dashboard";
                     return;
                 }
 
                 if (allowedRoles && !allowedRoles.includes(role)) {
-                    router.push("/not-allowed");
+                    window.location.href = "/not-allowed";
                     return;
                 }
 
@@ -36,7 +36,7 @@ export default function AuthGuard({ allowedRoles, children }: Props) {
 
             if (!token || !role) {
                 if (router.pathname !== "/login") {
-                    router.push("/login");
+                    window.location.href = "/login";
                 }
             }
         }

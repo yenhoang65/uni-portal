@@ -74,28 +74,24 @@
 }
 
 .viewButton {
-    display: flex;
+    padding: 6px;
+    border-radius: 6px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
-
-.viewButton svg {
-    font-size: 18px;
-}
-
-.viewButton:hover {
-    background-color: #e5e7eb;
-}
-
-.viewButtonUpdate {
-    color: #3b82f6;
+    color: var(--secondary-blue);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .viewButtonDelete {
-    color: #ef4444;
+    color: var(--primary-red);
+}
+
+.viewButtonUpdate {
+    color: var(--primary-yellow);
+}
+.viewButton:hover {
+    transform: scale(1.05);
 }
 
 .paginationWrapper {

@@ -26,12 +26,10 @@ function App({ Component, pageProps }: AppProps) {
             : null;
 
     useEffect(() => {
-        // Kiểm tra nếu không có accessToken, chuyển hướng đến trang login
         if (!accessToken && router.pathname !== "/login") {
             router.push("/login");
         }
 
-        // Kiểm tra nếu đã đăng nhập và cố gắng truy cập trang login, chuyển hướng đến dashboard
         if (accessToken && router.pathname === "/login") {
             router.push("/");
         }

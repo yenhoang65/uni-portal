@@ -42,6 +42,8 @@ const ClassRegistration = () => {
         isInActiveTime = now >= start && now <= end;
     }
 
+    // console.log(activeTimeStudents);
+
     return (
         <AuthGuard allowedRoles={["student"]}>
             <BorderBox title="Đăng ký tín chỉ - Các lớp đang mở">

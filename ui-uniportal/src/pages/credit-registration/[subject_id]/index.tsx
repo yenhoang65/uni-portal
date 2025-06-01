@@ -17,7 +17,7 @@ import {
     registerTC,
 } from "@/store/reducer/creditRegistrationReducer";
 import toast from "react-hot-toast";
-import { getCurrentSemesterAndSchoolYear } from "../../../constants/constants";
+import { getCurrentSemesterAndSchoolYear } from "@/constants/constants";
 
 moment.updateLocale("en", {
     week: {
@@ -350,45 +350,49 @@ const ListClassSubject = () => {
         }
     }, [successMessage, errorMessage]);
 
+    console.log(classOpenFollowSubject);
+
     return (
         <BorderBox title="Các lớp đang mở môn Công nghệ phần mềm">
-            <Calendar
-                key={events.length}
-                className={styles.calendar}
-                localizer={localizer}
-                formats={{
-                    dayFormat: (date, culture, localizer) =>
-                        localizer!.format(date, "dddd", culture),
-                }}
-                events={events}
-                startAccessor="start"
-                endAccessor="end"
-                defaultView="week"
-                views={["week"]}
-                timeslots={1}
-                step={60}
-                defaultDate={events.length ? events[0].start : new Date()}
-                min={new Date(2024, 0, 1, 6, 0)}
-                max={new Date(2024, 0, 1, 23, 0)}
-                style={{ height: "75vh" }}
-                eventPropGetter={(event) => ({
-                    style: {
-                        backgroundColor: event.color,
-                        color: "white",
-                        borderRadius: "4px",
-                        padding: "4px",
-                        border: "none",
-                    },
-                })}
-                onSelectEvent={(event) => {
-                    setSelectedClass(event.originalClass);
-                    setIsModalOpen(true);
-                }}
-                components={{
-                    event: CustomEventComponent,
-                }}
-                dayLayoutAlgorithm="no-overlap"
-            />
+            <div className={styles.calendarWrapper}>
+                <Calendar
+                    key={events.length}
+                    className={styles.calendar}
+                    localizer={localizer}
+                    formats={{
+                        dayFormat: (date, culture, localizer) =>
+                            localizer!.format(date, "dddd", culture),
+                    }}
+                    events={events}
+                    startAccessor="start"
+                    endAccessor="end"
+                    defaultView="week"
+                    views={["week"]}
+                    timeslots={1}
+                    step={60}
+                    defaultDate={events.length ? events[0].start : new Date()}
+                    min={new Date(2024, 0, 1, 6, 0)}
+                    max={new Date(2024, 0, 1, 23, 0)}
+                    style={{ height: "75vh" }}
+                    eventPropGetter={(event) => ({
+                        style: {
+                            backgroundColor: event.color,
+                            color: "white",
+                            borderRadius: "4px",
+                            padding: "4px",
+                            border: "none",
+                        },
+                    })}
+                    onSelectEvent={(event) => {
+                        setSelectedClass(event.originalClass);
+                        setIsModalOpen(true);
+                    }}
+                    components={{
+                        event: CustomEventComponent,
+                    }}
+                    dayLayoutAlgorithm="no-overlap"
+                />
+            </div>
             {isModalOpen && selectedClass && (
                 <ModalConfirm
                     confirmText="đăng ký học"
