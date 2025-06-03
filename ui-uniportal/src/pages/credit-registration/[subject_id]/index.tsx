@@ -72,18 +72,21 @@ type ClassFollowSubject = {
     };
 };
 
-function getLessonRange(lessonTime: string): [number, number] {
-    const match = lessonTime.match(/Tiết (\d+)-(\d+)/);
-    return match ? [parseInt(match[1]), parseInt(match[2])] : [1, 1];
-}
-
 function getRandomColor(): string {
-    const letters = "0123456789";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
+    const palette = [
+        "#264653",
+        "#2a9d8f",
+        "#e9c46a",
+        "#f4a261",
+        "#e76f51",
+        "#230400",
+        "#3b0006",
+        "#61010a",
+        "#82030a",
+        "#a82029",
+    ];
+    const index = Math.floor(Math.random() * palette.length);
+    return palette[index];
 }
 
 const CustomEventComponent = ({ event }: { event: any }) => {
@@ -166,8 +169,114 @@ const CustomEventComponent = ({ event }: { event: any }) => {
 //     return events;
 // }
 
+// function generateEventsFromAPI(data: any[]): any[] {
+//     const events: any[] = [];
+
+//     data.forEach((item) => {
+//         const subjectName = item.subject?.subjectName;
+//         const lecturerId = item.teachingAssignment?.lecturerId;
+//         const lecturerName = item.teachingAssignment?.lecturerName || "//TO DO";
+//         const scheduleDetails =
+//             item.teachingScheduleRequest?.scheduleDetails || [];
+
+//         // Tìm LT và TH
+//         const ltDetail = scheduleDetails.find(
+//             (d: any) => d.class_type?.toUpperCase() === "LT"
+//         );
+//         const thDetail = scheduleDetails.find(
+//             (d: any) => d.class_type?.toUpperCase() === "TH"
+//         );
+
+//         // Nếu có LT, tạo event chính lấy thời gian từ LT, content gồm cả LT + TH nếu có
+//         if (ltDetail) {
+//             const { lesson, date_time, classroom_id } = ltDetail;
+//             const [startLesson, endLesson] = lesson.split("-").map(Number);
+//             const dateStr = date_time.slice(0, 10);
+//             const startTime = moment(
+//                 `${dateStr} ${lessonTimeMap[startLesson].start}`,
+//                 "YYYY-MM-DD HH:mm"
+//             );
+//             const endTime = moment(
+//                 `${dateStr} ${lessonTimeMap[endLesson].end}`,
+//                 "YYYY-MM-DD HH:mm"
+//             );
+//             const color = getRandomColor();
+
+//             let content = `${subjectName}\nGV: ${lecturerId} - ${lecturerName}\n- Lý thuyết: Tiết ${lesson}, Phòng ${classroom_id}\nNgày bắt đầu: ${moment(
+//                 ltDetail.date_time
+//             ).format("DD/MM/YYYY")}`;
+//             if (thDetail) {
+//                 content += `\n- Thực hành: Tiết ${thDetail.lesson}, Phòng ${
+//                     thDetail.classroom_id
+//                 }\nNgày bắt đầu: ${moment(thDetail.date_time).format(
+//                     "DD/MM/YYYY"
+//                 )}`;
+//             }
+
+//             events.push({
+//                 title: content,
+//                 start: startTime.toDate(),
+//                 end: endTime.toDate(),
+//                 allDay: false,
+//                 color,
+//                 subjectName,
+//                 lecturerId,
+//                 lecturerName,
+//                 ltLesson: ltDetail.lesson,
+//                 ltClassroom: ltDetail.classroom_id,
+//                 ltDate: moment(ltDetail.date_time).format("DD/MM/YYYY"),
+//                 thLesson: thDetail?.lesson,
+//                 thClassroom: thDetail?.classroom_id,
+//                 thDate: thDetail
+//                     ? moment(thDetail.date_time).format("DD/MM/YYYY")
+//                     : undefined,
+//                 originalClass: item,
+//             });
+//         } else if (thDetail) {
+//             // Nếu chỉ có TH
+//             const { lesson, date_time, classroom_id } = thDetail;
+//             const [startLesson, endLesson] = lesson.split("-").map(Number);
+//             const dateStr = date_time.slice(0, 10);
+//             const startTime = moment(
+//                 `${dateStr} ${lessonTimeMap[startLesson].start}`,
+//                 "YYYY-MM-DD HH:mm"
+//             );
+//             const endTime = moment(
+//                 `${dateStr} ${lessonTimeMap[endLesson].end}`,
+//                 "YYYY-MM-DD HH:mm"
+//             );
+//             const color = getRandomColor();
+
+//             let content = `${subjectName}\nGV: ${lecturerId} - ${lecturerName}\n- Thực hành: Tiết ${lesson}, Phòng ${classroom_id}\nNgày bắt đầu: ${moment(
+//                 thDetail.date_time
+//             ).format("DD/MM/YYYY")}`;
+
+//             events.push({
+//                 title: content,
+//                 start: startTime.toDate(),
+//                 end: endTime.toDate(),
+//                 allDay: false,
+//                 color,
+//                 subjectName,
+//                 lecturerId,
+//                 lecturerName,
+//                 thLesson: thDetail.lesson,
+//                 thClassroom: thDetail.classroom_id,
+//                 thDate: moment(thDetail.date_time).format("DD/MM/YYYY"),
+//                 originalClass: item,
+//             });
+//         }
+//     });
+
+//     return events;
+// }
+
 function generateEventsFromAPI(data: any[]): any[] {
     const events: any[] = [];
+    // Use a fixed reference date, for example, the first Monday of the current week.
+    // This allows events to appear on the correct day of the week regardless of their original date_time,
+    // as long as the calendar view can accommodate it.
+    const referenceDate = moment().startOf("week").add(1, "day"); // This will be the current Monday
 
     data.forEach((item) => {
         const subjectName = item.subject?.subjectName;
@@ -176,7 +285,6 @@ function generateEventsFromAPI(data: any[]): any[] {
         const scheduleDetails =
             item.teachingScheduleRequest?.scheduleDetails || [];
 
-        // Tìm LT và TH
         const ltDetail = scheduleDetails.find(
             (d: any) => d.class_type?.toUpperCase() === "LT"
         );
@@ -184,25 +292,44 @@ function generateEventsFromAPI(data: any[]): any[] {
             (d: any) => d.class_type?.toUpperCase() === "TH"
         );
 
-        // Nếu có LT, tạo event chính lấy thời gian từ LT, content gồm cả LT + TH nếu có
-        if (ltDetail) {
-            const { lesson, date_time, classroom_id } = ltDetail;
+        const createEvent = (detail: ScheduleDetail, isLT: boolean) => {
+            const { lesson, date_time, classroom_id } = detail;
             const [startLesson, endLesson] = lesson.split("-").map(Number);
-            const dateStr = date_time.slice(0, 10);
+
+            // Get the day of the week from the actual date_time
+            const originalDayOfWeek = moment(date_time).day(); // 0 = Sunday, 1 = Monday, etc.
+
+            // Adjust the reference date to match the original day of the week
+            // Ensure Monday is 1, Sunday is 0 for moment.day()
+            const eventDate = moment(referenceDate).day(
+                originalDayOfWeek === 0 ? 7 : originalDayOfWeek
+            ); // Handle Sunday (0) to be the end of the week (7)
+
             const startTime = moment(
-                `${dateStr} ${lessonTimeMap[startLesson].start}`,
+                `${eventDate.format("YYYY-MM-DD")} ${
+                    lessonTimeMap[startLesson].start
+                }`,
                 "YYYY-MM-DD HH:mm"
             );
             const endTime = moment(
-                `${dateStr} ${lessonTimeMap[endLesson].end}`,
+                `${eventDate.format("YYYY-MM-DD")} ${
+                    lessonTimeMap[endLesson].end
+                }`,
                 "YYYY-MM-DD HH:mm"
             );
+
             const color = getRandomColor();
 
-            let content = `${subjectName}\nGV: ${lecturerId} - ${lecturerName}\n- Lý thuyết: Tiết ${lesson}, Phòng ${classroom_id}\nNgày bắt đầu: ${moment(
-                ltDetail.date_time
-            ).format("DD/MM/YYYY")}`;
-            if (thDetail) {
+            let content = `${subjectName}\nGV: ${lecturerId} - ${lecturerName}\n`;
+            if (ltDetail) {
+                content += `- Lý thuyết: Tiết ${ltDetail.lesson}, Phòng ${
+                    ltDetail.classroom_id
+                }\nNgày bắt đầu: ${moment(ltDetail.date_time).format(
+                    "DD/MM/YYYY"
+                )}`;
+            }
+            if (thDetail && thDetail !== ltDetail) {
+                // Avoid duplicating if LT and TH are the same detail
                 content += `\n- Thực hành: Tiết ${thDetail.lesson}, Phòng ${
                     thDetail.classroom_id
                 }\nNgày bắt đầu: ${moment(thDetail.date_time).format(
@@ -219,9 +346,11 @@ function generateEventsFromAPI(data: any[]): any[] {
                 subjectName,
                 lecturerId,
                 lecturerName,
-                ltLesson: ltDetail.lesson,
-                ltClassroom: ltDetail.classroom_id,
-                ltDate: moment(ltDetail.date_time).format("DD/MM/YYYY"),
+                ltLesson: ltDetail?.lesson,
+                ltClassroom: ltDetail?.classroom_id,
+                ltDate: ltDetail
+                    ? moment(ltDetail.date_time).format("DD/MM/YYYY")
+                    : undefined,
                 thLesson: thDetail?.lesson,
                 thClassroom: thDetail?.classroom_id,
                 thDate: thDetail
@@ -229,39 +358,15 @@ function generateEventsFromAPI(data: any[]): any[] {
                     : undefined,
                 originalClass: item,
             });
+        };
+
+        // If a class has both LT and TH, create one event using the LT schedule as the primary.
+        // The event content will include details for both LT and TH.
+        if (ltDetail) {
+            createEvent(ltDetail, true);
         } else if (thDetail) {
-            // Nếu chỉ có TH
-            const { lesson, date_time, classroom_id } = thDetail;
-            const [startLesson, endLesson] = lesson.split("-").map(Number);
-            const dateStr = date_time.slice(0, 10);
-            const startTime = moment(
-                `${dateStr} ${lessonTimeMap[startLesson].start}`,
-                "YYYY-MM-DD HH:mm"
-            );
-            const endTime = moment(
-                `${dateStr} ${lessonTimeMap[endLesson].end}`,
-                "YYYY-MM-DD HH:mm"
-            );
-            const color = getRandomColor();
-
-            let content = `${subjectName}\nGV: ${lecturerId} - ${lecturerName}\n- Thực hành: Tiết ${lesson}, Phòng ${classroom_id}\nNgày bắt đầu: ${moment(
-                thDetail.date_time
-            ).format("DD/MM/YYYY")}`;
-
-            events.push({
-                title: content,
-                start: startTime.toDate(),
-                end: endTime.toDate(),
-                allDay: false,
-                color,
-                subjectName,
-                lecturerId,
-                lecturerName,
-                thLesson: thDetail.lesson,
-                thClassroom: thDetail.classroom_id,
-                thDate: moment(thDetail.date_time).format("DD/MM/YYYY"),
-                originalClass: item,
-            });
+            // If only TH exists, create an event based on the TH schedule.
+            createEvent(thDetail, false);
         }
     });
 
@@ -318,20 +423,24 @@ const ListClassSubject = () => {
                     )
                     .join("; ")}
             </div>
-            <div>
-                - Thực hành:&nbsp;
-                {selectedClass.teachingScheduleRequest?.scheduleDetails
-                    .filter((d) => d.class_type === "TH")
-                    .map(
-                        (d) =>
-                            `Tiết ${d.lesson}, Phòng ${
-                                d.classroom_id
-                            }, Ngày bắt đầu: ${moment(d.date_time).format(
-                                "DD/MM/YYYY"
-                            )}`
-                    )
-                    .join("; ")}
-            </div>
+            {selectedClass.teachingScheduleRequest?.scheduleDetails?.some(
+                (d) => d.class_type === "TH"
+            ) && (
+                <div>
+                    - Thực hành:&nbsp;
+                    {selectedClass.teachingScheduleRequest.scheduleDetails
+                        .filter((d) => d.class_type === "TH")
+                        .map(
+                            (d) =>
+                                `Tiết ${d.lesson}, Phòng ${
+                                    d.classroom_id
+                                }, Ngày bắt đầu: ${moment(d.date_time).format(
+                                    "DD/MM/YYYY"
+                                )}`
+                        )
+                        .join("; ")}
+                </div>
+            )}
         </div>
     ) : (
         "Bạn muốn đăng ký lớp này?"
@@ -351,6 +460,7 @@ const ListClassSubject = () => {
     }, [successMessage, errorMessage]);
 
     console.log(classOpenFollowSubject);
+    console.log(events.length);
 
     return (
         <BorderBox title="Các lớp đang mở môn Công nghệ phần mềm">
@@ -370,9 +480,11 @@ const ListClassSubject = () => {
                     views={["week"]}
                     timeslots={1}
                     step={60}
-                    defaultDate={events.length ? events[0].start : new Date()}
-                    min={new Date(2024, 0, 1, 6, 0)}
-                    max={new Date(2024, 0, 1, 23, 0)}
+                    // defaultDate={events[0]?.start || new Date()}
+                    // min={new Date(2024, 0, 1, 6, 0)}
+                    // max={new Date(2024, 0, 1, 23, 0)}
+                    min={moment().set({ hour: 6, minute: 0 }).toDate()}
+                    max={moment().set({ hour: 22, minute: 0 }).toDate()}
                     style={{ height: "75vh" }}
                     eventPropGetter={(event) => ({
                         style: {
@@ -390,7 +502,7 @@ const ListClassSubject = () => {
                     components={{
                         event: CustomEventComponent,
                     }}
-                    dayLayoutAlgorithm="no-overlap"
+                    // dayLayoutAlgorithm="no-overlap"
                 />
             </div>
             {isModalOpen && selectedClass && (
