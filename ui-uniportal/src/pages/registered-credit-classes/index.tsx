@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
-import { FaEye } from "react-icons/fa";
+import { FaBan, FaEye } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import clsx from "clsx";
 import ModalConfirm from "@/components/ModalConfirm";
@@ -18,6 +18,8 @@ import {
     messageClear,
 } from "@/store/reducer/creditRegistrationReducer";
 import toast from "react-hot-toast";
+import { Typography } from "@/components/Typography";
+import { TypographyBody } from "@/components/TypographyBody";
 
 const RegisteredCreditClasses = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -60,6 +62,8 @@ const RegisteredCreditClasses = () => {
             dispatch(messageClear());
         }
     }, [successMessage, errorMessage]);
+
+    console.log(creditClasses);
 
     return (
         <AuthGuard allowedRoles={["student"]}>
@@ -137,7 +141,7 @@ const RegisteredCreditClasses = () => {
                                                 : ""}
                                         </td>
                                         <td>
-                                            {cls.classSubjectStudentStatus ===
+                                            {cls.classStudentStatus ===
                                             "success" ? (
                                                 <span
                                                     className={
@@ -145,6 +149,15 @@ const RegisteredCreditClasses = () => {
                                                     }
                                                 >
                                                     Đã đăng ký
+                                                </span>
+                                            ) : cls.classStudentStatus ===
+                                              "cancel" ? (
+                                                <span
+                                                    className={
+                                                        styles.statusCancel
+                                                    }
+                                                >
+                                                    Đã huỷ
                                                 </span>
                                             ) : (
                                                 <span
@@ -157,31 +170,47 @@ const RegisteredCreditClasses = () => {
                                             )}
                                         </td>
                                         <td className={styles.buttonAction}>
-                                            <Link
-                                                href="#"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setIsModalOpen(true);
-                                                    setDeleteClassId(
-                                                        cls.classSubjectStudentId
-                                                    );
-                                                }}
-                                                className={clsx(
-                                                    styles.viewButton,
-                                                    styles.viewButtonDelete
-                                                )}
-                                            >
-                                                <MdDeleteForever /> Hủy đăng ký
-                                            </Link>
-                                            {isModalOpen &&
-                                                deleteClassId ===
-                                                    cls.classSubjectStudentId && (
-                                                    <ModalConfirm
-                                                        message="Bạn có chắc chắn muốn hủy đăng ký lớp này?"
-                                                        onConfirm={handleDelete}
-                                                        onCancel={handleCancel}
-                                                    />
-                                                )}
+                                            {cls.classStudentStatus ===
+                                            "pending" ? (
+                                                <>
+                                                    <Link
+                                                        href="#"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            setIsModalOpen(
+                                                                true
+                                                            );
+                                                            setDeleteClassId(
+                                                                cls.classSubjectStudentId
+                                                            );
+                                                        }}
+                                                        className={clsx(
+                                                            styles.viewButton,
+                                                            styles.viewButtonDelete
+                                                        )}
+                                                    >
+                                                        <MdDeleteForever /> Hủy
+                                                        đăng ký
+                                                    </Link>
+                                                    {isModalOpen &&
+                                                        deleteClassId ===
+                                                            cls.classSubjectStudentId && (
+                                                            <ModalConfirm
+                                                                message="Bạn có chắc chắn muốn hủy đăng ký lớp này?"
+                                                                onConfirm={
+                                                                    handleDelete
+                                                                }
+                                                                onCancel={
+                                                                    handleCancel
+                                                                }
+                                                            />
+                                                        )}
+                                                </>
+                                            ) : (
+                                                <TypographyBody tag="span">
+                                                    <FaBan />
+                                                </TypographyBody>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

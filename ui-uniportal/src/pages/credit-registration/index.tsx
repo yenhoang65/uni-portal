@@ -13,6 +13,8 @@ import { AppDispatch, RootState } from "@/store";
 import {
     getAllClass,
     getSubjectsFollowUser,
+    messageClear,
+    registerTC,
 } from "@/store/reducer/creditRegistrationReducer";
 import { getListActiveTimeStudent } from "@/store/reducer/activateTimeReducer";
 import { TypographyBody } from "@/components/TypographyBody";
@@ -21,6 +23,8 @@ import ModalConfirm from "@/components/ModalConfirm";
 import toast from "react-hot-toast";
 import { IoIosArrowBack } from "react-icons/io";
 import { lessonTimeMap } from "@/constants/lession";
+import { Span } from "next/dist/trace";
+import { getCurrentSemesterAndSchoolYear } from "@/constants/constants";
 
 moment.updateLocale("en", {
     week: {
@@ -95,8 +99,24 @@ function generateEventsFromAPI(data: any[]) {
                 "YYYY-MM-DD HH:mm"
             );
 
+            let content = `${subjectName}\nGV: ${lecturerId} - ${lecturerName}\n`;
+            if (ltDetail) {
+                content += `- Lý thuyết: Tiết ${ltDetail.lesson}, Phòng ${
+                    ltDetail.classroom_id
+                }\nNgày bắt đầu: ${moment(ltDetail.date_time).format(
+                    "DD/MM/YYYY"
+                )}`;
+            }
+            if (thDetail && thDetail !== ltDetail) {
+                content += `\n- Thực hành: Tiết ${thDetail.lesson}, Phòng ${
+                    thDetail.classroom_id
+                }\nNgày bắt đầu: ${moment(thDetail.date_time).format(
+                    "DD/MM/YYYY"
+                )}`;
+            }
+
             events.push({
-                title: subjectName,
+                title: content,
                 start: startTime.toDate(),
                 end: endTime.toDate(),
                 allDay: false,
@@ -144,8 +164,18 @@ const ClassRegistration = () => {
     useEffect(() => {
         dispatch(getSubjectsFollowUser());
         dispatch(getListActiveTimeStudent());
-        dispatch(getAllClass());
     }, []);
+
+    useEffect(() => {
+        const { semester, schoolyear } = getCurrentSemesterAndSchoolYear();
+        console.log(semester);
+        dispatch(
+            getAllClass({
+                semester: semester,
+                schoolyear: schoolyear,
+            })
+        );
+    }, [dispatch]);
 
     const filterSubjectsBySearchValue = () => {
         if (!searchValue.trim()) return subjects;
@@ -179,6 +209,7 @@ const ClassRegistration = () => {
 
     const message = selectedClass ? (
         <div style={{ whiteSpace: "pre-wrap", textAlign: "left" }}>
+            <span>selectedClass.classStudentId</span>
             <div>{selectedClass.subject?.subjectName}</div>
             <div>
                 GV: {selectedClass.lecturer?.lecturerId} -{" "}
@@ -224,6 +255,17 @@ const ClassRegistration = () => {
     console.log(allClassRegis);
 
     console.log("events: ", events);
+
+    useEffect(() => {
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+        }
+        if (errorMessage) {
+            toast.error(errorMessage);
+            dispatch(messageClear());
+        }
+    }, [successMessage, errorMessage]);
 
     return (
         <AuthGuard allowedRoles={["student"]}>
@@ -304,8 +346,12 @@ const ClassRegistration = () => {
                                         buttonText="Đăng ký"
                                         message={message}
                                         onConfirm={() => {
-                                            toast.success(
-                                                "Đăng ký thành công!"
+                                            dispatch(
+                                                registerTC({
+                                                    classStudentId:
+                                                        selectedClass.classStudentId,
+                                                    status: "success",
+                                                })
                                             );
                                             setIsModalOpen(false);
                                         }}

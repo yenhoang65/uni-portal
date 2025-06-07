@@ -10,4 +10,5 @@ export const lessonTimeMap: Record<number, { start: string; end: string }> = {
     9: { start: "16:00", end: "17:00" },
     10: { start: "17:00", end: "18:00" },
     11: { start: "18:00", end: "19:00" },
+    12: { start: "19:00", end: "20:00" },
 };

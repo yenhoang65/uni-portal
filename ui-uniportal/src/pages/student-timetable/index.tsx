@@ -110,18 +110,21 @@ const TimeLine = () => {
         (state: RootState) => state.creditRegistration
     );
 
-    // Only generate events when data changes
-    const events = useMemo(
-        () => generateEventsFromAPI(creditClasses),
-        [creditClasses]
-    );
-
     const [view, setView] = useState<"month" | "week" | "day">("week");
     const [date, setDate] = useState(new Date());
 
     useEffect(() => {
         dispatch(getRegisteredCreditClasses());
     }, [dispatch]);
+
+    const events = useMemo(() => {
+        const filteredClasses = creditClasses.filter(
+            (cls) => cls.classStudentStatus === "success"
+        );
+        return generateEventsFromAPI(filteredClasses);
+    }, [creditClasses]);
+
+    console.log(creditClasses);
 
     return (
         <AuthGuard allowedRoles={["student"]}>

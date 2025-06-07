@@ -90,7 +90,7 @@ export type RegisteredCreditClass = {
     classSubjectStudentId: number;
     classSubjectStudentStatus: "success" | "pending";
     classStudentId: number;
-    classStudentStatus: "success" | "pending";
+    classStudentStatus: "success" | "pending" | "cancel";
     classStudentCreatedAt: string;
     classStudentEndDate: string;
     classStudentMaterials: any;
@@ -201,14 +201,20 @@ export const getClassFollowSubject = createAsyncThunk(
 //get all class
 export const getAllClass = createAsyncThunk(
     "regis/getAllClass",
-    async (_, { rejectWithValue, fulfillWithValue }) => {
+    async (
+        { semester, schoolyear }: { semester: any; schoolyear: any },
+        { rejectWithValue, fulfillWithValue }
+    ) => {
         try {
             const token = window.localStorage.getItem("accessToken");
-            const { data } = await api.get(`/class-student/opened-classes`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const { data } = await api.get(
+                `/class-student/opened-classes?semester=${semester}&schoolYear=${schoolyear}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
 
             return fulfillWithValue(data);
         } catch (error: any) {
