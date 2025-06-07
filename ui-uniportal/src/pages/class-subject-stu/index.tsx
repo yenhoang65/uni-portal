@@ -1,6 +1,6 @@
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Search from "@/components/Search";
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
@@ -8,25 +8,21 @@ import { AiOutlineCheckSquare } from "react-icons/ai";
 import { BiListCheck } from "react-icons/bi";
 import clsx from "clsx";
 import AuthGuard from "@/components/AuthGuard";
-import { AppDispatch, RootState } from "@/store";
-import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
 import { TypographyBody } from "@/components/TypographyBody";
-import { getClassSubjectFollowLecturer } from "@/store/reducer/classReducer";
 import SelectWithLabel from "@/components/SelectWithLabel";
 import { getCurrentSemesterAndSchoolYear } from "@/constants/constants";
-import { getListStudentFollowClassSubject } from "@/store/reducer/attendanceReducer";
-import { exportStudentListToExcel } from "@/constants/exportExel";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { getClassSubjectFollowStudent } from "@/store/reducer/classReducer";
 
-const ClassSubjectManagement = () => {
-    const { t } = useTranslation();
+const ClassSubjectStu = () => {
     const dispatch = useDispatch<AppDispatch>();
 
-    const { classSubjectFollowLecturer } = useSelector(
+    const { classSubjectFollowStudent } = useSelector(
         (state: RootState) => state.class
     );
 
-    const { listStudent } = useSelector((state: RootState) => state.attendance);
+    const [listStudent, setListStudent] = useState<any[]>([]);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
@@ -41,7 +37,7 @@ const ClassSubjectManagement = () => {
 
     useEffect(() => {
         dispatch(
-            getClassSubjectFollowLecturer({
+            getClassSubjectFollowStudent({
                 semester: semester,
                 schoolyear: schoolyear,
             })
@@ -49,26 +45,27 @@ const ClassSubjectManagement = () => {
     }, [dispatch, schoolyear, semester]);
 
     const paginatedData = useMemo(() => {
-        const filtered = classSubjectFollowLecturer.filter((item) => {
+        const filtered = classSubjectFollowStudent.filter((item: any) => {
             const keyword = searchValue.toLowerCase();
-            return (
-                item.subjectName.toLowerCase().includes(keyword) ||
-                item.className.toLowerCase().includes(keyword)
-            );
+            const subject = item.subjectName?.toLowerCase() || "";
+            const classname = item.classname?.toLowerCase() || "";
+            return subject.includes(keyword) || classname.includes(keyword);
         });
 
         const start = (currentPage - 1) * parPage;
         const end = start + parPage;
         return filtered.slice(start, end);
-    }, [classSubjectFollowLecturer, searchValue, currentPage, parPage]);
+    }, [classSubjectFollowStudent, searchValue, currentPage, parPage]);
 
     useEffect(() => {
         setCurrentPage(1);
     }, [searchValue]);
 
+    console.log(classSubjectFollowStudent);
+
     return (
-        <AuthGuard allowedRoles={["admin", "lecturer"]}>
-            <BorderBox title={t("classSubject.title")}>
+        <AuthGuard allowedRoles={["student"]}>
+            <BorderBox title="Quản lý lớp học phần">
                 <div className={styles.box}>
                     <div className={styles.add}>
                         <Search
@@ -76,7 +73,6 @@ const ClassSubjectManagement = () => {
                             setSearchValue={setSearchValue}
                             searchValue={searchValue}
                         />
-
                         <div className={styles.filterRow}>
                             <SelectWithLabel
                                 label=""
@@ -114,18 +110,18 @@ const ClassSubjectManagement = () => {
                     </div>
 
                     <div className={styles.tableWrapper}>
-                        {classSubjectFollowLecturer.length > 0 ? (
+                        {paginatedData.length > 0 ? (
                             <table className={styles.table}>
                                 <thead className={styles.thead}>
                                     <tr>
                                         <th style={{ minWidth: "50px" }}>
-                                            {t("common.index")}
+                                            STT
                                         </th>
                                         <th style={{ minWidth: "200px" }}>
-                                            {t("classSubject.className")}
+                                            Lớp học phần
                                         </th>
                                         <th style={{ minWidth: "150px" }}>
-                                            {t("classSubject.subjectName")}
+                                            Môn học
                                         </th>
                                         <th
                                             style={{
@@ -133,13 +129,13 @@ const ClassSubjectManagement = () => {
                                                 textAlign: "center",
                                             }}
                                         >
-                                            {t("common.action")}
+                                            Hành động
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {paginatedData.map(
-                                        (classSubject: any, index: number) => (
+                                        (classSubject: any, index: any) => (
                                             <tr
                                                 key={
                                                     classSubject.classStudentId
@@ -152,88 +148,44 @@ const ClassSubjectManagement = () => {
                                                         1}
                                                 </td>
                                                 <td>
-                                                    {classSubject.className}
+                                                    {classSubject.classname}
                                                 </td>
                                                 <td>
-                                                    {classSubject.subjectName}
+                                                    {
+                                                        classSubject.subject
+                                                            .subjectName
+                                                    }
                                                 </td>
-
                                                 <td
                                                     className={
                                                         styles.buttonAction
                                                     }
                                                 >
                                                     <Link
-                                                        href={`class-subject-management/attendance/${classSubject.classStudentId}?classname=${classSubject.className}`}
+                                                        href={`/class-subject-stu/view-attendance?classId=${classSubject.classStudentId}&&subject=${classSubject.subject.subjectName}&&subjectId=${classSubject.subject.subjectId}`}
                                                         className={clsx(
                                                             styles.viewButton,
                                                             styles.attendanceButton
                                                         )}
                                                     >
                                                         <AiOutlineCheckSquare />
-                                                        {t(
-                                                            "classSubject.attendance"
-                                                        )}
+                                                        Lịch sử điểm danh
                                                     </Link>
-                                                    <Link
-                                                        href={`#`}
-                                                        className={clsx(
-                                                            styles.viewButton,
-                                                            styles.listButton
-                                                        )}
-                                                        onClick={async (e) => {
-                                                            e.preventDefault();
 
-                                                            await dispatch(
-                                                                getListStudentFollowClassSubject(
-                                                                    classSubject.classStudentId
-                                                                )
-                                                            );
-
-                                                            setTimeout(() => {
-                                                                if (
-                                                                    !Array.isArray(
-                                                                        listStudent
-                                                                    ) ||
-                                                                    listStudent.length ===
-                                                                        0
-                                                                ) {
-                                                                    alert(
-                                                                        "Không có sinh viên nào trong lớp."
-                                                                    );
-                                                                    return;
-                                                                }
-
-                                                                exportStudentListToExcel(
-                                                                    listStudent,
-                                                                    classSubject.className,
-                                                                    classSubject.subjectName
-                                                                );
-                                                            }, 200); // đợi redux cập nhật state
-                                                        }}
-                                                    >
-                                                        <BiListCheck />{" "}
-                                                        {t(
-                                                            "classSubject.printList"
-                                                        )}
-                                                    </Link>
                                                     <Link
-                                                        href={`../assignment/${classSubject.classStudentId}`}
-                                                        className={clsx(
-                                                            styles.viewButton,
-                                                            styles.materials
-                                                        )}
-                                                    >
-                                                        <BiListCheck />{" "}
-                                                        {t(
-                                                            "classSubject.assignment"
-                                                        )}
-                                                    </Link>
-                                                    <Link
-                                                        href={`/class-subject-management/materials?classId=${classSubject.classStudentId}`}
+                                                        href={`/class-subject-stu/submit-assignment?classId=${classSubject.classStudentId}&&subject=${classSubject.subjectName}`}
                                                         className={clsx(
                                                             styles.viewButton,
                                                             styles.assignment
+                                                        )}
+                                                    >
+                                                        <BiListCheck /> Bài tập
+                                                    </Link>
+                                                    <Link
+                                                        href={`/class-subject-stu/materials?classId=${classSubject.classStudentId}`}
+                                                        className={clsx(
+                                                            styles.viewButton,
+                                                            styles.materials
                                                         )}
                                                     >
                                                         <BiListCheck /> Tài liệu
@@ -255,7 +207,7 @@ const ClassSubjectManagement = () => {
                         <Pagination
                             pageNumber={currentPage}
                             setPageNumber={setCurrentPage}
-                            totalItem={classSubjectFollowLecturer.length}
+                            totalItem={paginatedData.length}
                             parPage={parPage}
                             showItem={3}
                         />
@@ -266,4 +218,4 @@ const ClassSubjectManagement = () => {
     );
 };
 
-export default ClassSubjectManagement;
+export default ClassSubjectStu;

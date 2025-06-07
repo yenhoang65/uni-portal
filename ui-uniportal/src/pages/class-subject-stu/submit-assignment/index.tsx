@@ -6,10 +6,13 @@ import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import {
-    getExerciseByStudent,
+    getExerciseByClassStu,
     messageClear,
 } from "@/store/reducer/pointReducer";
 import toast from "react-hot-toast";
+import { useRouter } from "next/router";
+import { IoChevronBackCircleOutline } from "react-icons/io5";
+import { TypographyBody } from "@/components/TypographyBody";
 
 const AssignmentList = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -17,9 +20,14 @@ const AssignmentList = () => {
         (state: RootState) => state.point
     );
 
+    const router = useRouter();
+    const { classId } = router.query;
+
     useEffect(() => {
-        dispatch(getExerciseByStudent());
-    }, [dispatch]);
+        if (classId) {
+            dispatch(getExerciseByClassStu(classId));
+        }
+    }, [dispatch, classId]);
 
     console.log(exerciseByStudent);
 
@@ -36,7 +44,11 @@ const AssignmentList = () => {
 
     return (
         <AuthGuard allowedRoles={["student"]}>
-            <BorderBox title="Danh sách bài tập">
+            <BorderBox
+                title={`Danh sách bài tập - ${
+                    exerciseByStudent?.[0]?.classname || ""
+                }`}
+            >
                 <div className={styles.assignmentGrid}>
                     {exerciseByStudent && exerciseByStudent.length > 0 ? (
                         exerciseByStudent.map((assignment: any) => {
@@ -83,35 +95,18 @@ const AssignmentList = () => {
                                                         rel="noreferrer"
                                                     >
                                                         Link bài nộp
-                                                    </a>{" "}
-                                                    {assignment.score && (
-                                                        <>
-                                                            |{" "}
-                                                            <span
-                                                                style={{
-                                                                    color: "#db8600",
-                                                                    fontWeight:
-                                                                        "bold",
-                                                                    marginLeft: 4,
-                                                                }}
-                                                                className={
-                                                                    styles.editSubmitBtn
-                                                                }
-                                                            >
-                                                                Score:{" "}
-                                                                {
-                                                                    assignment.score
-                                                                }
-                                                                /{" "}
-                                                                {
-                                                                    assignment.maxScore
-                                                                }
-                                                            </span>
-                                                        </>
-                                                    )}
+                                                    </a>
                                                 </p>
                                             )}
                                         </>
+                                    ) : assignment.gradeType.code === "FINAL" ||
+                                      assignment.gradeType.code === "MID" ? (
+                                        <TypographyBody
+                                            tag="span"
+                                            className={styles.note}
+                                        >
+                                            Không cần nộp bài tập này
+                                        </TypographyBody>
                                     ) : (
                                         <>
                                             <p style={{ color: "#777" }}>
@@ -119,7 +114,7 @@ const AssignmentList = () => {
                                             </p>
                                             <div className={styles.action}>
                                                 <Link
-                                                    href={`/submit-assignment/${assignment.gradeEventId}`}
+                                                    href={`/class-subject-stu/submit-assignment/${assignment.gradeEventId}`}
                                                     className={styles.submitBtn}
                                                 >
                                                     Nộp bài tập
@@ -131,9 +126,18 @@ const AssignmentList = () => {
                             );
                         })
                     ) : (
-                        <div>Không có bài tập nào.</div>
+                        <TypographyBody
+                            tag="span"
+                            theme="lg"
+                            className={styles.noData}
+                        >
+                            Không có dữ liệu
+                        </TypographyBody>
                     )}
                 </div>
+                <Link href={"/class-subject-stu"} className={styles.backAction}>
+                    <IoChevronBackCircleOutline /> Quay lại
+                </Link>
             </BorderBox>
         </AuthGuard>
     );

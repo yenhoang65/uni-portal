@@ -356,6 +356,90 @@ export const getClassSubjectFollowLecturer = createAsyncThunk(
     }
 );
 
+//lấy danh sách lớp học phần đủ điều kiện mở lớp theo sinh viên
+export const getClassSubjectFollowStudent = createAsyncThunk(
+    "class/getClassSubjectFollowStudent",
+    async (
+        { semester, schoolyear }: { semester: any; schoolyear: any },
+        { rejectWithValue, fulfillWithValue }
+    ) => {
+        try {
+            const token = window.localStorage.getItem("accessToken");
+            const { data } = await api.get(
+                `/class-subject-student/student/successful?semester=${semester}&schoolYear=${schoolyear}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
+//sinh viên xem điểm danh
+export const getViewAttendanceForStu = createAsyncThunk(
+    "class/getViewAttendanceForStu",
+    async (classStudentId: any, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const token = window.localStorage.getItem("accessToken");
+            const { data } = await api.get(
+                `/attendance/class-student/${classStudentId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
+//sinh viên xem tài liệu theo buổi
+export const getViewMaterialForStu = createAsyncThunk(
+    "class/getViewMaterialForStu",
+    async (classStudentId: any, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            // const token = window.localStorage.getItem("accessToken");
+            const { data } = await api.get(
+                `/slides/class-student/full/${classStudentId}`
+                // {
+                //     headers: {
+                //         Authorization: `Bearer ${token}`,
+                //     },
+                // }
+            );
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
 export const getClassFollowDay = createAsyncThunk(
     "class/getClassFollowDay",
     async (date: any, { rejectWithValue, fulfillWithValue }) => {
@@ -392,9 +476,14 @@ export const classReducer = createSlice({
         classByStatus: [] as TeachingSchedule[],
 
         classSubjectFollowLecturer: [] as classSubjectFollowLecturer[],
+        classSubjectFollowStudent: [] as any,
 
         classFollowDay: [] as any,
         totalClassByStatus: 0,
+
+        attendance: [] as any,
+
+        materials: {} as any,
     },
     reducers: {
         messageClear: (state) => {
@@ -415,6 +504,17 @@ export const classReducer = createSlice({
             })
             .addCase(getClassFollowDay.fulfilled, (state, { payload }) => {
                 state.classFollowDay = payload.data;
+            })
+
+            .addCase(
+                getViewAttendanceForStu.fulfilled,
+                (state, { payload }) => {
+                    state.attendance = payload.data;
+                }
+            )
+
+            .addCase(getViewMaterialForStu.fulfilled, (state, { payload }) => {
+                state.materials = payload.data;
             })
 
             .addCase(deleteClassOffical.rejected, (state, { payload }) => {
@@ -551,6 +651,12 @@ export const classReducer = createSlice({
                 getClassSubjectFollowLecturer.fulfilled,
                 (state, { payload }) => {
                     state.classSubjectFollowLecturer = payload;
+                }
+            )
+            .addCase(
+                getClassSubjectFollowStudent.fulfilled,
+                (state, { payload }) => {
+                    state.classSubjectFollowStudent = payload;
                 }
             );
     },

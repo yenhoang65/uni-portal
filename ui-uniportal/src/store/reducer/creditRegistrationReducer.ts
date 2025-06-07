@@ -198,6 +198,32 @@ export const getClassFollowSubject = createAsyncThunk(
     }
 );
 
+//get all class
+export const getAllClass = createAsyncThunk(
+    "regis/getAllClass",
+    async (_, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const token = window.localStorage.getItem("accessToken");
+            const { data } = await api.get(`/class-student/opened-classes`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            // const e = error as Error;
+            // return rejectWithValue(e.message);
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
 export const registerTC = createAsyncThunk(
     "regis/registerTC",
     async (dto: any, { rejectWithValue, fulfillWithValue }) => {
@@ -214,8 +240,6 @@ export const registerTC = createAsyncThunk(
             );
             return fulfillWithValue(data);
         } catch (error: any) {
-            // const e = error as Error;
-            // return rejectWithValue(e.message);
             if (error.response && error.response.data) {
                 return rejectWithValue(error.response.data);
             }
@@ -323,6 +347,8 @@ export const creditRegistrationReducer = createSlice({
         classOpenFollowSubject: [],
         lecturerTimelines: [],
         creditClasses: [] as RegisteredCreditClasses,
+
+        allClassRegis: [],
     },
     reducers: {
         messageClear: (state) => {
@@ -337,6 +363,9 @@ export const creditRegistrationReducer = createSlice({
             })
             .addCase(getClassFollowSubject.fulfilled, (state, { payload }) => {
                 state.classOpenFollowSubject = payload.data;
+            })
+            .addCase(getAllClass.fulfilled, (state, { payload }) => {
+                state.allClassRegis = payload.data;
             })
             .addCase(registerTC.rejected, (state, { payload }) => {
                 if (typeof payload === "string") {

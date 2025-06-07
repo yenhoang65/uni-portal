@@ -214,16 +214,43 @@ export const getExerciseDetail = createAsyncThunk(
 );
 
 //lấy danh sách bài tập theo sinh viên
-export const getExerciseByStudent = createAsyncThunk(
-    "exercise/getExerciseByStudent",
-    async (_, { rejectWithValue, fulfillWithValue }) => {
+// export const getExerciseByStudent = createAsyncThunk(
+//     "exercise/getExerciseByStudent",
+//     async (_, { rejectWithValue, fulfillWithValue }) => {
+//         try {
+//             const token = window.localStorage.getItem("accessToken");
+//             const { data } = await api.get(`/student-grade/assignments`, {
+//                 headers: {
+//                     Authorization: `Bearer ${token}`,
+//                 },
+//             });
+
+//             return fulfillWithValue(data);
+//         } catch (error: any) {
+//             if (error.response && error.response.data) {
+//                 return rejectWithValue(error.response.data);
+//             }
+//             return rejectWithValue({
+//                 message: "Lỗi không xác định từ máy chủ.",
+//             });
+//         }
+//     }
+// );
+
+//lấy danh sách bài tập theo lớp của sinh viên
+export const getExerciseByClassStu = createAsyncThunk(
+    "exercise/getExerciseByClassStu",
+    async (classStudentId: any, { rejectWithValue, fulfillWithValue }) => {
         try {
             const token = window.localStorage.getItem("accessToken");
-            const { data } = await api.get(`/student-grade/assignments`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const { data } = await api.get(
+                `/student-grade/assignments/by-class-student/${classStudentId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
 
             return fulfillWithValue(data);
         } catch (error: any) {
@@ -527,7 +554,7 @@ export const pointReducer = createSlice({
             .addCase(getExerciseByClass.fulfilled, (state, { payload }) => {
                 state.exercises = payload;
             })
-            .addCase(getExerciseByStudent.rejected, (state, { payload }) => {
+            .addCase(getExerciseByClassStu.rejected, (state, { payload }) => {
                 if (typeof payload === "string") {
                     state.errorMessage = payload;
                 } else if (
@@ -542,20 +569,7 @@ export const pointReducer = createSlice({
                     state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
                 }
             })
-            .addCase(getExerciseByStudent.fulfilled, (state, { payload }) => {
-                if (typeof payload === "string") {
-                    state.successMessage = payload;
-                } else if (
-                    payload &&
-                    typeof payload === "object" &&
-                    "message" in payload
-                ) {
-                    state.successMessage = (
-                        payload as { message: string }
-                    ).message;
-                } else {
-                    state.successMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
-                }
+            .addCase(getExerciseByClassStu.fulfilled, (state, { payload }) => {
                 state.exerciseByStudent = payload.data;
             })
             .addCase(getExerciseDetail.fulfilled, (state, { payload }) => {

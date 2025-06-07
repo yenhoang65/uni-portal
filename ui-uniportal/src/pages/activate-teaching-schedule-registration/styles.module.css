@@ -1,6 +1,6 @@
 .activationForm {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 20px;
     padding: 20px;
     border: 1px solid #e0e0e0;
@@ -19,6 +19,12 @@
     color: #333;
 }
 
+.buttonAction {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
 .inputGroup input[type="datetime-local"] {
     padding: 10px;
     border: 1px solid #ccc;
@@ -26,6 +32,7 @@
 }
 
 .activateButton {
+    margin-top: 17px;
     width: 150px;
     cursor: pointer;
 }

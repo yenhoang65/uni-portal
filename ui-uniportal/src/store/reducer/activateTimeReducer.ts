@@ -124,8 +124,6 @@ export const createActiveTimeRegisLecturer = createAsyncThunk(
 
             return fulfillWithValue(data);
         } catch (error: any) {
-            // const e = error as Error;
-            // return rejectWithValue(e.message);
             if (error.response && error.response.data) {
                 return rejectWithValue(error.response.data);
             }
@@ -208,9 +206,42 @@ export const activateTimeReducer = createSlice({
                 }
             )
             .addCase(
+                createActiveTimeRegisLecturer.rejected,
+                (state, { payload }) => {
+                    if (typeof payload === "string") {
+                        state.errorMessage = payload;
+                    } else if (
+                        payload &&
+                        typeof payload === "object" &&
+                        "message" in payload
+                    ) {
+                        state.errorMessage = (
+                            payload as { message: string }
+                        ).message;
+                    } else {
+                        state.errorMessage =
+                            "Đã có lỗi xảy ra, vui lòng thử lại";
+                    }
+                }
+            )
+
+            .addCase(
                 createActiveTimeRegisLecturer.fulfilled,
                 (state, { payload }) => {
-                    state.successMessage = "Thời gian đã được kích hoạt";
+                    if (typeof payload === "string") {
+                        state.successMessage = payload;
+                    } else if (
+                        payload &&
+                        typeof payload === "object" &&
+                        "message" in payload
+                    ) {
+                        state.successMessage = (
+                            payload as { message: string }
+                        ).message;
+                    } else {
+                        state.successMessage =
+                            "Đã có lỗi xảy ra, vui lòng thử lại";
+                    }
                 }
             )
             .addCase(

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import BorderBox from "@/components/BorderBox";
 import styles from "./styles.module.css";
 import { TypographyHeading } from "@/components/TypographyHeading";
@@ -84,25 +84,22 @@ const TrainingProgramByStudent = () => {
                                                 {item.subject.subjectId}
                                             </td>
                                             <td>{item.subject.subjectName}</td>
+
                                             <td style={{ textAlign: "center" }}>
-                                                {item.subject.prerequisiteFor
-                                                    ?.length > 0
-                                                    ? item.subject.prerequisiteFor?.map(
+                                                {item.intermediary
+                                                    .prerequisiteForList
+                                                    .length > 0
+                                                    ? item.intermediary.prerequisiteForList.map(
                                                           (
-                                                              pre: any,
-                                                              idx: any
+                                                              id: number,
+                                                              idx: number
                                                           ) => (
-                                                              <span
-                                                                  key={
-                                                                      pre.subjectId
-                                                                  }
-                                                              >
-                                                                  {
-                                                                      pre.subjectName
-                                                                  }
+                                                              <span key={id}>
+                                                                  {id}
                                                                   {idx <
-                                                                  item.subject
-                                                                      .prerequisiteFor
+                                                                  item
+                                                                      .intermediary
+                                                                      .prerequisiteForList
                                                                       .length -
                                                                       1
                                                                       ? ", "

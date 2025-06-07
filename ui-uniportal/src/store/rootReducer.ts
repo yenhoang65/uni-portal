@@ -14,6 +14,7 @@ import creditRegistrationReducer from "./reducer/creditRegistrationReducer";
 import attendanceReducer from "./reducer/attendanceReducer";
 import pointReducer from "./reducer/pointReducer";
 import examReducer from "./reducer/examReducer";
+import materialReducer from "./reducer/materialReducer";
 
 const rootReducer = {
     auth: authReducer,
@@ -32,6 +33,7 @@ const rootReducer = {
     attendance: attendanceReducer,
     point: pointReducer,
     exam: examReducer,
+    material: materialReducer,
 };
 
 export default rootReducer;

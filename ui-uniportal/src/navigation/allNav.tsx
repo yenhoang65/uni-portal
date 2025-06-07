@@ -234,12 +234,20 @@ export const allNav = [
     {
         group: "nav.ASSIGNMENT_MANAGEMENT",
         items: [
+            // {
+            //     id: 20,
+            //     title: "nav.assignment",
+            //     icon: <AiOutlineUser />,
+            //     role: ["student"],
+            //     path: "/submit-assignment",
+            // },
+
             {
-                id: 20,
-                title: "nav.assignment",
+                id: 29,
+                title: "Quản lý lớp học phần",
                 icon: <AiOutlineUser />,
                 role: ["student"],
-                path: "/submit-assignment",
+                path: "/class-subject-stu",
             },
         ],
     },

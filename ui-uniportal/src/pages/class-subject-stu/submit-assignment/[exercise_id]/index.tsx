@@ -13,6 +13,7 @@ import {
     submitExercise,
 } from "@/store/reducer/pointReducer";
 import toast from "react-hot-toast";
+import clsx from "clsx";
 
 const AssignmentDetail = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -71,9 +72,13 @@ const AssignmentDetail = () => {
                             <span className={styles.detailLabel}>Tiêu đề:</span>
                             <span>{exercise.title}</span>
                         </div>
-                        <div className={styles.detailItem}>
+                        <div className={clsx(styles.detailItem, styles.desc)}>
                             <span className={styles.detailLabel}>Mô tả:</span>
-                            <span>{exercise.description}</span>
+                            <span
+                                dangerouslySetInnerHTML={{
+                                    __html: exercise.description,
+                                }}
+                            ></span>
                         </div>
                         <div className={styles.detailItem}>
                             <span className={styles.detailLabel}>Hạn nộp:</span>

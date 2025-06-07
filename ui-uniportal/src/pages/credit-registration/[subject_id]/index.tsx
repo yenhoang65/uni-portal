@@ -273,10 +273,8 @@ const CustomEventComponent = ({ event }: { event: any }) => {
 
 function generateEventsFromAPI(data: any[]): any[] {
     const events: any[] = [];
-    // Use a fixed reference date, for example, the first Monday of the current week.
-    // This allows events to appear on the correct day of the week regardless of their original date_time,
-    // as long as the calendar view can accommodate it.
-    const referenceDate = moment().startOf("week").add(1, "day"); // This will be the current Monday
+
+    const referenceDate = moment().startOf("week").add(1, "day");
 
     data.forEach((item) => {
         const subjectName = item.subject?.subjectName;
@@ -459,9 +457,6 @@ const ListClassSubject = () => {
         }
     }, [successMessage, errorMessage]);
 
-    console.log(classOpenFollowSubject);
-    console.log(events.length);
-
     return (
         <BorderBox title="Các lớp đang mở môn Công nghệ phần mềm">
             <div className={styles.calendarWrapper}>
@@ -526,7 +521,7 @@ const ListClassSubject = () => {
                 />
             )}
 
-            <Link href={"/credit-registration"} className={styles.backButton}>
+            <Link href={`/credit-registration`} className={styles.backButton}>
                 <IoIosArrowBack /> Back
             </Link>
         </BorderBox>
