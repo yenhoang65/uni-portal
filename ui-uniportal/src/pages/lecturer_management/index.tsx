@@ -64,14 +64,27 @@ const LecturerManagement = () => {
         }
     }, [successMessage, errorMessage]);
 
-    const totalItem = lecturers.length;
+    const filteredLecturers = useMemo(() => {
+        if (!searchValue.trim()) return lecturers;
+
+        const lowerSearch = searchValue.toLowerCase();
+        return lecturers.filter(
+            (lecturer) =>
+                lecturer.userName.toLowerCase().includes(lowerSearch) ||
+                lecturer.majorName.toLowerCase().includes(lowerSearch) ||
+                lecturer.position.toLowerCase().includes(lowerSearch) ||
+                lecturer.phoneNumber.includes(searchValue)
+        );
+    }, [lecturers, searchValue]);
+
+    const totalItem = filteredLecturers.length;
     const totalPages = Math.ceil(totalItem / parPage);
 
     const paginatedlecturers = useMemo(() => {
         const start = (currentPage - 1) * parPage;
         const end = start + parPage;
-        return lecturers.slice(start, end);
-    }, [lecturers, currentPage, parPage]);
+        return filteredLecturers.slice(start, end);
+    }, [filteredLecturers, currentPage, parPage]);
 
     useEffect(() => {
         if (currentPage > totalPages) {

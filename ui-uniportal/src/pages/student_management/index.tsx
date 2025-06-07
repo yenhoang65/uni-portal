@@ -17,11 +17,13 @@ import { AppDispatch, RootState } from "@/store";
 import { getListClassOffical } from "@/store/reducer/classReducer";
 import {
     deleteStudent,
+    exportStudentByClass,
     filterStudent,
     getListStudent,
     messageClear,
 } from "@/store/reducer/studentReducer";
 import toast from "react-hot-toast";
+import { Button } from "@/components/Button";
 
 const StudentManagement = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -129,6 +131,25 @@ const StudentManagement = () => {
                                     })),
                                 ]}
                             />
+
+                            <Button
+                                onClick={() => {
+                                    if (selectedClass) {
+                                        dispatch(
+                                            exportStudentByClass(
+                                                Number(selectedClass)
+                                            )
+                                        );
+                                    } else {
+                                        toast.error(
+                                            "Vui lòng chọn lớp để export"
+                                        );
+                                    }
+                                }}
+                                className={styles.exportButton}
+                            >
+                                Export Excel
+                            </Button>
                         </div>
 
                         <Link
@@ -214,10 +235,8 @@ const StudentManagement = () => {
                         </table>
                     </div>
 
-                    <div className={styles.paginationWrapper}>
-                        {totalStudent <= parPage ? (
-                            ""
-                        ) : (
+                    {totalStudent > parPage && (
+                        <div className={styles.paginationWrapper}>
                             <Pagination
                                 pageNumber={currentPage + 1}
                                 setPageNumber={(page) =>
@@ -227,8 +246,8 @@ const StudentManagement = () => {
                                 parPage={parPage}
                                 showItem={3}
                             />
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </BorderBox>
         </AuthGuard>

@@ -62,6 +62,7 @@ const TeachingAssignmentWithDetails = () => {
     const { activeTimeLecturers } = useSelector(
         (state: RootState) => state.activateTime
     );
+
     const teachingScheduleFollowAssignId = useSelector(
         (state: RootState) =>
             state.teachingAssignment.teachingScheduleFollowAssignId
@@ -225,30 +226,30 @@ const TeachingAssignmentWithDetails = () => {
                                                     className={styles.tableCell}
                                                 >
                                                     <span
-                                                        className={clsx(
-                                                            styles.status,
-                                                            teachingScheduleFollowAssignId
-                                                                .schedules?.[0]
-                                                                ?.status ===
-                                                                "pending" &&
-                                                                styles.pending,
-                                                            teachingScheduleFollowAssignId
-                                                                .schedules?.[0]
-                                                                ?.status ===
-                                                                "success" &&
-                                                                styles.registered,
-                                                            teachingScheduleFollowAssignId
-                                                                .schedules?.[0]
-                                                                ?.status ===
-                                                                "cancel" &&
-                                                                styles.cancel
-                                                        )}
+                                                    // className={clsx(
+                                                    //     styles.status,
+                                                    //     teachingScheduleFollowAssignId
+                                                    //         .schedules?.[0]
+                                                    //         ?.status ===
+                                                    //         "pending" &&
+                                                    //         styles.pending,
+                                                    //     teachingScheduleFollowAssignId
+                                                    //         .schedules?.[0]
+                                                    //         ?.status ===
+                                                    //         "success" &&
+                                                    //         styles.registered,
+                                                    //     teachingScheduleFollowAssignId
+                                                    //         .schedules?.[0]
+                                                    //         ?.status ===
+                                                    //         "cancel" &&
+                                                    //         styles.cancel
+                                                    // )}
                                                     >
-                                                        {
+                                                        {/* {
                                                             teachingScheduleFollowAssignId
                                                                 .schedules?.[0]
                                                                 ?.status
-                                                        }
+                                                        } */}
                                                     </span>
                                                 </td>
 
@@ -258,14 +259,14 @@ const TeachingAssignmentWithDetails = () => {
                                                         styles.tableCell
                                                     )}
                                                 >
-                                                    <Link
+                                                    {/* <Link
                                                         href={`/teaching-schedule-request/view?id=${assignment.assignmentId}`}
                                                         className={
                                                             styles.viewButton
                                                         }
                                                     >
                                                         <AiOutlineClose color="red" />
-                                                    </Link>
+                                                    </Link> */}
                                                     <Link
                                                         href={`/teaching-schedule-request/create-edit?id=${assignment.assignmentId}&mode=edit`}
                                                         className={clsx(

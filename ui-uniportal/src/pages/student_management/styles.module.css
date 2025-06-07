@@ -88,6 +88,15 @@
     transform: scale(1.05);
 }
 
+.exportButton {
+    background-color: transparent !important;
+    color: #222 !important;
+    border: 1px solid #222 !important;
+    margin-top: 5px;
+    width: 250px;
+    cursor: pointer;
+}
+
 .buttonAction {
     display: flex;
     gap: 10px;

@@ -14,6 +14,7 @@ import {
     createLecturer,
     getLecturerDetail,
     getListLecturer,
+    importLecturer,
     messageClear,
     updateLecturer,
 } from "@/store/reducer/lecturerReducer";
@@ -274,10 +275,9 @@ const CreateEditLecturer = () => {
 
     const handleProcessImport = () => {
         if (selectedFile) {
-            // Implement your file processing logic here
-            // After processing, you might want to redirect or update the UI
+            dispatch(importLecturer(selectedFile));
         } else {
-            alert("Vui lòng chọn một file để import.");
+            toast.error("Vui lòng chọn file Excel trước khi import");
         }
     };
 

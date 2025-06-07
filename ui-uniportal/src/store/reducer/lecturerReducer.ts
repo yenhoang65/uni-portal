@@ -128,6 +128,32 @@ export const createLecturer = createAsyncThunk(
     }
 );
 
+export const importLecturer = createAsyncThunk(
+    "lecturer/importLecturer",
+    async (file: File, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const { data } = await api.post(`/lecturers/import`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                withCredentials: true,
+            });
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
 export const deleteLecturer = createAsyncThunk(
     "lecturer/deleteLecturer",
     async (id: any, { rejectWithValue, fulfillWithValue }) => {
@@ -229,6 +255,36 @@ export const lecturerReducer = createSlice({
             })
             .addCase(deleteLecturer.fulfilled, (state, { payload }) => {
                 state.successMessage = "Xóa lecturer thành công";
+            })
+            .addCase(importLecturer.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+            .addCase(importLecturer.fulfilled, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
             });
     },
 });

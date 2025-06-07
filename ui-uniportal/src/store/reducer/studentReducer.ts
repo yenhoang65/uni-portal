@@ -3,6 +3,8 @@
 import api from "@/service/api";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
+import FileDownload from "js-file-download"; // dùng để download file dễ dàng
+
 type Student = {
     userId: number;
     userName: string | "";
@@ -180,6 +182,57 @@ export const filterStudent = createAsyncThunk(
     }
 );
 
+export const importFileStudent = createAsyncThunk(
+    "student/importFileStudent",
+    async (file: File, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const { data } = await api.post(`/students/import`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                withCredentials: true,
+            });
+
+            return fulfillWithValue(data);
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Lỗi không xác định từ máy chủ.",
+            });
+        }
+    }
+);
+
+export const exportStudentByClass = createAsyncThunk(
+    "student/exportStudentByClass",
+    async (classId: number, { rejectWithValue }) => {
+        try {
+            const response = await api.get(
+                `/students/export/class/${classId}`,
+                {
+                    responseType: "blob",
+                    withCredentials: true,
+                }
+            );
+
+            FileDownload(response.data, "students.xlsx");
+            return true;
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({
+                message: "Không thể export dữ liệu.",
+            });
+        }
+    }
+);
+
 export const studentReducer = createSlice({
     name: "student",
     initialState: {
@@ -266,6 +319,54 @@ export const studentReducer = createSlice({
             })
             .addCase(filterStudent.fulfilled, (state, { payload }) => {
                 state.students = payload.data;
+            })
+            .addCase(importFileStudent.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+            .addCase(importFileStudent.fulfilled, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Đã có lỗi xảy ra, vui lòng thử lại";
+                }
+            })
+            .addCase(exportStudentByClass.rejected, (state, { payload }) => {
+                if (typeof payload === "string") {
+                    state.errorMessage = payload;
+                } else if (
+                    payload &&
+                    typeof payload === "object" &&
+                    "message" in payload
+                ) {
+                    state.errorMessage = (
+                        payload as { message: string }
+                    ).message;
+                } else {
+                    state.errorMessage = "Lỗi khi export dữ liệu.";
+                }
+            })
+            .addCase(exportStudentByClass.fulfilled, (state) => {
+                state.successMessage = "Export thành công";
             });
     },
 });
