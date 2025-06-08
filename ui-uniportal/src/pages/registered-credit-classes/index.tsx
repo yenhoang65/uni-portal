@@ -18,8 +18,20 @@ import {
     messageClear,
 } from "@/store/reducer/creditRegistrationReducer";
 import toast from "react-hot-toast";
-import { Typography } from "@/components/Typography";
 import { TypographyBody } from "@/components/TypographyBody";
+
+const getVietnameseDay = (dayNumber: number) => {
+    const days = [
+        "Chủ nhật",
+        "Thứ hai",
+        "Thứ ba",
+        "Thứ tư",
+        "Thứ năm",
+        "Thứ sáu",
+        "Thứ bảy",
+    ];
+    return days[dayNumber];
+};
 
 const RegisteredCreditClasses = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -86,11 +98,14 @@ const RegisteredCreditClasses = () => {
                                     <th style={{ minWidth: "250px" }}>
                                         Tên môn học
                                     </th>
-                                    <th style={{ minWidth: "180px" }}>
+                                    {/* <th style={{ minWidth: "180px" }}>
                                         Thời gian bắt đầu
                                     </th>
                                     <th style={{ minWidth: "180px" }}>
                                         Thời gian kết thúc
+                                    </th> */}
+                                    <th style={{ minWidth: "250px" }}>
+                                        Thời gian học
                                     </th>
                                     <th style={{ minWidth: "120px" }}>
                                         Trạng thái
@@ -121,8 +136,7 @@ const RegisteredCreditClasses = () => {
                                             {cls.subjectName} - ({cls.ltCredits}{" "}
                                             + {cls.thCredits}*)
                                         </td>
-
-                                        <td>
+                                        {/* <td>
                                             {cls.scheduleDetails &&
                                             cls.scheduleDetails.length > 0
                                                 ? moment(
@@ -139,6 +153,39 @@ const RegisteredCreditClasses = () => {
                                                           .end_date
                                                   ).format("DD/MM/YYYY")
                                                 : ""}
+                                        </td> */}
+                                        <td style={{ lineHeight: "24px" }}>
+                                            {cls.scheduleDetails?.map(
+                                                (sch, idx) => {
+                                                    const startDate = moment(
+                                                        sch.date_time
+                                                    );
+                                                    const endDate = moment(
+                                                        sch.end_date
+                                                    );
+                                                    const weekday =
+                                                        getVietnameseDay(
+                                                            startDate.day()
+                                                        );
+                                                    const type =
+                                                        sch.class_type === "LT"
+                                                            ? "LT"
+                                                            : "TH";
+                                                    return (
+                                                        <div key={idx}>
+                                                            {type}: {weekday}{" "}
+                                                            {startDate.format(
+                                                                "DD/MM/YYYY"
+                                                            )}{" "}
+                                                            →{" "}
+                                                            {endDate.format(
+                                                                "DD/MM/YYYY"
+                                                            )}{" "}
+                                                            ({sch.lesson})
+                                                        </div>
+                                                    );
+                                                }
+                                            )}
                                         </td>
                                         <td>
                                             {cls.classStudentStatus ===

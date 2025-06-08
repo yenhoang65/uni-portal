@@ -71,7 +71,7 @@
 .resultTable th {
     font-weight: 700;
     padding: 10px 7px;
-    border: 1px solid #d6e7f9;
+    background-color: #e5e5e5;
     white-space: nowrap;
     font-size: 1rem;
 }
