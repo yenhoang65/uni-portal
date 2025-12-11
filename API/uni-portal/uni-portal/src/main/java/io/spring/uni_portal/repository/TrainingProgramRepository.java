@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface TrainingProgramRepository extends JpaRepository<TrainingProgram, Long> {
     List<TrainingProgram> findByTrainingCodeContainingIgnoreCase(String trainingCode);
+    List<TrainingProgram> findBySpecialization_SpecializationId(Long specializationId);
 }

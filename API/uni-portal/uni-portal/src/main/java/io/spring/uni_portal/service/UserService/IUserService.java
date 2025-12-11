@@ -6,8 +6,12 @@ import io.spring.uni_portal.dto.User.UserProfileUpdateDTO;
 import io.spring.uni_portal.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.List;
+
 public interface IUserService {
     Response<UserProfileDTO> getUserProfile(HttpServletRequest request);
     Response<String> updatePassword(HttpServletRequest request, UpdatePasswordDTO updatePasswordDTO);
     Response<UserProfileUpdateDTO> updateUserProfile(HttpServletRequest request, UserProfileUpdateDTO userProfileUpdateDTO);
+    List<String> getAllLecturerEmails();
+    List<String> getAllStudentEmails();
 }

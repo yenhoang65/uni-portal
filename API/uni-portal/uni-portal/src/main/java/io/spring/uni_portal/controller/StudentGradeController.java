@@ -31,6 +31,12 @@ public class StudentGradeController {
         );
     }
 
+
+    @PostMapping("/grade/offline")
+    public Response<List<StudentGradeOfflineResponse>> gradeOfflineSubmissionsV2(@RequestBody List<GradeOfflineRequest> requests) {
+        return studentGradeService.gradeOfflineSubmissionBatch(requests);
+    }
+
     @GetMapping("/submission-status")
     public Response<List<StudentSubmissionStatusResponse>> getSubmissionStatus(
             @RequestParam Long classStudentId,
@@ -43,4 +49,17 @@ public class StudentGradeController {
         Response<List<StudentAssignmentResponse>> response = studentGradeService.getAssignmentsByStudent();
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/grade/batch")
+    public ResponseEntity<Response<List<BatchGradeResponse>>> gradeMultiple(@RequestBody BatchGradeRequest request) {
+        return ResponseEntity.ok(studentGradeService.gradeMultipleSubmissions(request.getGrades()));
+    }
+
+    @GetMapping("/assignments/by-class-student/{classStudentId}")
+    public ResponseEntity<Response<List<StudentAssignmentResponse>>> getAssignmentsByClassStudentId(
+            @PathVariable Long classStudentId) {
+        Response<List<StudentAssignmentResponse>> response = studentGradeService.getAssignmentsByClassStudentId(classStudentId);
+        return ResponseEntity.ok(response);
+    }
+
 }

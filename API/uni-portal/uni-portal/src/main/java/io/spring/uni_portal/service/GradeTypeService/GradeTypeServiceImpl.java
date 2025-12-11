@@ -2,6 +2,7 @@ package io.spring.uni_portal.service.GradeTypeService;
 
 import io.spring.uni_portal.dto.GradeType.GradeTypeRequestDTO;
 import io.spring.uni_portal.dto.GradeType.GradeTypeResponseDTO;
+import io.spring.uni_portal.exception.OurException;
 import io.spring.uni_portal.model.GradeType;
 import io.spring.uni_portal.repository.GradeTypeRepository;
 import io.spring.uni_portal.response.Response;
@@ -33,30 +34,45 @@ public class GradeTypeServiceImpl implements IGradeTypeService {
         return Response.success("Tạo loại điểm thành công", mapToDTO(saved));
     }
 
-    @Override
-    public Response<GradeTypeResponseDTO> update(Long id, GradeTypeRequestDTO dto) {
-        Optional<GradeType> opt = repository.findById(id);
-        if (opt.isEmpty()) return Response.failure("Không tìm thấy loại điểm cần cập nhật");
-        GradeType gradeType = opt.get();
-        gradeType.setCode(dto.getCode());
-        gradeType.setName(dto.getName());
-        gradeType.setCoefficient(dto.getCoefficient());
-        return Response.success("Cập nhật loại điểm thành công", mapToDTO(repository.save(gradeType)));
-    }
+//    @Override
+//    public Response<GradeTypeResponseDTO> update(Long id, GradeTypeRequestDTO dto) {
+//        Optional<GradeType> opt = repository.findById(id);
+//        if (opt.isEmpty()) return Response.failure("Không tìm thấy loại điểm cần cập nhật");
+//        GradeType gradeType = opt.get();
+//        gradeType.setCode(dto.getCode());
+//        gradeType.setName(dto.getName());
+//        gradeType.setCoefficient(dto.getCoefficient());
+//        return Response.success("Cập nhật loại điểm thành công", mapToDTO(repository.save(gradeType)));
+//    }
+@Override
+public Response<GradeTypeResponseDTO> update(Long id, GradeTypeRequestDTO dto) {
+    GradeType gradeType = repository.findById(id)
+            .orElseThrow(() -> new OurException("Không tìm thấy loại điểm cần cập nhật"));
+
+    gradeType.setCode(dto.getCode());
+    gradeType.setName(dto.getName());
+    gradeType.setCoefficient(dto.getCoefficient());
+
+    return Response.success("Cập nhật loại điểm thành công", mapToDTO(repository.save(gradeType)));
+}
 
     @Override
     public Response<String> delete(Long id) {
-        if (!repository.existsById(id)) return Response.failure("Không tìm thấy loại điểm cần xóa");
+        if (!repository.existsById(id)) {
+            throw new OurException("Không tìm thấy loại điểm cần xóa");
+        }
         repository.deleteById(id);
         return Response.success("Xóa loại điểm thành công", null);
     }
 
+
     @Override
     public Response<GradeTypeResponseDTO> getById(Long id) {
-        return repository.findById(id)
-                .map(g -> Response.success("Lấy thông tin loại điểm thành công", mapToDTO(g)))
-                .orElse(Response.failure("Không tìm thấy loại điểm theo ID"));
+        GradeType gradeType = repository.findById(id)
+                .orElseThrow(() -> new OurException("Không tìm thấy loại điểm theo ID"));
+        return Response.success("Lấy thông tin loại điểm thành công", mapToDTO(gradeType));
     }
+
 
     @Override
     public Response<List<GradeTypeResponseDTO>> getAll() {

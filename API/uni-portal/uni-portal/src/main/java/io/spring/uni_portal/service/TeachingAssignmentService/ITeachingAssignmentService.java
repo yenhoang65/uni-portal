@@ -34,7 +34,8 @@
 
         Response<List<TeachingAssignmentResponse>> getAllAssignmentsForAdmin();
 
-        Response<Page<TeachingAssignmentResponse>> getAssignmentsWithSearch(String searchValue, Pageable pageable);
+//        Response<Page<TeachingAssignmentResponse>> getAssignmentsWithSearch(String searchValue, Pageable pageable);
+        Response<Page<TeachingAssignmentResponse>> getAssignmentsWithSearch(String searchValue, String semester, String schoolyear, Pageable pageable);
 
 
         TeachingAssignmentWithSchedulesDTO getAssignmentWithSchedules(Long assignmentId);

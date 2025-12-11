@@ -7,6 +7,8 @@ public class TermClassDTO {
     private String semester;
     private String schoolyears;
 
+
+
     // Getters and Setters
     public String getClassname() {
         return classname;

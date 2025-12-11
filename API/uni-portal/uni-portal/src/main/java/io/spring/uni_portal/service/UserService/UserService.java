@@ -18,6 +18,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService implements IUserService {
 
@@ -157,4 +159,21 @@ public class UserService implements IUserService {
             return Response.failure("Failed to update password: " + e.getMessage());
         }
     }
+
+
+    @Override
+    public List<String> getAllLecturerEmails() {
+        return userRepository.findByRole("lecturer").stream()
+                .map(User::getEmail)
+                .toList();
+    }
+
+    @Override
+    public List<String> getAllStudentEmails() {
+        return userRepository.findByRole("student").stream()
+                .map(User::getEmail)
+                .filter(email -> email != null && email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$"))
+                .toList();
+    }
+
 }

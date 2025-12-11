@@ -48,21 +48,35 @@ public class TeachingAssignmentController {
     }
 
     // API lấy tất cả phân công giảng viên (GET)
+//    @GetMapping("/paging")
+//    public Response<Page<TeachingAssignmentResponse>> getAssignmentsPaging(
+//            @RequestParam int currentPage,
+//            @RequestParam int perPage,
+//            @RequestParam String searchValue
+//    ) {
+//        // Tạo Pageable từ các tham số truyền vào
+//        Pageable pageable = PageRequest.of(currentPage, perPage, Sort.by("termClass.classname").ascending());
+//
+//        Response<Page<TeachingAssignmentResponse>> response = iteachingAssignmentService.getAssignmentsWithSearch(searchValue, pageable);
+//
+//        Page<TeachingAssignmentResponse> result = response.getData();
+//
+//        return Response.success("Danh sách phân công giảng dạy phân trang", result);
+//    }
+
     @GetMapping("/paging")
     public Response<Page<TeachingAssignmentResponse>> getAssignmentsPaging(
             @RequestParam int currentPage,
             @RequestParam int perPage,
-            @RequestParam String searchValue
+            @RequestParam(required = false, defaultValue = "") String searchValue,
+            @RequestParam(required = false) String semester,
+            @RequestParam(required = false) String schoolyear
     ) {
-        // Tạo Pageable từ các tham số truyền vào
         Pageable pageable = PageRequest.of(currentPage, perPage, Sort.by("termClass.classname").ascending());
-
-        Response<Page<TeachingAssignmentResponse>> response = iteachingAssignmentService.getAssignmentsWithSearch(searchValue, pageable);
-
-        Page<TeachingAssignmentResponse> result = response.getData();
-
-        return Response.success("Danh sách phân công giảng dạy phân trang", result);
+        Response<Page<TeachingAssignmentResponse>> response = iteachingAssignmentService.getAssignmentsWithSearch(searchValue, semester, schoolyear, pageable);
+        return Response.success("Danh sách phân công giảng dạy phân trang", response.getData());
     }
+
 
 
 

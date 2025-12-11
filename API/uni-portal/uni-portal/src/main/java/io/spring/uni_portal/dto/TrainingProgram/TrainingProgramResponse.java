@@ -8,16 +8,18 @@ public class TrainingProgramResponse {
     private Long trainingProgramId;
     private String trainingCode;
     private String trainingProgramName;
+    private Long specializationId;
     private String specializationName;
     private LocalDateTime createdAt;
 
     public TrainingProgramResponse() {}
 
-    public TrainingProgramResponse(Long trainingProgramId, String trainingCode, String trainingProgramName,
-                                   String specializationName, LocalDateTime createdAt) {
+    public TrainingProgramResponse(Long trainingProgramId, String trainingCode, String trainingProgramName
+                                   ,Long specializationId,String specializationName, LocalDateTime createdAt) {
         this.trainingProgramId = trainingProgramId;
         this.trainingCode = trainingCode;
         this.trainingProgramName = trainingProgramName;
+        this.specializationId = specializationId;
         this.specializationName = specializationName;
         this.createdAt = createdAt;
     }
@@ -40,6 +42,14 @@ public class TrainingProgramResponse {
 
     public String getTrainingProgramName() {
         return trainingProgramName;
+    }
+
+    public Long getSpecializationId() {
+        return specializationId;
+    }
+
+    public void setSpecializationId(Long specializationId) {
+        this.specializationId = specializationId;
     }
 
     public void setTrainingProgramName(String trainingProgramName) {

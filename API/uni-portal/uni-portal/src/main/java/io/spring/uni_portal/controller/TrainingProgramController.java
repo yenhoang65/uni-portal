@@ -4,6 +4,7 @@ import io.spring.uni_portal.dto.Subject.SubjectResponseDTO;
 import io.spring.uni_portal.dto.TrainingProgram.SubjectInTrainingProgramResponse;
 import io.spring.uni_portal.dto.TrainingProgram.TrainingProgramDTO;
 import io.spring.uni_portal.dto.TrainingProgram.TrainingProgramResponse;
+import io.spring.uni_portal.dto.TrainingProgram.TrainingProgramSimpleResponse;
 import io.spring.uni_portal.response.Response;
 import io.spring.uni_portal.service.TrainingProgramService.ITrainingProgramService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,5 +59,15 @@ public class TrainingProgramController {
         Response<List<SubjectInTrainingProgramResponse>> response = trainingProgramService.getSubjectsForCurrentStudent();
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/all-subjects")
+    public ResponseEntity<Response<List<SubjectInTrainingProgramResponse>>> getAllSubjectsInProgramForCurrentStudent() {
+        Response<List<SubjectInTrainingProgramResponse>> response = trainingProgramService.getAllSubjectsInProgramForCurrentStudent();
+        return ResponseEntity.ok(response);
+    }
 
+    @GetMapping("/specialization")
+    public ResponseEntity<Response<List<TrainingProgramSimpleResponse>>> getProgramsBySpecialization(@RequestParam Long specializationId) {
+        Response<List<TrainingProgramSimpleResponse>> response = trainingProgramService.getProgramsBySpecialization(specializationId);
+        return ResponseEntity.ok(response);
+    }
 }

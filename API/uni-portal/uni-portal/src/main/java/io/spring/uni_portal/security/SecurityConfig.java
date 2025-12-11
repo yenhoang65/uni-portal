@@ -56,7 +56,12 @@ public class SecurityConfig {
                                 "/api/grade-types/**",
                                 "/api/exam-schedule/**",
                                 "/api/grade-event/**",
-                                "/api/student-grade/**"
+                                "/api/student-grade/**",
+                                "/api/transcript/**",
+                                "/api/cate-news/**",
+                                "/api/news/**",
+                                "/api/attendance-sessions/**",
+                                "/api/slides/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

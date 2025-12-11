@@ -1,9 +1,11 @@
+
 package io.spring.uni_portal.controller;
 
 import io.spring.uni_portal.dto.ClassSubjectStudent.ClassSubjectStudentDTO;
 import io.spring.uni_portal.dto.ClassSubjectStudent.RegisterClassRequestDTO;
 import io.spring.uni_portal.dto.ClassSubjectStudent.RegisteredClassDTO;
 import io.spring.uni_portal.dto.ClassSubjectStudent.UnregisterClassRequestDTO;
+import io.spring.uni_portal.dto.Registration.RegistrationFullDTO;
 import io.spring.uni_portal.model.ClassSubjectStudent;
 import io.spring.uni_portal.model.User;
 import io.spring.uni_portal.response.Response;
@@ -44,6 +46,7 @@ public class ClassRegistrationController {
     }
 
 
+
     @PostMapping("/unregister")
     public ResponseEntity<Response<String>> unregisterFromClass(@RequestBody UnregisterClassRequestDTO dto) {
         registrationService.unregisterStudentFromClass(dto);
@@ -55,5 +58,11 @@ public class ClassRegistrationController {
 //        ClassSubjectStudentDTO result = registrationService.unregisterStudentFromClass(dto);
 //        return ResponseEntity.ok(Response.success("Huỷ đăng ký lớp học thành công", result));
 //    }
+
+    @GetMapping
+    public Response<List<RegistrationFullDTO>> getMyRegistrations() {
+        return registrationService.getMyRegisteredClasses();
+    }
+
 }
 

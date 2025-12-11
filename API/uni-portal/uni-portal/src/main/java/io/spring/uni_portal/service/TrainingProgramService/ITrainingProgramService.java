@@ -4,6 +4,7 @@ import io.spring.uni_portal.dto.Subject.SubjectResponseDTO;
 import io.spring.uni_portal.dto.TrainingProgram.SubjectInTrainingProgramResponse;
 import io.spring.uni_portal.dto.TrainingProgram.TrainingProgramDTO;
 import io.spring.uni_portal.dto.TrainingProgram.TrainingProgramResponse;
+import io.spring.uni_portal.dto.TrainingProgram.TrainingProgramSimpleResponse;
 import io.spring.uni_portal.response.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,4 +20,6 @@ public interface ITrainingProgramService {
     List<TrainingProgramResponse> searchByCode(String code);
 
     Response<List<SubjectInTrainingProgramResponse>> getSubjectsForCurrentStudent();
+    Response<List<SubjectInTrainingProgramResponse>> getAllSubjectsInProgramForCurrentStudent();
+    Response<List<TrainingProgramSimpleResponse>> getProgramsBySpecialization(Long specializationId);
 }

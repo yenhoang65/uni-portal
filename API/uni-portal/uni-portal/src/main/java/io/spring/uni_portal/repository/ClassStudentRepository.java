@@ -4,6 +4,7 @@ import io.spring.uni_portal.dto.ClassStudent.ClassStudentDTO;
 import io.spring.uni_portal.dto.ClassStudent.ClassStudentRequestDTO;
 import io.spring.uni_portal.dto.ClassStudent.ClassStudentResponseDTO;
 import io.spring.uni_portal.dto.ClassStudent.OpenedClassFullDTO;
+import io.spring.uni_portal.dto.GradeEvent.StudentClassAssignmentDTO;
 import io.spring.uni_portal.model.ClassStudent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,13 +44,22 @@ public interface ClassStudentRepository extends JpaRepository<ClassStudent, Long
     SELECT cs FROM ClassStudent cs
     JOIN FETCH cs.teachingScheduleRequest tsr
     JOIN FETCH tsr.assignment a
-    JOIN FETCH a.termClass
+    JOIN FETCH a.termClass tc
     JOIN FETCH a.subject
     JOIN FETCH a.lecturer l
     JOIN FETCH l.user
     WHERE a.subject.subjectId = :subjectId
+      AND (:semester IS NULL OR tc.semester = :semester)
+      AND (:schoolyear IS NULL OR tc.schoolyears = :schoolyear)
+      AND cs.status = 'pending'
 """)
-    List<ClassStudent> findFullOpenedClassesBySubjectId(@Param("subjectId") Long subjectId);
+    List<ClassStudent> findFullOpenedClassesBySubjectIdAndTerm(
+            @Param("subjectId") Long subjectId,
+            @Param("semester") String semester,
+            @Param("schoolyear") String schoolyear
+    );
+
+
 
 
     @Query("""
@@ -75,4 +85,77 @@ public interface ClassStudentRepository extends JpaRepository<ClassStudent, Long
             "JOIN subject s ON ta.subject_id = s.subject_id " +
             "WHERE cs.status = 'success' AND ta.user_id = :lecturerId", nativeQuery = true)
     List<ClassStudentRequestDTO> findAllSuccessfulClassesByLecturerId(@Param("lecturerId") Long lecturerId);
+
+
+    @Query("""
+        SELECT cs FROM ClassStudent cs
+        JOIN cs.teachingScheduleRequest tsr
+        WHERE tsr.assignment.lecturer.user.userId = :lecturerUserId
+        AND cs.status = 'success'
+    """)
+    List<ClassStudent> findSuccessClassesByLecturerUserId(@Param("lecturerUserId") Long lecturerUserId);
+
+
+    @Query("""
+    SELECT cs FROM ClassStudent cs
+    JOIN FETCH cs.teachingScheduleRequest tsr
+    JOIN FETCH tsr.assignment a
+    JOIN FETCH a.subject s
+    WHERE cs.status = 'success'
+""")
+    List<ClassStudent> findAllSuccessClassStudentsWithSubject();
+
+    @Query(value = """
+    SELECT cs.class_student_id AS classStudentId,
+           tc.classname AS className,
+           s.subject_name AS subjectName
+    FROM class_student cs
+    JOIN teaching_schedule_request tsr ON cs.schedule_id = tsr.schedule_id
+    JOIN teaching_assignment ta ON tsr.assignment_id = ta.assignment_id
+    JOIN term_class tc ON ta.termclass_id = tc.termclass_id
+    JOIN subject s ON ta.subject_id = s.subject_id
+    WHERE cs.status = 'success'
+      AND ta.user_id = :lecturerId
+      AND tc.semester = :semester
+      AND tc.schoolyears = :schoolyear
+""", nativeQuery = true)
+    List<ClassStudentRequestDTO> findSuccessfulClassesByLecturerAndTerm(
+            @Param("lecturerId") Long lecturerId,
+            @Param("semester") String semester,
+            @Param("schoolyear") String schoolyear
+    );
+
+
+
+    @Query("""
+    SELECT cs
+    FROM ClassStudent cs
+    JOIN cs.teachingScheduleRequest tsr
+    JOIN tsr.assignment a
+    JOIN a.subject s
+    JOIN a.termClass tc
+    WHERE cs.status = 'pending'
+      AND s.subjectId IN :subjectIds
+      AND (:semester IS NULL OR tc.semester = :semester)
+      AND (:schoolYear IS NULL OR tc.schoolyears = :schoolYear)
+      AND NOT EXISTS (
+          SELECT 1 FROM ClassSubjectStudent css
+          WHERE css.student.userId = :studentId
+            AND css.classStudent.teachingScheduleRequest.assignment.subject.subjectId = s.subjectId
+      )
+""")
+    List<ClassStudent> findOpenClassStudentsForSubjectsByTerm(
+            @Param("studentId") Long studentId,
+            @Param("subjectIds") List<Long> subjectIds,
+            @Param("semester") String semester,
+            @Param("schoolYear") String schoolYear
+    );
+
+
+
+
+
+
+
+
 }

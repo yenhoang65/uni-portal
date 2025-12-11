@@ -129,28 +129,60 @@ public class TeachingAssignmentService implements ITeachingAssignmentService {
     }
 
 
+//@Override
+//public Response<Page<TeachingAssignmentResponse>> getAssignmentsWithSearch(String searchValue, Pageable pageable) {
+//    // Lấy user đang đăng nhập từ SecurityContextHolder
+//    UsernamePasswordAuthenticationToken authentication =
+//            (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+//    User currentUser = (User) authentication.getPrincipal();
+//
+//    // Kiểm tra nếu người dùng có role là admin
+//    boolean isAdmin = currentUser.getRole().contains("admin");
+//
+//    Page<TeachingAssignment> assignmentsPage;
+//
+//    if (isAdmin) {
+//        // Nếu là admin, trả về tất cả bản ghi trong bảng TeachingAssignment với phân trang và tìm kiếm
+//        assignmentsPage = teachingAssignmentRepository.findAllBySearchValue(searchValue, pageable);
+//    } else {
+//        // Nếu không phải admin, chỉ trả về bản ghi của giảng viên hiện tại với phân trang và tìm kiếm
+//        Long userId = currentUser.getUserId();
+//        assignmentsPage = teachingAssignmentRepository.findByLecturerUserUserIdAndSearchValue(userId, searchValue, pageable);
+//    }
+//
+//    // Chuyển đổi từ Page<TeachingAssignment> thành Page<TeachingAssignmentResponse>
+//    Page<TeachingAssignmentResponse> responsePage = assignmentsPage.map(assignment -> new TeachingAssignmentResponse(
+//            assignment.getAssignmentId(),
+//            assignment.getLecturer().getUserId(),
+//            assignment.getLecturer().getUser().getUserName(),
+//            assignment.getSubject().getSubjectId(),
+//            assignment.getSubject().getSubjectName(),
+//            assignment.getTermClass().getTermclassId(),
+//            assignment.getTermClass().getClassname(),
+//            assignment.getTermClass().getProgress(),
+//            assignment.getTermClass().getSemester(),
+//            assignment.getTermClass().getSchoolyears(),
+//            assignment.getAssignmentType() != null ? assignment.getAssignmentType().name() : "UNKNOWN"
+//    ));
+//
+//    return Response.success("Danh sách phân công giảng dạy với phân trang", responsePage);
+//}
 @Override
-public Response<Page<TeachingAssignmentResponse>> getAssignmentsWithSearch(String searchValue, Pageable pageable) {
-    // Lấy user đang đăng nhập từ SecurityContextHolder
+public Response<Page<TeachingAssignmentResponse>> getAssignmentsWithSearch(String searchValue, String semester, String schoolyear, Pageable pageable) {
     UsernamePasswordAuthenticationToken authentication =
             (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
     User currentUser = (User) authentication.getPrincipal();
 
-    // Kiểm tra nếu người dùng có role là admin
     boolean isAdmin = currentUser.getRole().contains("admin");
-
     Page<TeachingAssignment> assignmentsPage;
 
     if (isAdmin) {
-        // Nếu là admin, trả về tất cả bản ghi trong bảng TeachingAssignment với phân trang và tìm kiếm
-        assignmentsPage = teachingAssignmentRepository.findAllBySearchValue(searchValue, pageable);
+        assignmentsPage = teachingAssignmentRepository.findAllWithFilters(searchValue, semester, schoolyear, pageable);
     } else {
-        // Nếu không phải admin, chỉ trả về bản ghi của giảng viên hiện tại với phân trang và tìm kiếm
         Long userId = currentUser.getUserId();
-        assignmentsPage = teachingAssignmentRepository.findByLecturerUserUserIdAndSearchValue(userId, searchValue, pageable);
+        assignmentsPage = teachingAssignmentRepository.findByLecturerUserUserIdWithFilters(userId, searchValue, semester, schoolyear, pageable);
     }
 
-    // Chuyển đổi từ Page<TeachingAssignment> thành Page<TeachingAssignmentResponse>
     Page<TeachingAssignmentResponse> responsePage = assignmentsPage.map(assignment -> new TeachingAssignmentResponse(
             assignment.getAssignmentId(),
             assignment.getLecturer().getUserId(),
@@ -167,6 +199,7 @@ public Response<Page<TeachingAssignmentResponse>> getAssignmentsWithSearch(Strin
 
     return Response.success("Danh sách phân công giảng dạy với phân trang", responsePage);
 }
+
 
 
 

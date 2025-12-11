@@ -1,8 +1,6 @@
 package io.spring.uni_portal.controller;
 
-import io.spring.uni_portal.dto.GradeEvent.GradeEventRequest;
-import io.spring.uni_portal.dto.GradeEvent.GradeEventResponse;
-import io.spring.uni_portal.dto.GradeEvent.GradeEventResponseDto;
+import io.spring.uni_portal.dto.GradeEvent.*;
 import io.spring.uni_portal.response.Response;
 import io.spring.uni_portal.service.GradeEventService.IGradeEventService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +21,12 @@ public class GradeEventController {
         return gradeEventService.createMidtermGradeEvent(request);
     }
 
-    @GetMapping("/by-class")
-    public ResponseEntity<List<GradeEventResponseDto>> getGradeEventsByClass() {
-        List<GradeEventResponseDto> response = gradeEventService.getGradeEventsByClass();
+    @GetMapping("/by-class/{classStudentId}")
+    public ResponseEntity<List<GradeEventResponseDto>> getGradeEventsByClass(@PathVariable Long classStudentId) {
+        List<GradeEventResponseDto> response = gradeEventService.getGradeEventsByClass(classStudentId);
         return ResponseEntity.ok(response);
     }
+
 
     // API cập nhật bài tập
     @PutMapping("/{gradeEventId}")
@@ -40,4 +39,8 @@ public class GradeEventController {
     public Response<GradeEventResponse> getGradeEventById(@PathVariable Long gradeEventId) {
         return gradeEventService.getGradeEventById(gradeEventId);
     }
+
+
+
+
 }

@@ -23,6 +23,6 @@ public interface ITeachingScheduleRequestService {
     );
     List<TeachingScheduleDetailResponseDTO> getSchedulesWithSuccessStatus(Long userId);
 
-//    TeachingScheduleRequest createScheduleRequest(TeachingScheduleRequestDTO dto);
-//    TeachingScheduleUpdateResponseDTO updateTeachingSchedule(Long scheduleId, TeachingScheduleUpdateRequestDTO dto);
+    List<TeachingScheduleStatusResponseDTO> filterByStatuses(List<String> statuses);
+
 }

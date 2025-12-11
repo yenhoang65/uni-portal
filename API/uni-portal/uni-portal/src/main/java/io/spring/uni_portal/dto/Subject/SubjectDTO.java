@@ -7,6 +7,18 @@ public class SubjectDTO {
     private Integer thCredits;
     private String subjectDescription;
     private Double subjectCoefficient;
+    public SubjectDTO() {
+    }
+
+    public SubjectDTO(Long subjectId, String subjectName, int ltCredits, int thCredits,
+                      String subjectDescription, double subjectCoefficient) {
+        this.subjectId = subjectId;
+        this.subjectName = subjectName;
+        this.ltCredits = ltCredits;
+        this.thCredits = thCredits;
+        this.subjectDescription = subjectDescription;
+        this.subjectCoefficient = subjectCoefficient;
+    }
 
     // Getters and Setters
     public Long getSubjectId() {

@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IntermediaryRepository extends JpaRepository<Intermediary, IntermediaryId> {
     List<Intermediary> findByTrainingProgram_TrainingProgramId(Long trainingProgramId);
@@ -21,6 +22,11 @@ public interface IntermediaryRepository extends JpaRepository<Intermediary, Inte
     @Modifying
     void deleteByTrainingProgram_TrainingProgramId(Long trainingProgramId);
     List<Intermediary> findByTrainingProgram_TrainingProgramIdAndSchoolYear(Long trainingProgramId, String schoolYear);
-
+    List<Intermediary> findByTrainingProgramAndSchoolYear(TrainingProgram trainingProgram, String schoolYear);
     List<Intermediary> findByTrainingProgram(TrainingProgram trainingProgram);
+
+    List<Intermediary> findByTrainingProgram_TrainingProgramIdAndSubject_SubjectId(Long trainingProgramId, Long subjectId);
+//    @Query("SELECT i.subject.subjectId FROM Intermediary i WHERE i.prerequisiteFor = :subjectId")
+//    List<Long> findPrerequisiteIdsBySubjectId(@Param("subjectId") Long subjectId);
+
 }

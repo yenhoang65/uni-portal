@@ -1,9 +1,12 @@
 package io.spring.uni_portal.service.StudentGradeService;
 
+import io.spring.uni_portal.dto.ExamSchedule.ExamScheduleResponseDTO;
+import io.spring.uni_portal.dto.GradeType.GradeTypeResponseDTO;
 import io.spring.uni_portal.dto.StudentGrade.*;
 import io.spring.uni_portal.model.*;
 import io.spring.uni_portal.repository.*;
 import io.spring.uni_portal.response.Response;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StudentGradeServiceImpl implements IStudentGradeService {
@@ -31,7 +35,13 @@ public class StudentGradeServiceImpl implements IStudentGradeService {
     private StudentRepository studentRepository;
 
     @Autowired
+    private ClassStudentRepository classStudentRepository;
+
+    @Autowired
     private TeachingAssignmentRepository teachingAssignmentRepository;
+
+    @Autowired
+    private ExamScheduleRepository examScheduleRepository;
 
     @Override
     public Response<StudentGradeSubmissionResponse> submitGrade(StudentGradeSubmissionRequest request) {
@@ -241,16 +251,20 @@ public class StudentGradeServiceImpl implements IStudentGradeService {
                     response.setFileUrl(studentGrade.getFileUrl());
                     response.setSubmittedAt(studentGrade.getSubmittedAt());
 
-                    // Xác định trạng thái nộp bài
                     LocalDateTime deadline = gradeEvent.getEventDate().atTime(23, 59, 59);
-                    if (studentGrade.getSubmittedAt().isBefore(deadline) || studentGrade.getSubmittedAt().isEqual(deadline)) {
-                        response.setSubmissionStatus(StudentSubmissionStatusResponse.SubmissionStatus.ON_TIME);
+                    if (studentGrade.getSubmittedAt() != null) {
+                        if (studentGrade.getSubmittedAt().isBefore(deadline) || studentGrade.getSubmittedAt().isEqual(deadline)) {
+                            response.setSubmissionStatus(StudentSubmissionStatusResponse.SubmissionStatus.ON_TIME);
+                        } else {
+                            response.setSubmissionStatus(StudentSubmissionStatusResponse.SubmissionStatus.LATE);
+                        }
                     } else {
-                        response.setSubmissionStatus(StudentSubmissionStatusResponse.SubmissionStatus.LATE);
+                        response.setSubmissionStatus(StudentSubmissionStatusResponse.SubmissionStatus.NOT_SUBMITTED);
                     }
                 } else {
                     response.setSubmissionStatus(StudentSubmissionStatusResponse.SubmissionStatus.NOT_SUBMITTED);
                 }
+
 
                 responses.add(response);
             }
@@ -262,10 +276,104 @@ public class StudentGradeServiceImpl implements IStudentGradeService {
         }
     }
 
+//    @Override
+//    public Response<List<StudentAssignmentResponse>> getAssignmentsByStudent() {
+//        try {
+//            // Xác thực người dùng qua token
+//            UsernamePasswordAuthenticationToken authentication =
+//                    (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+//            if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+//                throw new RuntimeException("Người dùng chưa xác thực hoặc token không hợp lệ.");
+//            }
+//
+//            User currentUser = (User) authentication.getPrincipal();
+//            Student student = studentRepository.findById(currentUser.getUserId())
+//                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sinh viên."));
+//            logger.info("User authenticated: userId = {}", currentUser.getUserId());
+//
+//            // Lấy danh sách ClassSubjectStudent của sinh viên
+//            List<ClassSubjectStudent> classSubjectStudents = classSubjectStudentRepository.findByStudent_UserId(student.getUserId());
+//            if (classSubjectStudents.isEmpty()) {
+//                return Response.success("Sinh viên chưa đăng ký lớp học phần nào", new ArrayList<>());
+//            }
+//
+//            List<StudentAssignmentResponse> responses = new ArrayList<>();
+//
+//            // Duyệt qua từng ClassSubjectStudent
+//            for (ClassSubjectStudent css : classSubjectStudents) {
+//                ClassStudent classStudent = css.getClassStudent();
+//                // Lấy tất cả GradeEvent của ClassStudent
+//                List<GradeEvent> gradeEvents = gradeEventRepository.findByClassStudent_ClassStudentId(classStudent.getClassStudentId());
+//
+//                // Lấy TermClass từ TeachingScheduleRequest
+//                TermClass termClass = classStudent.getTeachingScheduleRequest() != null
+//                        ? classStudent.getTeachingScheduleRequest().getAssignment().getTermClass()
+//                        : null;
+//
+//                for (GradeEvent gradeEvent : gradeEvents) {
+//                    StudentAssignmentResponse response = new StudentAssignmentResponse();
+//
+//                    // GradeEvent fields
+//                    response.setGradeEventId(gradeEvent.getGradeEventId());
+//                    response.setTitle(gradeEvent.getTitle());
+//                    response.setEventDate(gradeEvent.getEventDate());
+//                    response.setMaxScore(gradeEvent.getMaxScore());
+//                    response.setDescription(gradeEvent.getDescription());
+//                    response.setCreatedAt(gradeEvent.getCreatedAt());
+//
+//                    // ClassStudent fields
+//                    response.setClassStudentId(classStudent.getClassStudentId());
+//                    response.setClassStudentStatus(classStudent.getStatus());
+//                    response.setClassStudentMaterials(classStudent.getMaterials());
+//
+//                    // TermClass fields
+//                    if (termClass != null) {
+//                        response.setTermclassId(termClass.getTermclassId());
+//                        response.setClassname(termClass.getClassname());
+//                        response.setSemester(termClass.getSemester());
+//                        response.setSchoolyears(termClass.getSchoolyears());
+//                    }
+//
+//                    // StudentGrade fields
+//                    StudentGrade studentGrade = studentGradeRepository
+//                            .findByClassSubjectStudent_ClassSubjectStudentIdAndGradeEvent_GradeEventId(
+//                                    css.getClassSubjectStudentId(), gradeEvent.getGradeEventId())
+//                            .orElse(null);
+//
+//                    if (studentGrade != null) {
+//                        response.setStudentGradeId(studentGrade.getStudentGradeId());
+//                        response.setFileUrl(studentGrade.getFileUrl());
+//                        response.setSubmittedAt(studentGrade.getSubmittedAt());
+//                        response.setScore(studentGrade.getScore());
+//                        response.setIsPassed(studentGrade.getIsPassed());
+//                        response.setFeedback(studentGrade.getFeedback());
+//
+//                        // Xác định trạng thái nộp bài
+//                        LocalDateTime deadline = gradeEvent.getEventDate().atTime(23, 59, 59);
+//                        if (studentGrade.getSubmittedAt().isBefore(deadline) || studentGrade.getSubmittedAt().isEqual(deadline)) {
+//                            response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.ON_TIME);
+//                        } else {
+//                            response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.LATE);
+//                        }
+//                    } else {
+//                        response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.NOT_SUBMITTED);
+//                    }
+//
+//                    responses.add(response);
+//                }
+//            }
+//
+//            return Response.success("Lấy danh sách bài tập thành công", responses);
+//        } catch (Exception e) {
+//            logger.error("Error retrieving assignments for student: {}", e.getMessage(), e);
+//            return Response.failure("Không thể lấy danh sách bài tập: " + e.getMessage());
+//        }
+//    }
+
     @Override
     public Response<List<StudentAssignmentResponse>> getAssignmentsByStudent() {
         try {
-            // Xác thực người dùng qua token
+            // ✅ Xác thực người dùng
             UsernamePasswordAuthenticationToken authentication =
                     (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
             if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
@@ -275,9 +383,8 @@ public class StudentGradeServiceImpl implements IStudentGradeService {
             User currentUser = (User) authentication.getPrincipal();
             Student student = studentRepository.findById(currentUser.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sinh viên."));
-            logger.info("User authenticated: userId = {}", currentUser.getUserId());
 
-            // Lấy danh sách ClassSubjectStudent của sinh viên
+            // ✅ Lấy danh sách lớp học phần đã đăng ký
             List<ClassSubjectStudent> classSubjectStudents = classSubjectStudentRepository.findByStudent_UserId(student.getUserId());
             if (classSubjectStudents.isEmpty()) {
                 return Response.success("Sinh viên chưa đăng ký lớp học phần nào", new ArrayList<>());
@@ -285,13 +392,13 @@ public class StudentGradeServiceImpl implements IStudentGradeService {
 
             List<StudentAssignmentResponse> responses = new ArrayList<>();
 
-            // Duyệt qua từng ClassSubjectStudent
             for (ClassSubjectStudent css : classSubjectStudents) {
                 ClassStudent classStudent = css.getClassStudent();
-                // Lấy tất cả GradeEvent của ClassStudent
-                List<GradeEvent> gradeEvents = gradeEventRepository.findByClassStudent_ClassStudentId(classStudent.getClassStudentId());
+                if (classStudent == null) continue;
 
-                // Lấy TermClass từ TeachingScheduleRequest
+                List<GradeEvent> gradeEvents = gradeEventRepository.findByClassStudent_ClassStudentId(classStudent.getClassStudentId());
+                if (gradeEvents == null) continue;
+
                 TermClass termClass = classStudent.getTeachingScheduleRequest() != null
                         ? classStudent.getTeachingScheduleRequest().getAssignment().getTermClass()
                         : null;
@@ -299,7 +406,7 @@ public class StudentGradeServiceImpl implements IStudentGradeService {
                 for (GradeEvent gradeEvent : gradeEvents) {
                     StudentAssignmentResponse response = new StudentAssignmentResponse();
 
-                    // GradeEvent fields
+                    // GradeEvent
                     response.setGradeEventId(gradeEvent.getGradeEventId());
                     response.setTitle(gradeEvent.getTitle());
                     response.setEventDate(gradeEvent.getEventDate());
@@ -307,12 +414,12 @@ public class StudentGradeServiceImpl implements IStudentGradeService {
                     response.setDescription(gradeEvent.getDescription());
                     response.setCreatedAt(gradeEvent.getCreatedAt());
 
-                    // ClassStudent fields
+                    // ClassStudent
                     response.setClassStudentId(classStudent.getClassStudentId());
                     response.setClassStudentStatus(classStudent.getStatus());
                     response.setClassStudentMaterials(classStudent.getMaterials());
 
-                    // TermClass fields
+                    // TermClass
                     if (termClass != null) {
                         response.setTermclassId(termClass.getTermclassId());
                         response.setClassname(termClass.getClassname());
@@ -320,7 +427,7 @@ public class StudentGradeServiceImpl implements IStudentGradeService {
                         response.setSchoolyears(termClass.getSchoolyears());
                     }
 
-                    // StudentGrade fields
+                    // StudentGrade
                     StudentGrade studentGrade = studentGradeRepository
                             .findByClassSubjectStudent_ClassSubjectStudentIdAndGradeEvent_GradeEventId(
                                     css.getClassSubjectStudentId(), gradeEvent.getGradeEventId())
@@ -334,12 +441,17 @@ public class StudentGradeServiceImpl implements IStudentGradeService {
                         response.setIsPassed(studentGrade.getIsPassed());
                         response.setFeedback(studentGrade.getFeedback());
 
-                        // Xác định trạng thái nộp bài
-                        LocalDateTime deadline = gradeEvent.getEventDate().atTime(23, 59, 59);
-                        if (studentGrade.getSubmittedAt().isBefore(deadline) || studentGrade.getSubmittedAt().isEqual(deadline)) {
-                            response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.ON_TIME);
+                        // ✅ Trạng thái nộp bài (nếu có thời gian nộp)
+                        if (studentGrade.getSubmittedAt() != null) {
+                            LocalDateTime submittedAt = studentGrade.getSubmittedAt();
+                            LocalDateTime deadline = gradeEvent.getEventDate().atTime(23, 59, 59);
+                            if (!submittedAt.isAfter(deadline)) {
+                                response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.ON_TIME);
+                            } else {
+                                response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.LATE);
+                            }
                         } else {
-                            response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.LATE);
+                            response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.NOT_SUBMITTED);
                         }
                     } else {
                         response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.NOT_SUBMITTED);
@@ -355,4 +467,280 @@ public class StudentGradeServiceImpl implements IStudentGradeService {
             return Response.failure("Không thể lấy danh sách bài tập: " + e.getMessage());
         }
     }
+
+
+    @Override
+    public Response<List<BatchGradeResponse>> gradeMultipleSubmissions(List<BatchGradeRequest.StudentGradeEntry> requests) {
+        List<BatchGradeResponse> responses = new ArrayList<>();
+
+        for (BatchGradeRequest.StudentGradeEntry entry : requests) {
+            Optional<StudentGrade> optional = studentGradeRepository.findById(entry.getStudentGradeId());
+            if (optional.isEmpty()) continue;
+
+            StudentGrade sg = optional.get();
+
+            if (sg.getScore() != null || sg.getFeedback() != null) continue;
+
+            sg.setScore(entry.getScore());
+            sg.setFeedback(entry.getFeedback());
+            sg.setIsPassed(entry.getScore() != null && entry.getScore() >= 5.0);
+            studentGradeRepository.save(sg);
+
+            responses.add(new BatchGradeResponse(
+                    sg.getStudentGradeId(),
+                    sg.getScore(),
+                    sg.getFeedback(),
+                    sg.getIsPassed()
+            ));
+        }
+
+        return Response.success("Đã chấm điểm cho các bài nộp", responses);
+    }
+
+
+    @Override
+    @Transactional
+    public Response<List<StudentGradeOfflineResponse>> gradeOfflineSubmissionBatch(List<GradeOfflineRequest> requests) {
+        List<StudentGradeOfflineResponse> responses = new ArrayList<>();
+
+        for (GradeOfflineRequest request : requests) {
+            if (request.getClassSubjectStudentId() == null || request.getGradeEventId() == null) {
+                continue; // Bỏ qua bản ghi không hợp lệ
+            }
+
+            StudentGrade studentGrade = studentGradeRepository
+                    .findByClassSubjectStudent_ClassSubjectStudentIdAndGradeEvent_GradeEventId(
+                            request.getClassSubjectStudentId(), request.getGradeEventId())
+                    .orElse(null);
+
+            if (studentGrade == null) {
+                ClassSubjectStudent css = classSubjectStudentRepository.findById(request.getClassSubjectStudentId())
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy classSubjectStudent"));
+                GradeEvent gradeEvent = gradeEventRepository.findById(request.getGradeEventId())
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy gradeEvent"));
+
+                studentGrade = new StudentGrade();
+                studentGrade.setClassSubjectStudent(css);
+                studentGrade.setGradeEvent(gradeEvent);
+            }
+
+            studentGrade.setScore(request.getScore());
+            studentGrade.setFeedback(request.getFeedback());
+            studentGrade.setIsPassed(request.getScore() != null && request.getScore() >= 5.0);
+
+            studentGradeRepository.save(studentGrade);
+
+            StudentGradeOfflineResponse res = new StudentGradeOfflineResponse();
+            res.setStudentGradeId(studentGrade.getStudentGradeId());
+            res.setScore(studentGrade.getScore());
+            res.setFeedback(studentGrade.getFeedback());
+            res.setIsPassed(studentGrade.getIsPassed());
+
+            responses.add(res);
+        }
+
+        return Response.success("Chấm điểm offline thành công", responses);
+    }
+
+//    @Override
+//    public Response<List<StudentAssignmentResponse>> getAssignmentsByClassStudentId(Long classStudentId) {
+//        try {
+//            // ✅ Lấy classStudent
+//            ClassStudent classStudent = classStudentRepository.findById(classStudentId)
+//                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy lớp học phần."));
+//
+//            List<GradeEvent> gradeEvents = gradeEventRepository.findByClassStudent_ClassStudentId(classStudentId);
+//            if (gradeEvents == null || gradeEvents.isEmpty()) {
+//                return Response.success("Không có bài tập nào", new ArrayList<>());
+//            }
+//
+//            TermClass termClass = classStudent.getTeachingScheduleRequest() != null
+//                    ? classStudent.getTeachingScheduleRequest().getAssignment().getTermClass()
+//                    : null;
+//
+//            List<StudentAssignmentResponse> responses = new ArrayList<>();
+//
+//            for (GradeEvent gradeEvent : gradeEvents) {
+//                StudentAssignmentResponse response = new StudentAssignmentResponse();
+//
+//                // GradeEvent
+//                response.setGradeEventId(gradeEvent.getGradeEventId());
+//                response.setTitle(gradeEvent.getTitle());
+//                response.setEventDate(gradeEvent.getEventDate());
+//                response.setMaxScore(gradeEvent.getMaxScore());
+//                response.setDescription(gradeEvent.getDescription());
+//                response.setCreatedAt(gradeEvent.getCreatedAt());
+//
+//                // ClassStudent
+//                response.setClassStudentId(classStudent.getClassStudentId());
+//                response.setClassStudentStatus(classStudent.getStatus());
+//                response.setClassStudentMaterials(classStudent.getMaterials());
+//
+//                // TermClass
+//                if (termClass != null) {
+//                    response.setTermclassId(termClass.getTermclassId());
+//                    response.setClassname(termClass.getClassname());
+//                    response.setSemester(termClass.getSemester());
+//                    response.setSchoolyears(termClass.getSchoolyears());
+//                }
+//
+//                // ✅ Tìm classSubjectStudent tương ứng
+//                Optional<ClassSubjectStudent> optionalCss = classSubjectStudentRepository
+//                        .findByClassStudent_ClassStudentId(classStudentId)
+//                        .stream().findFirst(); // nếu có nhiều, lấy 1 bản ghi đầu
+//
+//                if (optionalCss.isPresent()) {
+//                    ClassSubjectStudent css = optionalCss.get();
+//                    StudentGrade studentGrade = studentGradeRepository
+//                            .findByClassSubjectStudent_ClassSubjectStudentIdAndGradeEvent_GradeEventId(
+//                                    css.getClassSubjectStudentId(), gradeEvent.getGradeEventId())
+//                            .orElse(null);
+//
+//                    if (studentGrade != null) {
+//                        response.setStudentGradeId(studentGrade.getStudentGradeId());
+//                        response.setFileUrl(studentGrade.getFileUrl());
+//                        response.setSubmittedAt(studentGrade.getSubmittedAt());
+//                        response.setScore(studentGrade.getScore());
+//                        response.setIsPassed(studentGrade.getIsPassed());
+//                        response.setFeedback(studentGrade.getFeedback());
+//
+//                        if (studentGrade.getSubmittedAt() != null) {
+//                            LocalDateTime submittedAt = studentGrade.getSubmittedAt();
+//                            LocalDateTime deadline = gradeEvent.getEventDate().atTime(23, 59, 59);
+//                            if (!submittedAt.isAfter(deadline)) {
+//                                response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.ON_TIME);
+//                            } else {
+//                                response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.LATE);
+//                            }
+//                        } else {
+//                            response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.NOT_SUBMITTED);
+//                        }
+//                    } else {
+//                        response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.NOT_SUBMITTED);
+//                    }
+//                }
+//
+//                responses.add(response);
+//            }
+//
+//            return Response.success("Lấy bài tập theo classStudentId thành công", responses);
+//        } catch (Exception e) {
+//            logger.error("Lỗi khi lấy bài tập theo classStudentId: {}", e.getMessage(), e);
+//            return Response.failure("Không thể lấy danh sách bài tập: " + e.getMessage());
+//        }
+//    }
+
+    @Override
+    public Response<List<StudentAssignmentResponse>> getAssignmentsByClassStudentId(Long classStudentId) {
+        try {
+            ClassStudent classStudent = classStudentRepository.findById(classStudentId)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy lớp học phần."));
+
+            List<GradeEvent> gradeEvents = gradeEventRepository.findByClassStudent_ClassStudentId(classStudentId);
+            if (gradeEvents == null || gradeEvents.isEmpty()) {
+                return Response.success("Không có bài tập nào", new ArrayList<>());
+            }
+
+            TermClass termClass = classStudent.getTeachingScheduleRequest() != null
+                    ? classStudent.getTeachingScheduleRequest().getAssignment().getTermClass()
+                    : null;
+
+            List<StudentAssignmentResponse> responses = new ArrayList<>();
+
+            for (GradeEvent gradeEvent : gradeEvents) {
+                StudentAssignmentResponse response = new StudentAssignmentResponse();
+
+                response.setGradeEventId(gradeEvent.getGradeEventId());
+                response.setTitle(gradeEvent.getTitle());
+                response.setEventDate(gradeEvent.getEventDate());
+                response.setMaxScore(gradeEvent.getMaxScore());
+                response.setDescription(gradeEvent.getDescription());
+                response.setCreatedAt(gradeEvent.getCreatedAt());
+
+                response.setClassStudentId(classStudent.getClassStudentId());
+                response.setClassStudentStatus(classStudent.getStatus());
+                response.setClassStudentMaterials(classStudent.getMaterials());
+
+                if (termClass != null) {
+                    response.setTermclassId(termClass.getTermclassId());
+                    response.setClassname(termClass.getClassname());
+                    response.setSemester(termClass.getSemester());
+                    response.setSchoolyears(termClass.getSchoolyears());
+                }
+
+                Optional<ClassSubjectStudent> optionalCss = classSubjectStudentRepository
+                        .findByClassStudent_ClassStudentId(classStudentId)
+                        .stream().findFirst();
+
+                if (optionalCss.isPresent()) {
+                    ClassSubjectStudent css = optionalCss.get();
+                    StudentGrade studentGrade = studentGradeRepository
+                            .findByClassSubjectStudent_ClassSubjectStudentIdAndGradeEvent_GradeEventId(
+                                    css.getClassSubjectStudentId(), gradeEvent.getGradeEventId())
+                            .orElse(null);
+
+                    if (studentGrade != null) {
+                        response.setStudentGradeId(studentGrade.getStudentGradeId());
+                        response.setFileUrl(studentGrade.getFileUrl());
+                        response.setSubmittedAt(studentGrade.getSubmittedAt());
+                        response.setScore(studentGrade.getScore());
+                        response.setIsPassed(studentGrade.getIsPassed());
+                        response.setFeedback(studentGrade.getFeedback());
+
+                        if (studentGrade.getSubmittedAt() != null) {
+                            LocalDateTime submittedAt = studentGrade.getSubmittedAt();
+                            LocalDateTime deadline = gradeEvent.getEventDate().atTime(23, 59, 59);
+                            response.setSubmissionStatus(!submittedAt.isAfter(deadline)
+                                    ? StudentAssignmentResponse.SubmissionStatus.ON_TIME
+                                    : StudentAssignmentResponse.SubmissionStatus.LATE);
+                        } else {
+                            response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.NOT_SUBMITTED);
+                        }
+                    } else {
+                        response.setSubmissionStatus(StudentAssignmentResponse.SubmissionStatus.NOT_SUBMITTED);
+                    }
+                }
+
+                Optional<ExamSchedule> optionalSchedule = examScheduleRepository
+                        .findByClassStudent_ClassStudentIdAndGradeType_GradeTypeId(
+                                classStudentId,
+                                gradeEvent.getGradeType().getGradeTypeId()
+                        );
+
+                if (optionalSchedule.isPresent()) {
+                    ExamSchedule examSchedule = optionalSchedule.get();
+                    ExamScheduleResponseDTO examScheduleDTO = new ExamScheduleResponseDTO();
+                    examScheduleDTO.setExamScheduleId(examSchedule.getExamScheduleId());
+                    examScheduleDTO.setStartDate(examSchedule.getStartDate());
+                    examScheduleDTO.setEndDate(examSchedule.getEndDate());
+                    examScheduleDTO.setStartTime(examSchedule.getStartTime());
+                    examScheduleDTO.setEndTime(examSchedule.getEndTime());
+                    examScheduleDTO.setExamForm(examSchedule.getExamForm());
+                    if (examSchedule.getClassroom() != null) {
+                        examScheduleDTO.setClassroomName(examSchedule.getClassroom().getClassroomName());
+                    }
+                    response.setExamSchedule(examScheduleDTO);
+                }
+
+                GradeType gradeType = gradeEvent.getGradeType();
+                if (gradeType != null) {
+                    GradeTypeResponseDTO gradeTypeDTO = new GradeTypeResponseDTO();
+                    gradeTypeDTO.setGradeTypeId(gradeType.getGradeTypeId());
+                    gradeTypeDTO.setCode(gradeType.getCode());
+                    gradeTypeDTO.setName(gradeType.getName());
+                    gradeTypeDTO.setCoefficient(gradeType.getCoefficient());
+                    response.setGradeType(gradeTypeDTO);
+                }
+
+                responses.add(response);
+            }
+
+            return Response.success("Lấy bài tập theo classStudentId thành công", responses);
+        } catch (Exception e) {
+            logger.error("Lỗi khi lấy bài tập theo classStudentId: {}", e.getMessage(), e);
+            return Response.failure("Không thể lấy danh sách bài tập: " + e.getMessage());
+        }
+    }
+
+
 }

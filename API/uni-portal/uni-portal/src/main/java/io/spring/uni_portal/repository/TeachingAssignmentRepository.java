@@ -22,9 +22,7 @@ public interface TeachingAssignmentRepository extends JpaRepository<TeachingAssi
 
     TeachingAssignment findByTermClassAndAssignmentType(TermClass termClass, TeachingAssignment.AssignmentType assignmentType);
 
-//    Page<TeachingAssignment> findAllBySearchValue(String searchValue, Pageable pageable);
 
-//    Page<TeachingAssignment> findByLecturerUserUserIdAndSearchValue(Long userId, String searchValue, Pageable pageable);
 @Query("SELECT t FROM TeachingAssignment t " +
         "JOIN t.termClass termClass " +
         "JOIN t.subject subject " +
@@ -40,4 +38,38 @@ Page<TeachingAssignment> findAllBySearchValue(@Param("searchValue") String searc
             Pageable pageable);
 
     Optional<TeachingAssignment> findByTermClass_TermclassId(Long termclassId);
+
+
+    @Query("""
+    SELECT t FROM TeachingAssignment t
+    JOIN t.termClass termClass
+    JOIN t.subject subject
+    WHERE (:searchValue IS NULL OR termClass.classname LIKE %:searchValue% OR subject.subjectName LIKE %:searchValue%)
+      AND (:semester IS NULL OR termClass.semester = :semester)
+      AND (:schoolyear IS NULL OR termClass.schoolyears = :schoolyear)
+""")
+    Page<TeachingAssignment> findAllWithFilters(
+            @Param("searchValue") String searchValue,
+            @Param("semester") String semester,
+            @Param("schoolyear") String schoolyear,
+            Pageable pageable
+    );
+
+    @Query("""
+    SELECT t FROM TeachingAssignment t
+    JOIN t.termClass termClass
+    JOIN t.subject subject
+    WHERE t.lecturer.user.userId = :userId
+      AND (:searchValue IS NULL OR subject.subjectName LIKE %:searchValue% OR termClass.classname LIKE %:searchValue%)
+      AND (:semester IS NULL OR termClass.semester = :semester)
+      AND (:schoolyear IS NULL OR termClass.schoolyears = :schoolyear)
+""")
+    Page<TeachingAssignment> findByLecturerUserUserIdWithFilters(
+            @Param("userId") Long userId,
+            @Param("searchValue") String searchValue,
+            @Param("semester") String semester,
+            @Param("schoolyear") String schoolyear,
+            Pageable pageable
+    );
+
 }

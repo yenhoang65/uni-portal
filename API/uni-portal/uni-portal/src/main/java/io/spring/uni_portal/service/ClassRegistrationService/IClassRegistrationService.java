@@ -4,7 +4,9 @@ import io.spring.uni_portal.dto.ClassSubjectStudent.ClassSubjectStudentDTO;
 import io.spring.uni_portal.dto.ClassSubjectStudent.RegisterClassRequestDTO;
 import io.spring.uni_portal.dto.ClassSubjectStudent.RegisteredClassDTO;
 import io.spring.uni_portal.dto.ClassSubjectStudent.UnregisterClassRequestDTO;
+import io.spring.uni_portal.dto.Registration.RegistrationFullDTO;
 import io.spring.uni_portal.model.ClassSubjectStudent;
+import io.spring.uni_portal.response.Response;
 
 import java.util.List;
 
@@ -17,6 +19,8 @@ public interface IClassRegistrationService {
     void unregisterStudentFromClass(UnregisterClassRequestDTO dto);
 
     void finalizeRegistrationPeriod(Long periodId);
+
+    Response<List<RegistrationFullDTO>> getMyRegisteredClasses();
 
 
 }

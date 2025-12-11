@@ -27,7 +27,6 @@ public class TeachingScheduleRequest {
     private LocalDateTime startDate;
 
 
-
     @Column(name = "end_date")
     private LocalDateTime endDate;
 

@@ -3,13 +3,11 @@ package io.spring.uni_portal.controller;
 import io.spring.uni_portal.dto.TeachingAssignment.TeachingAssignmentDetails;
 import io.spring.uni_portal.dto.TeachingAssignment.TeachingAssignmentDetailsResponse;
 import io.spring.uni_portal.dto.TeachingAssignment.TeachingAssignmentResponseDTO;
-import io.spring.uni_portal.dto.TeachingScheduleRequest.TeachingScheduleDetailResponseDTO;
-import io.spring.uni_portal.dto.TeachingScheduleRequest.TeachingScheduleRequestDTO;
-import io.spring.uni_portal.dto.TeachingScheduleRequest.TeachingScheduleRequestResponseDTO;
-import io.spring.uni_portal.dto.TeachingScheduleRequest.TeachingScheduleWithAssignmentResponseDTO;
+import io.spring.uni_portal.dto.TeachingScheduleRequest.*;
 import io.spring.uni_portal.model.TeachingScheduleRequest;
 import io.spring.uni_portal.model.User;
 import io.spring.uni_portal.response.Response;
+import io.spring.uni_portal.service.ClassStudentService.IClassStudentService;
 import io.spring.uni_portal.service.TeachingAssignmentService.ITeachingAssignmentService;
 import io.spring.uni_portal.service.TeachingScheduleRequestService.ITeachingScheduleRequestService;
 import io.spring.uni_portal.service.TeachingScheduleRequestService.TeachingScheduleRequestService;
@@ -33,9 +31,11 @@ import java.util.Map;
 public class TeachingScheduleController {
 
     private final TeachingScheduleRequestService teachingScheduleRequestService;
+    private final IClassStudentService classStudentService;
 
-    public TeachingScheduleController(TeachingScheduleRequestService teachingScheduleRequestService) {
+    public TeachingScheduleController(TeachingScheduleRequestService teachingScheduleRequestService, IClassStudentService classStudentService) {
         this.teachingScheduleRequestService = teachingScheduleRequestService;
+        this.classStudentService = classStudentService;
     }
 
     @PostMapping("/register")
@@ -96,7 +96,7 @@ public class TeachingScheduleController {
         return Response.success("Lịch giảng dạy theo trạng thái", page);
     }
 
-    @GetMapping("/status-success")
+    @GetMapping("/status-success1")
     public Response<List<TeachingScheduleDetailResponseDTO>> getSchedulesBySuccessStatus() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
@@ -106,30 +106,27 @@ public class TeachingScheduleController {
 
         return Response.success("Lịch giảng dạy trạng thái success", schedules);
     }
+    @GetMapping("/status-success")
+    public Response<List<TeachingScheduleDetailResponseDTO>> getSuccessClasses() {
+        UsernamePasswordAuthenticationToken authentication =
+                (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+
+        User currentUser = (User) authentication.getPrincipal();
+
+        List<TeachingScheduleDetailResponseDTO> classes =
+                classStudentService.getSuccessClassesByLecturer(currentUser.getUserId());
+
+        return Response.success("Danh sách lớp giảng viên đăng ký thành công", classes);
+    }
+
+
+    @GetMapping("/filter-by-status")
+    public ResponseEntity<Response<List<TeachingScheduleStatusResponseDTO>>> filterByStatus(
+            @RequestParam List<String> statuses) {
+        List<TeachingScheduleStatusResponseDTO> result = teachingScheduleRequestService.filterByStatuses(statuses);
+        return ResponseEntity.ok(Response.success("Lịch giảng dạy theo status", result));
+    }
 
 
 
-
-//    @GetMapping("/registered-success")
-//    public Response<List<TeachingScheduleDetailResponseDTO>> getSuccessfulClassRegistrations() {
-//
-//        UsernamePasswordAuthenticationToken authentication =
-//                (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-//        User currentUser = (User) authentication.getPrincipal();
-//
-//        List<TeachingScheduleDetailResponseDTO> list =
-//                classStudentService.getTeachingSchedulesByStatus(currentUser.getUserId(), "success");
-//
-//        return Response.success("Danh sách lớp đã đăng ký thành công", list);
-//    }
-
-
-
-
-//    @PutMapping("/{scheduleId}")
-//    public TeachingScheduleRequestResponseDTO updateTeachingSchedule(
-//            @PathVariable Long scheduleId,
-//            @RequestBody TeachingScheduleRequestDTO dto) {
-//        return teachingScheduleRequestService.updateTeachingSchedule(scheduleId, dto);
-//    }
 }

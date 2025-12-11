@@ -1,7 +1,9 @@
 package io.spring.uni_portal.repository;
 
+import io.spring.uni_portal.dto.Attendance.AttendanceDTO;
 import io.spring.uni_portal.dto.Attendance.SessionViewDTO;
 import io.spring.uni_portal.model.Attendance;
+import io.spring.uni_portal.model.AttendanceSession;
 import io.spring.uni_portal.response.Response;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -15,5 +17,9 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     List<Attendance> findByClassSubjectStudent_ClassSubjectStudentId(Long classSubjectStudentId);
 
+    List<Attendance> findByAttendanceSession_SessionId(Long sessionId);
 
+
+    List<Attendance> findByClassSubjectStudent_ClassSubjectStudentIdAndAttendanceSession_In(
+            Long classSubjectStudentId, List<AttendanceSession> sessions);
 }

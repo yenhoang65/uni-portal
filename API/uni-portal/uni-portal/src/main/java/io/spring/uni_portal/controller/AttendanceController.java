@@ -1,9 +1,13 @@
 package io.spring.uni_portal.controller;
 
 import io.spring.uni_portal.dto.Attendance.*;
+import io.spring.uni_portal.model.User;
 import io.spring.uni_portal.response.Response;
 import io.spring.uni_portal.service.AttendanceService.IAttendanceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +23,11 @@ public class AttendanceController {
     @PostMapping("/mark")
     public Response<String> markAttendance(@RequestBody AttendanceRequestDTO dto) {
         return attendanceService.markAttendance(dto);
+    }
+// update diem danh
+    @PutMapping("/update/{attendanceId}")
+    public Response<String> updateAttendance(@PathVariable Long attendanceId, @RequestBody AttendanceRequestDTO dto) {
+        return attendanceService.updateAttendance(attendanceId, dto);
     }
 
     @GetMapping("/by-class-subject-student/{classSubjectStudentId}")
@@ -52,4 +61,15 @@ public class AttendanceController {
     }
 
 
+    @GetMapping("/get-by-session/{sessionId}")
+    public Response<List<AttendanceResponseDTO>> getAttendanceBySession(@PathVariable Long sessionId) {
+        return attendanceService.getAttendanceBySession(sessionId);
+    }
+
+    @GetMapping("/class-student/{classStudentId}")
+    public ResponseEntity<Response<List<AttendanceViewDTO>>> getAttendanceByClassStudent(
+            @PathVariable Long classStudentId) {
+        Response<List<AttendanceViewDTO>> response = attendanceService.getAttendanceByClassStudent(classStudentId);
+        return ResponseEntity.ok(response);
+    }
 }

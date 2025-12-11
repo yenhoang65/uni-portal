@@ -1,5 +1,7 @@
 package io.spring.uni_portal.repository;
 
+import io.spring.uni_portal.dto.GradeEvent.StudentAssignmentDTO;
+import io.spring.uni_portal.dto.GradeEvent.StudentAssignmentResponseDTO;
 import io.spring.uni_portal.model.GradeEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -34,4 +36,12 @@ public interface GradeEventRepository extends JpaRepository<GradeEvent, Long> {
 
     Optional<GradeEvent> findById(Long id);
     List<GradeEvent> findByClassStudent_ClassStudentId(Long classStudentId);
+
+
+
+    @Query("SELECT ge FROM GradeEvent ge WHERE ge.classStudent.classStudentId = :classStudentId")
+    List<GradeEvent> findGradeEventsByClassStudentId(@Param("classStudentId") Long classStudentId);
+
+
+
 }

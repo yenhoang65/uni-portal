@@ -1,5 +1,7 @@
 package io.spring.uni_portal.dto.GradeEvent;
 
+import io.spring.uni_portal.dto.ExamSchedule.ExamScheduleResponse;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -11,7 +13,8 @@ public class GradeEventResponseDto {
     private String schoolYear;
     private List<AssignmentDto> assignments;
 
-    // Constructor
+    public GradeEventResponseDto() {}
+
     public GradeEventResponseDto(Long termClassId, String className, String semester, String schoolYear, List<AssignmentDto> assignments) {
         this.termClassId = termClassId;
         this.className = className;
@@ -20,24 +23,29 @@ public class GradeEventResponseDto {
         this.assignments = assignments;
     }
 
-    // Nested DTO for assignments
+    // ========== Nested DTO for Assignment ==========
     public static class AssignmentDto {
         private Long gradeEventId;
         private String title;
         private LocalDate eventDate;
         private Double maxScore;
         private String description;
+        private GradeTypeEventDTO gradeType;
+        private ExamScheduleResponse examSchedule;
 
-        // Constructor
-        public AssignmentDto(Long gradeEventId, String title, LocalDate eventDate, Double maxScore, String description) {
+
+        public AssignmentDto() {}
+
+        public AssignmentDto(Long gradeEventId, String title, LocalDate eventDate, Double maxScore, String description, GradeTypeEventDTO gradeType, ExamScheduleResponse examSchedule) {
             this.gradeEventId = gradeEventId;
             this.title = title;
             this.eventDate = eventDate;
             this.maxScore = maxScore;
             this.description = description;
+            this.gradeType = gradeType;
+            this.examSchedule = examSchedule;
         }
 
-        // Getters and Setters
         public Long getGradeEventId() {
             return gradeEventId;
         }
@@ -77,9 +85,73 @@ public class GradeEventResponseDto {
         public void setDescription(String description) {
             this.description = description;
         }
+
+        public GradeTypeEventDTO getGradeType() {
+            return gradeType;
+        }
+
+        public void setGradeType(GradeTypeEventDTO gradeType) {
+            this.gradeType = gradeType;
+        }
+        public ExamScheduleResponse getExamSchedule() {
+            return examSchedule;
+        }
+
+        public void setExamSchedule(ExamScheduleResponse examSchedule) {
+            this.examSchedule = examSchedule;
+        }
     }
 
-    // Getters and Setters
+    // ========== Nested DTO for Grade Type ==========
+    public static class GradeTypeEventDTO {
+        private Long id;
+        private String code;
+        private String name;
+        private Double coefficient;
+
+        public GradeTypeEventDTO() {}
+
+        public GradeTypeEventDTO(Long id, String code, String name, Double coefficient) {
+            this.id = id;
+            this.code = code;
+            this.name = name;
+            this.coefficient = coefficient;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Double getCoefficient() {
+            return coefficient;
+        }
+
+        public void setCoefficient(Double coefficient) {
+            this.coefficient = coefficient;
+        }
+    }
+
+    // ========== Getters & Setters ==========
     public Long getTermClassId() {
         return termClassId;
     }

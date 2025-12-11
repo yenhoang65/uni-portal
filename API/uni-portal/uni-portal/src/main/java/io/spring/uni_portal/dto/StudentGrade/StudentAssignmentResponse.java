@@ -1,5 +1,8 @@
 package io.spring.uni_portal.dto.StudentGrade;
 
+import io.spring.uni_portal.dto.ExamSchedule.ExamScheduleResponseDTO;
+import io.spring.uni_portal.dto.GradeType.GradeTypeResponseDTO;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -24,6 +27,8 @@ public class StudentAssignmentResponse {
     private Boolean isPassed;
     private String feedback;
     private SubmissionStatus submissionStatus;
+    private ExamScheduleResponseDTO examSchedule;
+    private GradeTypeResponseDTO gradeType;
 
     public enum SubmissionStatus {
         ON_TIME, LATE, NOT_SUBMITTED
@@ -188,5 +193,23 @@ public class StudentAssignmentResponse {
 
     public void setSubmissionStatus(SubmissionStatus submissionStatus) {
         this.submissionStatus = submissionStatus;
+    }
+
+    // Getter
+    public ExamScheduleResponseDTO getExamSchedule() {
+        return examSchedule;
+    }
+
+    // Setter
+    public void setExamSchedule(ExamScheduleResponseDTO examSchedule) {
+        this.examSchedule = examSchedule;
+    }
+
+    public GradeTypeResponseDTO getGradeType() {
+        return gradeType;
+    }
+
+    public void setGradeType(GradeTypeResponseDTO gradeType) {
+        this.gradeType = gradeType;
     }
 }

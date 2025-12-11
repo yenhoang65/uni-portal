@@ -1,9 +1,7 @@
 package io.spring.uni_portal.controller;
 
-import io.spring.uni_portal.dto.ClassStudent.ClassStudentDTO;
-import io.spring.uni_portal.dto.ClassStudent.ClassStudentRequestDTO;
-import io.spring.uni_portal.dto.ClassStudent.ClassStudentResponse;
-import io.spring.uni_portal.dto.ClassStudent.OpenedClassFullDTO;
+import io.spring.uni_portal.dto.ClassStudent.*;
+import io.spring.uni_portal.dto.ClassSubjectStudent.ClassStudentSubjectClassDTO;
 import io.spring.uni_portal.response.Response;
 import io.spring.uni_portal.service.ClassStudentService.ClassStudentServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +36,22 @@ public class ClassStudentController {
         return ResponseEntity.ok(Response.success("Danh sách ClassStudent phân trang", result));
     }
 
+//    @GetMapping("/opened-classes/{subjectId}")
+//    public ResponseEntity<Response<List<OpenedClassFullDTO>>> getOpenedClassesBySubject(@PathVariable Long subjectId) {
+//        List<OpenedClassFullDTO> openedClasses = classStudentService.getOpenedClassesBySubject(subjectId);
+//        return ResponseEntity.ok(Response.success("Danh sách lớp học đang mở của môn học", openedClasses));
+//    }
+
     @GetMapping("/opened-classes/{subjectId}")
-    public ResponseEntity<Response<List<OpenedClassFullDTO>>> getOpenedClassesBySubject(@PathVariable Long subjectId) {
-        List<OpenedClassFullDTO> openedClasses = classStudentService.getOpenedClassesBySubject(subjectId);
+    public ResponseEntity<Response<List<OpenedClassFullDTO>>> getOpenedClassesBySubject(
+            @PathVariable Long subjectId,
+            @RequestParam(required = false) String semester,
+            @RequestParam(required = false) String schoolyear
+    ) {
+        List<OpenedClassFullDTO> openedClasses = classStudentService.getOpenedClassesBySubject(subjectId, semester, schoolyear);
         return ResponseEntity.ok(Response.success("Danh sách lớp học đang mở của môn học", openedClasses));
     }
+
 
 
     @GetMapping("/students/{classStudentId}")
@@ -52,9 +61,39 @@ public class ClassStudentController {
         return ResponseEntity.ok(response);
     }
 
+//    @GetMapping("/successful")
+//    public ResponseEntity<List<ClassStudentRequestDTO>> getAllSuccessfulClasses() {
+//        List<ClassStudentRequestDTO> classes = classStudentService.getAllSuccessfulClasses();
+//        return ResponseEntity.ok(classes);
+//    }
+
     @GetMapping("/successful")
-    public ResponseEntity<List<ClassStudentRequestDTO>> getAllSuccessfulClasses() {
-        List<ClassStudentRequestDTO> classes = classStudentService.getAllSuccessfulClasses();
+    public ResponseEntity<List<ClassStudentRequestDTO>> getAllSuccessfulClasses(
+            @RequestParam(required = false) String semester,
+            @RequestParam(required = false) String schoolyear
+    ) {
+        List<ClassStudentRequestDTO> classes = classStudentService.getAllSuccessfulClasses(semester, schoolyear);
         return ResponseEntity.ok(classes);
     }
+
+
+    @GetMapping("/success-classes-subject")
+    public ResponseEntity<Response<List<SuccessfulClassWithSubjectDTO>>> getAllSuccessClassesWithSubject() {
+        Response<List<SuccessfulClassWithSubjectDTO>> response = classStudentService.getAllSuccessClassWithSubject();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/opened-classes")
+    public ResponseEntity<Response<List<OpenedClassResponseDTO>>> getOpenedClassesForCurrentStudent(
+            @RequestParam(required = false) String semester,
+            @RequestParam(required = false) String schoolYear
+    ) {
+        Response<List<OpenedClassResponseDTO>> response =
+                classStudentService.getOpenedClassForCurrentStudent(semester, schoolYear);
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
 }

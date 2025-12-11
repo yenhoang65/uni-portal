@@ -2,9 +2,11 @@ package io.spring.uni_portal.service.StudentRegistrationPeriodService;
 
 
 import io.spring.uni_portal.Job.FinalizeRegistrationJob;
+import io.spring.uni_portal.SendEmail.IEmailService;
 import io.spring.uni_portal.dto.StudentRegistrationPeriod.StudentRegistrationPeriodDTO;
 import io.spring.uni_portal.model.StudentRegistrationPeriod;
 import io.spring.uni_portal.repository.StudentRegistrationPeriodRepository;
+import io.spring.uni_portal.service.UserService.IUserService;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,13 @@ public class StudentRegistrationPeriodService implements IStudentRegistrationPer
 
     @Autowired
     private Scheduler quartzScheduler;
+
+    @Autowired
+    private IUserService userService;
+
+    @Autowired
+    private IEmailService emailService;
+
 
     @Override
     public List<StudentRegistrationPeriod> getAll() {
@@ -41,17 +50,6 @@ public class StudentRegistrationPeriodService implements IStudentRegistrationPer
     }
 
 
-//    @Override
-//    public StudentRegistrationPeriod create(StudentRegistrationPeriodDTO dto) {
-//        StudentRegistrationPeriod p = new StudentRegistrationPeriod();
-//        p.setSchoolYear(dto.getSchoolYear());
-//        p.setSemester(dto.getSemester());
-//        p.setStartDate(dto.getStartDate());
-//        p.setEndDate(dto.getEndDate());
-//        p.setStatus(dto.getStatus());
-//        return repo.save(p);
-//    }
-
     @Override
     public StudentRegistrationPeriod create(StudentRegistrationPeriodDTO dto) {
         StudentRegistrationPeriod p = new StudentRegistrationPeriod();
@@ -63,10 +61,41 @@ public class StudentRegistrationPeriodService implements IStudentRegistrationPer
 
         StudentRegistrationPeriod saved = repo.save(p);
 
+        sendNotificationToStudents(saved);
+
         scheduleFinalizeJob(saved.getId(), saved.getEndDate());
 
         return saved;
     }
+
+
+    private void sendNotificationToStudents(StudentRegistrationPeriod period) {
+        List<String> studentEmails = userService.getAllStudentEmails();
+
+        if (studentEmails.isEmpty()) return;
+
+        String subject = "Thông báo mở đăng ký học phần";
+        String content = String.format("""
+        Kính gửi sinh viên,
+
+        - Năm học: %d
+        - Học kỳ: %d
+        - Thời gian: từ %s đến %s
+
+        Vui lòng truy cập hệ thống để đăng ký đúng thời gian quy định.
+
+        Trân trọng,
+        Hệ thống UniPortal
+        """,
+                period.getSchoolYear(),
+                period.getSemester(),
+                period.getStartDate(),
+                period.getEndDate()
+        );
+
+        emailService.sendEmail(studentEmails, subject, content);
+    }
+
 
 
 

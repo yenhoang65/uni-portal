@@ -11,4 +11,11 @@ public interface IStudentGradeService {
 
     Response<List<StudentSubmissionStatusResponse>> getSubmissionStatus(Long classStudentId, Long gradeEventId);
     Response<List<StudentAssignmentResponse>> getAssignmentsByStudent();
+
+    Response<List<BatchGradeResponse>> gradeMultipleSubmissions(List<BatchGradeRequest.StudentGradeEntry> requests);
+
+    Response<List<StudentGradeOfflineResponse>> gradeOfflineSubmissionBatch(List<GradeOfflineRequest> requests);
+
+    Response<List<StudentAssignmentResponse>> getAssignmentsByClassStudentId(Long classStudentId);
+
 }

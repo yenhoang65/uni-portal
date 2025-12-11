@@ -1,12 +1,11 @@
 package io.spring.uni_portal.service.GradeEventService;
 
-import io.spring.uni_portal.dto.GradeEvent.GradeEventRequest;
-import io.spring.uni_portal.dto.GradeEvent.GradeEventResponse;
-import io.spring.uni_portal.dto.GradeEvent.GradeEventResponseDto;
+import io.spring.uni_portal.dto.ClassStudent.ClassStudentDTO;
+import io.spring.uni_portal.dto.ExamSchedule.ExamScheduleResponse;
+import io.spring.uni_portal.dto.GradeEvent.*;
+import io.spring.uni_portal.dto.TeachingScheduleRequest.TeachingScheduleRequestDTO;
 import io.spring.uni_portal.model.*;
-import io.spring.uni_portal.repository.GradeEventRepository;
-import io.spring.uni_portal.repository.GradeTypeRepository;
-import io.spring.uni_portal.repository.LecturerRepository;
+import io.spring.uni_portal.repository.*;
 import io.spring.uni_portal.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class GradeEventServiceImpl implements IGradeEventService {
@@ -29,7 +29,13 @@ public class GradeEventServiceImpl implements IGradeEventService {
     private GradeTypeRepository gradeTypeRepository;
 
     @Autowired
+    private ClassStudentRepository classStudentRepository;
+
+    @Autowired
     private LecturerRepository lecturerRepository;
+
+    @Autowired
+    private ExamScheduleRepository examScheduleRepository;
 
     @Override
     public Response<GradeEventResponse> createMidtermGradeEvent(GradeEventRequest request) {
@@ -55,7 +61,6 @@ public class GradeEventServiceImpl implements IGradeEventService {
 
             ClassStudent classStudent = new ClassStudent();
             classStudent.setClassStudentId(request.getClassStudentId());
-
             GradeEvent gradeEvent = new GradeEvent();
             gradeEvent.setClassStudent(classStudent);
             gradeEvent.setGradeType(gradeType);
@@ -89,32 +94,71 @@ public class GradeEventServiceImpl implements IGradeEventService {
         this.gradeEventRepository = gradeEventRepository;
     }
 
+//    @Override
+//    public List<GradeEventResponseDto> getGradeEventsByClass(Long classStudentId) {
+//
+//        List<GradeEvent> gradeEvents = gradeEventRepository.findGradeEventsByClassStudentId(classStudentId);
+//        Map<Long, GradeEventResponseDto> classMap = new HashMap<>();
+//
+//        for (GradeEvent gradeEvent : gradeEvents) {
+//            // Lấy TermClass từ ClassStudent.teachingScheduleRequest.termClass
+//            Long termClassId = gradeEvent.getClassStudent().getTeachingScheduleRequest().getAssignment().getTermClass().getTermclassId();
+//            TermClass termClass = gradeEvent.getClassStudent().getTeachingScheduleRequest().getAssignment().getTermClass();
+//
+//            GradeEventResponseDto responseDto = classMap.computeIfAbsent(
+//                    termClassId,
+//                    k -> new GradeEventResponseDto(
+//                            termClassId,
+//                            termClass.getClassname(),
+//                            termClass.getSemester(),
+//                            termClass.getSchoolyears(),
+//                            new ArrayList<>()
+//                    )
+//            );
+//
+//            GradeEventResponseDto.AssignmentDto assignmentDto = new GradeEventResponseDto.AssignmentDto(
+//                    gradeEvent.getGradeEventId(),
+//                    gradeEvent.getTitle(),
+//                    gradeEvent.getEventDate(),
+//                    gradeEvent.getMaxScore(),
+//                    gradeEvent.getDescription()
+//            );
+//
+//            responseDto.getAssignments().add(assignmentDto);
+//        }
+//
+//        return new ArrayList<>(classMap.values());
+//    }
+
     @Override
-    public List<GradeEventResponseDto> getGradeEventsByClass() {
+    public List<GradeEventResponseDto> getGradeEventsByClass(Long classStudentId) {
+        List<GradeEvent> gradeEvents = gradeEventRepository.findGradeEventsByClassStudentId(classStudentId);
 
-        // Xác thực người dùng
-        UsernamePasswordAuthenticationToken authentication =
-                (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
-            throw new RuntimeException("Người dùng chưa xác thực hoặc token không hợp lệ.");
-        }
+        Map<Long, GradeEventResponseDto.GradeTypeEventDTO> gradeTypeMap = gradeTypeRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(
+                        GradeType::getGradeTypeId,
+                        gt -> new GradeEventResponseDto.GradeTypeEventDTO(
+                                gt.getGradeTypeId(),
+                                gt.getCode(),
+                                gt.getName(),
+                                gt.getCoefficient()
+                        )
+                ));
 
-        User currentUser = (User) authentication.getPrincipal();
-        Lecturer lecturer = lecturerRepository.findById(currentUser.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sinh viên."));
-
-
-        List<Object[]> results = gradeEventRepository.findGradeEventsWithTermClass();
         Map<Long, GradeEventResponseDto> classMap = new HashMap<>();
 
-        for (Object[] result : results) {
-            GradeEvent gradeEvent = (GradeEvent) result[0];
-            TermClass termClass = (TermClass) result[1];
+        for (GradeEvent gradeEvent : gradeEvents) {
+            TermClass termClass = gradeEvent.getClassStudent()
+                    .getTeachingScheduleRequest()
+                    .getAssignment()
+                    .getTermClass();
+            Long termClassId = termClass.getTermclassId();
 
             GradeEventResponseDto responseDto = classMap.computeIfAbsent(
-                    termClass.getTermclassId(),
-                    k -> new GradeEventResponseDto(
-                            termClass.getTermclassId(),
+                    termClassId,
+                    id -> new GradeEventResponseDto(
+                            termClassId,
                             termClass.getClassname(),
                             termClass.getSemester(),
                             termClass.getSchoolyears(),
@@ -122,12 +166,39 @@ public class GradeEventServiceImpl implements IGradeEventService {
                     )
             );
 
+            GradeType gradeType = gradeEvent.getGradeType();
+            GradeEventResponseDto.GradeTypeEventDTO gradeTypeDto = gradeTypeMap.getOrDefault(
+                    gradeType != null ? gradeType.getGradeTypeId() : null, null
+            );
+
+            // Gán examSchedule (nếu có)
+            ExamScheduleResponse examScheduleDto = null;
+            if (gradeType != null) {
+                ExamSchedule examSchedule = examScheduleRepository
+                        .findByClassStudentIdAndGradeTypeId(classStudentId, gradeType.getGradeTypeId());
+
+                if (examSchedule != null) {
+                    examScheduleDto = new ExamScheduleResponse();
+                    examScheduleDto.setExamScheduleId(examSchedule.getExamScheduleId());
+                    examScheduleDto.setClassStudentId(classStudentId);
+                    examScheduleDto.setClassroomId(examSchedule.getClassroom().getClassroomId());
+                    examScheduleDto.setStartDate(examSchedule.getStartDate());
+                    examScheduleDto.setEndDate(examSchedule.getEndDate());
+                    examScheduleDto.setStartTime(examSchedule.getStartTime());
+                    examScheduleDto.setEndTime(examSchedule.getEndTime());
+                    examScheduleDto.setExamForm(examSchedule.getExamForm());
+                    examScheduleDto.setGradeTypeId(gradeType.getGradeTypeId());
+                }
+            }
+
             GradeEventResponseDto.AssignmentDto assignmentDto = new GradeEventResponseDto.AssignmentDto(
                     gradeEvent.getGradeEventId(),
                     gradeEvent.getTitle(),
                     gradeEvent.getEventDate(),
                     gradeEvent.getMaxScore(),
-                    gradeEvent.getDescription()
+                    gradeEvent.getDescription(),
+                    gradeTypeDto,
+                    examScheduleDto
             );
 
             responseDto.getAssignments().add(assignmentDto);
@@ -135,6 +206,10 @@ public class GradeEventServiceImpl implements IGradeEventService {
 
         return new ArrayList<>(classMap.values());
     }
+
+
+
+
 
 
     @Override
@@ -226,6 +301,7 @@ public class GradeEventServiceImpl implements IGradeEventService {
             return Response.failure("Không lấy được chi tiết bài tập: " + e.getMessage());
         }
     }
+
 
 
 }

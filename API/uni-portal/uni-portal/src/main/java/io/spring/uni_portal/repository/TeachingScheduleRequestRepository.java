@@ -1,5 +1,6 @@
 package io.spring.uni_portal.repository;
 
+import io.spring.uni_portal.dto.TeachingScheduleRequest.TeachingScheduleStatusResponseDTO;
 import io.spring.uni_portal.model.TeachingAssignment;
 import io.spring.uni_portal.model.TeachingScheduleRequest;
 import org.springframework.data.domain.Page;
@@ -83,6 +84,47 @@ public interface TeachingScheduleRequestRepository extends JpaRepository<Teachin
             @Param("startOfDay") LocalDateTime startOfDay,
             @Param("endOfDay") LocalDateTime endOfDay
     );
+
+
+    @Query("""
+    SELECT tsr FROM TeachingScheduleRequest tsr
+    WHERE tsr.classroom.classroomId = :classroomId
+    AND FUNCTION('DATE', tsr.dateTime) = :date
+""")
+    List<TeachingScheduleRequest> findByClassroomAndDate(@Param("classroomId") Long classroomId,
+                                                         @Param("date") LocalDate date);
+
+
+    @Query("""
+    SELECT new io.spring.uni_portal.dto.TeachingScheduleRequest.TeachingScheduleStatusResponseDTO(
+        tsr.scheduleId,
+        tsr.status,
+        tsr.lesson,
+        tsr.dateTime,
+        a.assignmentId,
+        new io.spring.uni_portal.dto.Subject.SubjectDTO(
+            s.subjectId,
+            s.subjectName,
+            s.ltCredits,
+            s.thCredits,
+            s.subjectDescription,
+            s.subjectCoefficient
+        ),
+        l.userId,
+        u.userName,
+        tc.termclassId,
+        tc.classname
+    )
+    FROM TeachingScheduleRequest tsr
+    JOIN tsr.assignment a
+    JOIN a.subject s
+    JOIN a.lecturer l
+    JOIN l.user u
+    JOIN a.termClass tc
+    WHERE tsr.status IN :statuses
+""")
+    List<TeachingScheduleStatusResponseDTO> findByStatusesWithFullInfo(@Param("statuses") List<String> statuses);
+
 
 
 }

@@ -22,6 +22,35 @@ public class GlobalExceptionHandler {
                 .body(Response.failure(ex.getMessage()));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Response<Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(Response.failure(ex.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Response<Object>> handleIllegalState(IllegalStateException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(Response.failure(ex.getMessage()));
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Response<Object>> handleRuntime(RuntimeException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Response.failure(ex.getMessage()));
+    }
+
+    @ExceptionHandler(OurException.class)
+    public ResponseEntity<Response<Object>> handleOurException(OurException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Response.failure(ex.getMessage()));
+    }
+
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Response<Object>> handleGeneral(Exception ex) {
         ex.printStackTrace();
